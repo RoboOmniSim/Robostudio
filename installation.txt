@@ -1,0 +1,15 @@
+need to add root path for ros
+
+
+depth-anything
+
+
+
+ptlflow need the timm ==0.9.6
+
+
+backward need pypose
+
+
+
+usd need the update path and python path in nano ~/.bashrc
