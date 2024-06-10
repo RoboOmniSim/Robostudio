@@ -1271,7 +1271,10 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         static_path=self.static_path
 
         if experiment_type=='novelpose':
+            
+            center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
 
+            scale_factor=np.array([1,1.25,1.65]) # x,y,z
 
             simulation_timestamp=0
             add_simulation=False
@@ -1284,6 +1287,11 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         elif experiment_type=='push_bag':
             
 
+
+            center_vector=np.array([-0.25,0.145,-0.71]) #with base group1_bbox_fix push case
+
+            scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+
             simulation_timestamp=1.12
             add_simulation=True
             add_gripper=False
@@ -1293,7 +1301,8 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             add_grasp_control=False
             add_grasp_object=False
         elif experiment_type=='grasp':  # grasp data for the gripper only 
-
+            center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
+            scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
             add_simulation=False
             simulation_timestamp=0
             add_gripper=True
@@ -1303,6 +1312,11 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             add_grasp_control=True
             add_grasp_object=False
         elif experiment_type=='grasp_object':  # grasp data for the gripper and object
+
+
+            center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
+            # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
+            scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
 
             add_simulation=False
             simulation_timestamp=0
@@ -1316,6 +1330,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             print('experiment type not found')
             raise ValueError('experiment type not found')
 
+
         if add_gripper:
             
             # gripper_control,joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper=load_gripper_control(output_file,experiment_type,start_time=start_time,end_time=end_time_collision)
@@ -1325,7 +1340,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         else:
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # no gripper
         # Read the pre timestamp angle state from txt file
-        movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate)
+        movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate,scale_factor_pass=scale_factor,center_vector_pass=center_vector)
 
         if_deformable = True
 
@@ -1461,9 +1476,6 @@ Commands = tyro.conf.FlagConversionOff[
         Annotated[ExportMarchingCubesMesh, tyro.conf.subcommand(name="marching-cubes")],
         Annotated[ExportCameraPoses, tyro.conf.subcommand(name="cameras")],
         Annotated[ExportGaussianSplat, tyro.conf.subcommand(name="gaussian-splat")],
-
-        Annotated[ExportTSDFMesh_gs, tyro.conf.subcommand(name="robostudio-mesh")],
-
         Annotated[ExportGaussianSplat_mesh, tyro.conf.subcommand(name="gaussian-splat-mesh")],
         Annotated[ExportGaussianSplat_mesh_deform, tyro.conf.subcommand(name="gaussian-splat-deformmesh")],
         Annotated[ExportGaussianSplat_resampledmesh, tyro.conf.subcommand(name="gaussian-splat-resampledmesh")],

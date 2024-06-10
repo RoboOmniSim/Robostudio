@@ -10,7 +10,7 @@ import os
 
 
 
-from nerfstudio.robotic.utils import load_transformation_package, relative_tf_to_global,load_txt
+from nerfstudio.robotic.utils.utils import load_transformation_package, relative_tf_to_global,load_txt
 # 
 # test the movement with new pipeline, with each gs, we first recenter to the origin, then * k_rela_t to make it to the relative position, then *recenter_inv to make it back to original position  (add scale to the k_rela_t)
 

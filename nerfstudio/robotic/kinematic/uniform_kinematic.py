@@ -16,70 +16,8 @@ def load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=np
         scale_factor=np.zeros((3))
         scale_factor_pass=np.array(scale_factor_pass)
         center_vector_pass=np.array(center_vector_pass)
-        if name=="novelpose":
-            if center_vector_pass[0]==0:
-
-                center_vector_gt=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
-            else:
-                center_vector_gt=center_vector_pass
-            
-            if scale_factor_pass[0]==0:
-                
-                    
-
-                # this set works for the novel pose group
-                scale_factor[2]=1.65 # z
-                scale_factor[1]=1.25 # y 1.16
-                scale_factor[0]=1.00 # x
-
-            else:
-                scale_factor=scale_factor_pass
-
-        elif name=="push_bag":
-
-            if center_vector_pass[0]==0:
-
-                center_vector_gt=np.array([-0.25,0.145,-0.71]) #with base group1_bbox_fix push case
-            else:
-                center_vector_gt=center_vector_pass
-            if scale_factor_pass[0]==0:
-                # this set works for the bbox_fix group(push case)
-                scale_factor[2]=1.290 # z
-                scale_factor[1]=1.167 # y
-                scale_factor[0]=1.220 # x
-            else:
-                scale_factor=scale_factor_pass
-
-        elif name=="grasp_object":
-            if center_vector_pass[0]==0:
-
-                center_vector_gt=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static
-                # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
-
-                 
-            else:
-                center_vector_gt=center_vector_pass
-            if scale_factor_pass[0]==0:
-                # this set works for the bbox_fix group(push case)
-                scale_factor[2]=1.2615 # z
-                scale_factor[1]=1.35 # y
-                scale_factor[0]=1.220 # x
-            else:
-                scale_factor=scale_factor_pass
-
-        elif name=="grasp":
-            if center_vector_pass[0]==0:
-
-                center_vector_gt=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
-            else:
-                center_vector_gt=center_vector_pass
-            if scale_factor_pass[0]==0:
-                # this set works for the bbox_fix group(push case)
-                scale_factor[2]=1.18 # z
-                scale_factor[1]=1.15 # y
-                scale_factor[0]=1.1 # x
-            else:
-                scale_factor=scale_factor_pass
+        center_vector_gt=center_vector_pass
+        scale_factor=scale_factor_pass
 
         a = [0, 0, -0.427, -0.357, 0, 0]
 

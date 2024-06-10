@@ -1,19 +1,3 @@
-
-# from nerfstudio.robotic.utils import load_transformation_package, relative_tf_to_global,load_txt
-
-
-
-
-
-# if __name__ == '__main__':
-#     path = '/home/lou/gs/nerfstudio/Recenter_info.txt'
-#     info = load_txt(path)
-
-#     for key, value in info.items():
-#         print(f"{key}: {value}")
-
-
-
 import numpy as np
 from scipy.spatial import KDTree
 from scipy.interpolate import Rbf

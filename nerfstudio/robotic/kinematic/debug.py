@@ -1,5 +1,7 @@
 
-
+import numpy as np
+import os
+import trimesh
 
 def compute_recenter_vector(joint_0_bbox):
     """

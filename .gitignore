@@ -196,7 +196,7 @@ camera_paths/
 */**/.DS_Store
 */**/._.DS_Store
 
-
+dataset/*
 
 
 # nerfstudio/models/*
