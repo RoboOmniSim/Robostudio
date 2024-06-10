@@ -1078,6 +1078,7 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
+            time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
         elif experiment_type=='push_bag':
             
 
@@ -1094,6 +1095,7 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
+            time_list=np.linspace(100, 160, 60).astype(int) # push_bag
         elif experiment_type=='grasp':  # grasp data for the gripper only 
             center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
             scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
@@ -1105,6 +1107,7 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=True
             add_grasp_object=False
+            time_list=np.linspace(0, 40, 40).astype(int) # grasp
         elif experiment_type=='grasp_object':  # grasp data for the gripper and object
 
 
@@ -1120,6 +1123,7 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=True
             add_grasp_control=True
             add_grasp_object=True
+            time_list=np.linspace(0, 400, 40).astype(int) # grasp
         else:
             print('experiment type not found')
             raise ValueError('experiment type not found')
