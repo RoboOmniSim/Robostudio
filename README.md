@@ -113,7 +113,7 @@ Nerfstudio requires `python >= 3.8`. We recommend using conda to manage dependen
 
 ```bash
 conda create --name robostudio -y python=3.8
-conda activate nerfstudio
+conda activate robostudio
 pip install --upgrade pip
 ```
 

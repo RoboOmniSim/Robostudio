@@ -49,6 +49,17 @@ from scipy.spatial.transform import Rotation as R
 # then setup control signal
 
 
+
+def interact_with_gripper(gripper_left_up,gripper_right_up,object_mesh,dt):
+    """
+    
+    The interaction between the gripper and the object after the grasp start and before the grasp success
+    
+    """
+
+    return rotation, translation
+
+
 def gripper_self_detection(gripper_left_up,gripper_right_up,gripper_deform):
     """
     Args:

@@ -57,6 +57,7 @@ from nerfstudio.robotic.physics_engine.backward import *
 # physics simulation
 from nerfstudio.robotic.physics_engine.push_box import *
 from nerfstudio.robotic.kinematic.gripper_utils import *
+from nerfstudio.robotic.physics_engine.grasp import *
 def random_quat_tensor(N):
     """
     Defines a random quaternion tensor of shape (N, 4)
@@ -1184,6 +1185,48 @@ class SplatfactoModel(Model):
                     output_rots.append(select_rotation_deform)
                     output_features_dc.append(select_feature_dc)
                     output_semantic_id.append(semantic_id_ind_sam)
+                elif add_grasp_object:
+                    recenter_vector,rotation, translation,simulation_position=interact_with_gripper(dt)
+                    raw_xyz= select_xyz
+
+
+
+                    raw_xyz_edit=raw_xyz-recenter_vector
+                    # deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                    forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
+
+                    forward_point=forward_point-simulation_position
+
+                    output_xyz_object=forward_point+recenter_vector
+
+                    rotation_splat=rotation
+            
+                    # select_xyz=  np.array(select_xyz + translation)
+
+                    rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                    select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                    
+
+                    select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+
+                    # rot_matrix_2_transform = np.matmul(np.array(rotation[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                    # select_rotation_deform = np.array(matrix_to_quaternion(rot_matrix_2_transform))
+                    
+
+                    # select_features_extra_deform = np.array(sh_rotation(select_features_extra, select_feature_dc, select_rotation_deform))
+                    
+                
+                    output_xyz.append(output_xyz_object)
+                    output_opacities.append(select_opacities)
+                    output_scales.append(select_scales)
+                    output_features_extra.append(select_features_extra_deform)
+                    output_rots.append(select_rotation_deform)
+                    output_features_dc.append(select_feature_dc)
+                    output_semantic_id.append(semantic_id_ind_sam)
+
+                
                 else:
                     output_xyz.append(select_xyz)
                     output_opacities.append(select_opacities)
