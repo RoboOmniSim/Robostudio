@@ -152,7 +152,56 @@ ns-export pointcloud --help
 
 TODO
 
+static dataset (Gaussian splatting) 
+
+find base and scale manually
+
+get bounding box by hand or based on base and scale
+
+
+get bounding box list 
+
+
+export part gaussian splatting and semantic ply
+
+
+load trajectory from omnisim or real world application
+
+forward rendering and simulation(export deform for single timestamp; render for novel-trajectory and novel-time)
+
+Backward optimization to refine trajectory and physics parameter
+
+load refined parameter to the omnisim
+
+
+
+
+
 ## 5. Advanced Options
+
+obtain urdf from video
+
+
+2dgs obtain robotic arm mesh
+
+get part based on either base and scale or manual bounding box
+
+infer parameter 
+
+export to urdf and fix collision group based on omnisim
+
+use omnisim-issac backend to implement policy 
+
+
+
+video2policy2real
+export policy to real world by gripper pose
+
+
+video2policy2render
+export policy to simulation by trajectory
+
+
 
 ### Training models other than nerfacto
 
