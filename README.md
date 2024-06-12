@@ -124,31 +124,10 @@ Given a pretrained model checkpoint, you can start the viewer by running
 ns-viewer --load-config {outputs/.../config.yml}
 ```
 
-## 3. Exporting Results
 
-Once you have a NeRF model you can either render out a video or export a point cloud.
 
-### Render Video
 
-First we must create a path for the camera to follow. This can be done in the viewer under the "RENDER" tab. Orient your 3D view to the location where you wish the video to start, then press "ADD CAMERA". This will set the first camera key frame. Continue to new viewpoints adding additional cameras to create the camera path. We provide other parameters to further refine your camera path. Once satisfied, press "RENDER" which will display a modal that contains the command needed to render the video. Kill the training job (or create a new terminal if you have lots of compute) and run the command to generate the video.
-
-Other video export options are available, learn more by running
-
-```bash
-ns-render --help
-```
-
-### Generate Point Cloud
-
-While NeRF models are not designed to generate point clouds, it is still possible. Navigate to the "EXPORT" tab in the 3D viewer and select "POINT CLOUD". If the crop option is selected, everything in the yellow square will be exported into a point cloud. Modify the settings as desired then run the command at the bottom of the panel in your command line.
-
-Alternatively you can use the CLI without the viewer. Learn about the export options by running
-
-```bash
-ns-export pointcloud --help
-```
-
-## 4. Using Custom Data
+## 3. Using Custom Data
 
 TODO
 
@@ -194,10 +173,16 @@ ns-export         gaussian-splat-mesh
 
 
 
-load trajectory from omnisim or real world application
+# load trajectory from omnisim or real world application
 
 
-forward rendering and simulation(export deform for single timestamp; 
+omnisim or moveit
+
+
+# forward rendering and simulation
+
+export deform for single timestamp
+
 ```bash
 ns-export gaussian-splat-deformmesh
 
@@ -210,7 +195,7 @@ ns-export gaussian-splat-deformmesh
 ```
 
 
-render for novel-trajectory and novel-time)
+render for novel-trajectory and novel-time
 
 ```bash
 ns-export        dynamic_dataset
@@ -233,7 +218,7 @@ load refined parameter to the omnisim
 
 
 
-## 5. Advanced Options
+## 4. Advanced Options
 
 obtain urdf from video
 
@@ -259,23 +244,17 @@ export policy to simulation by trajectory
 
 
 
-### Training models other than nerfacto
 
-We provide other models than nerfacto, for example if you want to train the original nerf model, use the following command
 
-```bash
-ns-train vanilla-nerf --data DATA_PATH
-```
+## 5. Dataset 
 
-For a full list of included models run `ns-train --help`.
 
-### Modify Configuration
+We will upload four set of data 
 
-Each model contains many parameters that can be changed, too many to list here. Use the `--help` command to see the full list of configuration options.
 
-```bash
-ns-train nerfacto --help
-```
+and will add more data shortly
+
+
 
 ### Tensorboard / WandB / Viewer
 
@@ -285,9 +264,7 @@ We support four different methods to track training progress, using the viewer[t
 
 And that's it for getting started with the basics of Robostudio.
 
-## Adding Datasets
 
-TODO
 
 
 # Supported Features
