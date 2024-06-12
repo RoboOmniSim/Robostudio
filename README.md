@@ -83,7 +83,7 @@ pip install robostudio
 ```bash
 git clone https://github.com/RoboOmniSim/Robostudio.git
 cd Robostudio
-pip install --upgrade pip setuptools
+pip install setuptools==69.5.1
 pip install -e .
 ```
 

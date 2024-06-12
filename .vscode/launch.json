@@ -236,6 +236,44 @@
 
       ]
     },
+
+    {
+      "name": "Python: export issac2sim for push_box dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+
+        "--load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml",
+        
+        "--output-dir=exports/splat/no_downscale/group1_bbox_fix",
+        "--experiment_type=push_bag",
+        "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
+        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
+
+      ]
+    },
+
+    {
+      "name": "Python: train issac2sim for push_box dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "splatfacto",
+
+        "--data=./dataset/push_box/dynamic/edit_image_colmap",
+        
+        
+        "--vis=viewer+wandb",
+      ]
+    },
+
+
+
     {
       "name": "Python: export grasp_only deform mesh",
       "type": "python",
