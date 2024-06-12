@@ -198,7 +198,7 @@ camera_paths/
 
 dataset/*
 result/*
-
+omnisim/*
 # nerfstudio/models/*
 # nerfstudio/process_data/*
 # nerfstudio/scripts/*

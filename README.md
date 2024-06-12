@@ -70,7 +70,7 @@ conda install -c "nvidia/label/cuda-11.8.0" cuda-toolkit
 pip install ninja git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
 ```
 
-### Installing nerfstudio
+### Installing Robostudio
 
 Easy option:
 
@@ -136,14 +136,17 @@ static dataset (Gaussian splatting)
 find the dataset you want to follow:(grasp,zero_pose,novelpose,grasp_object,push_bag)
 
 ```bash
-ns-train  splatfacto --data --vis
+ns-train  splatfacto --data --vis+wandb
 ```
 
 
 
 
-find base and scale manually
+find base and scale manually by follow the exported ply file of static gaussian splatting
 
+```bash
+ns-export  gaussian-splat --load-config --output-dir
+```
 
 
 get bounding box by hand 
@@ -160,8 +163,20 @@ python nerfstudio/robotic/export_util/export_bbox_withgripper.py --load_path
 
 export part gaussian splatting and semantic ply
 
+--load-config is the path to the static output
+
+--output-dir is the path to save the semantic model
+
+--experiemtn_type specific the experiment type
+
+--output_file is the trajectory file from moveit or omnisim
+
+--static_path is the path to the origincal static gaussian ply output
+
+--load_bbox_info is the path to bounding box information by hand or scripts
+
 ```bash
-ns-export         gaussian-splat-mesh
+ns-export gaussian-splat-mesh
         --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
         
         --output-dir=exports/splat/no_downscale/group1_bbox_fix
@@ -198,7 +213,7 @@ ns-export gaussian-splat-deformmesh
 render for novel-trajectory and novel-time
 
 ```bash
-ns-export        dynamic_dataset
+ns-export  dynamic_dataset
         --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
         --output_path=renders/push_box_dynamic
 
@@ -222,7 +237,7 @@ load refined parameter to the omnisim
 
 obtain urdf from video
 
-# we use zero-pose data to export urdf
+### we use zero-pose data to export urdf
 2dgs obtain robotic arm mesh 
 
 
