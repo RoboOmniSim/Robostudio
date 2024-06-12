@@ -222,25 +222,35 @@ load refined parameter to the omnisim
 
 obtain urdf from video
 
+# we use zero-pose data to export urdf
+2dgs obtain robotic arm mesh 
 
-2dgs obtain robotic arm mesh
+
+
 
 get part based on either base and scale or manual bounding box
 
+
+
 infer parameter 
 
+
+
 export to urdf and fix collision group based on omnisim
+
+
+
 
 use omnisim-issac backend to implement policy 
 
 
 
 video2policy2real
-export policy to real world by gripper pose
+export policy to real world in format of gripper pose
 
 
 video2policy2render
-export policy to simulation by trajectory
+export policy to simulation in format of trajectory
 
 
 
