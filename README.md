@@ -154,20 +154,76 @@ TODO
 
 static dataset (Gaussian splatting) 
 
+find the dataset you want to follow:(grasp,zero_pose,novelpose,grasp_object,push_bag)
+
+```bash
+ns-train  splatfacto --data --vis
+```
+
+
+
+
 find base and scale manually
 
-get bounding box by hand or based on base and scale
 
 
-get bounding box list 
+get bounding box by hand 
+```bash
+python nerfstudio/robotic/export_util/load_bbox_from_part.py --full_bbox_path  
+```
 
+get bounding box list based on base and scale
+```bash
+python nerfstudio/robotic/export_util/export_bbox_withgripper.py --load_path 
+```
+
+# we use push box case as an exmaple
 
 export part gaussian splatting and semantic ply
+
+```bash
+ns-export         gaussian-splat-mesh
+        --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
+        
+        --output-dir=exports/splat/no_downscale/group1_bbox_fix
+        --experiment_type=push_bag
+        --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
+        --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
+        --load_bbox_info=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/bbox_info/bbox_list.txt
+```
+
 
 
 load trajectory from omnisim or real world application
 
-forward rendering and simulation(export deform for single timestamp; render for novel-trajectory and novel-time)
+
+forward rendering and simulation(export deform for single timestamp; 
+```bash
+ns-export gaussian-splat-deformmesh
+
+        --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
+        
+        --output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic
+        --experiment_type=push_bag
+        --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
+        --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
+```
+
+
+render for novel-trajectory and novel-time)
+
+```bash
+ns-export        dynamic_dataset
+        --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
+        --output_path=renders/push_box_dynamic
+
+        --experiment_type=push_bag
+        --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
+        --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
+
+```
+
+
 
 Backward optimization to refine trajectory and physics parameter
 

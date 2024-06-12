@@ -328,7 +328,7 @@
         "gaussian-splat-mesh",
 
         "--load-config=/home/lou/gs/nerfstudio/outputs/output_gripper_open/splatfacto/2024-05-15_182117/config.yml", // this is the static only
-
+        
         
         "--output-dir=exports/splat/no_downscale/grasp_close_mesh",
         "--experiment_type=grasp",
@@ -367,7 +367,7 @@
         "gaussian-splat-mesh",
 
         "--load-config=/home/lou/gs/nerfstudio/outputs/merged_output_grasp/splatfacto/2024-05-30_215738/config.yml", //contain dynamic
-
+        "--load_bbox_info=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/bbox_info/bbox_list.txt", // grasp object case dynamic"
         "--output-dir=/home/lou/gs/nerfstudio/exports/splat/no_downscale/grasp_object_dynamic/semantic",
         "--experiment_type=grasp_object",
         "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",

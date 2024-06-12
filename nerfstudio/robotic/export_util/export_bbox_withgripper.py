@@ -119,7 +119,7 @@ def save_list(path,list):
             f.write("%s\n" % item)
 
 
-def get_bbox_from_base(base_path, scale_factor_gt,original_link_path,original_full_gripper_path,original_gripper_path,output_file_path,experiment_type):
+def get_bbox_from_base(base_path, scale_factor,center_vector,original_link_path,original_full_gripper_path,original_gripper_path,output_file_path,experiment_type):
     #load base 
     vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list=convert_pointcloud_to_ply(base_path)
 
@@ -128,7 +128,7 @@ def get_bbox_from_base(base_path, scale_factor_gt,original_link_path,original_fu
     # this method works for  - + - coordinate system for recenter_vector
     extent_base=bounding_box_corners[1]-bounding_box_corners[0]
 
-    scale=scale_factor_gt/extent_base
+    # scale=scale_factor_gt/extent_base
 
 
     #replace scale by the relative scale_factor
@@ -138,10 +138,12 @@ def get_bbox_from_base(base_path, scale_factor_gt,original_link_path,original_fu
     # scale[2]=scale[2]*1.7
 
     # Get the coordinates of the lower plane center
-    center_vector = bounding_box_corners.mean(axis=0)
-    center_vector[2] = bounding_box_corners[0][2]
+    center_vector_compute = bounding_box_corners.mean(axis=0)
+    center_vector_compute[2] = bounding_box_corners[0][2]
 
-    output_scale=scale # x is not important, jut fix z 
+
+
+    output_scale=scale_factor # x is not important, jut fix z 
     recenter_vector=center_vector
 
 
@@ -235,12 +237,17 @@ if __name__=="__main__":
     # original_base_path=os.path.join(original_path,"base_novel_pose")
 
 
-    experiment_type = "grasp_object"
+    # experiment_type = "grasp_object"
+    experiment_type = "novelpose"
 
     #test this method with grasp_object as well 
+    if experiment_type == "novelpose":
+        center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
+
+        scale_factor=np.array([1,1.25,1.65]) # x,y,z
 
 
-    bbox_save_list,forward_point_list=get_bbox_from_base(original_base_path,scale_factor_gt,original_link_path,original_full_gripper_path,original_gripper_path,output_file_path,experiment_type)
+    bbox_save_list,forward_point_list=get_bbox_from_base(original_base_path,scale_factor,center_vector,original_link_path,original_full_gripper_path,original_gripper_path,output_file_path,experiment_type)
 
     # get bbox from base
 

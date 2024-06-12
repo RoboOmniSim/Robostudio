@@ -77,7 +77,8 @@ class RoboExporter:
 
     static_path: Path
     """Path to the static object ply file."""
-
+    load_bbox_info: Path
+    """Path to the bounding box information file."""
 
     
 
@@ -662,7 +663,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
         # this if for grasp only bboc from forward kinematic 
         # load_bbox_info="/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_close/bbox_info/bbox_list.txt"
         # load_bbox_info='/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/bbox_info/bbox_list.txt' # grasp close case static
-        load_bbox_info='/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/bbox_info/bbox_list.txt' # grasp object case dynamic
+        load_bbox_info=self.load_bbox_info
         bbox_list=np.loadtxt(load_bbox_info) 
         bbox_list=bbox_list.reshape(-1,6) # 12 total, 0 is base, 1-7 are link, 8-11 are rmatch with 10-13
 
