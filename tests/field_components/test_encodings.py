@@ -3,7 +3,6 @@ Encoding Tests
 """
 import pytest
 import torch
-
 from nerfstudio.field_components import encodings
 
 

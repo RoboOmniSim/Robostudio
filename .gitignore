@@ -202,3 +202,4 @@ omnisim/*
 # nerfstudio/models/*
 # nerfstudio/process_data/*
 # nerfstudio/scripts/*
+.vscode/*

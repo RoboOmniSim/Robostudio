@@ -4,7 +4,6 @@ Field output tests
 import pytest
 import torch
 from torch import nn
-
 from nerfstudio.field_components.field_heads import (
     DensityFieldHead,
     FieldHead,
@@ -12,7 +11,6 @@ from nerfstudio.field_components.field_heads import (
     RGBFieldHead,
     SHFieldHead,
 )
-
 
 def test_field_output():
     """Test render output"""

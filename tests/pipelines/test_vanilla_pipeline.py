@@ -2,10 +2,8 @@
 Test pipeline
 """
 from pathlib import Path
-
 import torch
 from torch import nn
-
 from nerfstudio.cameras.cameras import Cameras
 from nerfstudio.data.datamanagers.base_datamanager import VanillaDataManagerConfig
 from nerfstudio.data.datasets.base_dataset import DataparserOutputs, InputDataset

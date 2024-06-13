@@ -2,11 +2,9 @@
 Test the fields
 """
 import torch
-
 from nerfstudio.cameras.rays import Frustums, RaySamples
 from nerfstudio.fields.nerfacto_field import NerfactoField
 from nerfstudio.utils.external import TCNN_EXISTS, tcnn_import_exception
-
 
 def test_nerfacto_field():
     """Test the Nerfacto field"""

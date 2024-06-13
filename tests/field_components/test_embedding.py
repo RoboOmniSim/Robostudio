@@ -3,7 +3,6 @@ Embedding tests
 """
 from nerfstudio.field_components.embedding import Embedding
 
-
 def test_indexing():
     """Test embedding indexing"""
     in_dim = 100

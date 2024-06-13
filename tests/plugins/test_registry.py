@@ -4,7 +4,6 @@ Tests for the nerfstudio.plugins.registry module.
 import os
 import sys
 from dataclasses import dataclass, field
-
 from nerfstudio.engine.trainer import TrainerConfig
 from nerfstudio.pipelines.base_pipeline import VanillaPipelineConfig
 from nerfstudio.plugins import registry, registry_dataparser

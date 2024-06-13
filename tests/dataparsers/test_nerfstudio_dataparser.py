@@ -4,7 +4,6 @@ Nerfstudio dataparser
 
 import json
 from pathlib import Path
-
 import numpy as np
 import pytest
 from PIL import Image

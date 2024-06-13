@@ -33,12 +33,11 @@
 _It’s as simple as plug and play with robostudio!_
 
 
-
-
 # Quickstart
 
 TODO: what will the below content go through
 
+TODO(Yiran): Maybe code from nerfstudio should remove, user can download themselves?
 
 ## 1. Installation: Setup the environment
 
