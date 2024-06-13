@@ -151,7 +151,7 @@ ns-export  gaussian-splat --load-config --output-dir
 
 get bounding box by hand 
 ```bash
-python nerfstudio/robotic/export_util/load_bbox_from_part.py --full_bbox_path  
+python nerfstudio/robotic/export_util/load_bbox_from_part.py --full_bbox_path  --save_path
 ```
 
 get bounding box list based on base and scale
@@ -175,6 +175,10 @@ export part gaussian splatting and semantic ply
 
 --load_bbox_info is the path to bounding box information by hand or scripts
 
+--export_part is the boolean varible to export part gaussian ply or export full semantic ply
+
+--use_gripper is the boolean varible to use gripper or not 
+
 ```bash
 ns-export gaussian-splat-mesh
         --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
@@ -183,7 +187,9 @@ ns-export gaussian-splat-mesh
         --experiment_type=push_bag
         --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
         --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
-        --load_bbox_info=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/bbox_info/bbox_list.txt
+        --load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt
+        --export_part=False
+        --use_gripper=True
 ```
 
 

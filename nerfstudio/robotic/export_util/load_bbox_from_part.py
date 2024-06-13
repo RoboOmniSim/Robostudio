@@ -55,13 +55,23 @@ def convert_pointcloud_to_ply(path):
     return vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list
 
 
+import argparse
 
 if __name__=="__main__":
     # full_bbox_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/full_part' ## gripper close part
-    full_bbox_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/part/full' ## gripper grasp object dynamic part
+    parser = argparse.ArgumentParser(description="export bbox list information from ply file")
+    
+    # Add arguments
+    parser.add_argument('--full_bbox_path', type=str, help='path to the full part ply file')
+    parser.add_argument('--save_path', type=str, help='path to save bbox list information. varies based on experiment type')
+    # parser.add_argument('--flag', action='store_true', help='A boolean flag')
+    
+    full_bbox_path=parser.parse_args().full_bbox_path
 
     vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list=convert_pointcloud_to_ply(full_bbox_path)
 
     
 
-    np.savetxt("/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/bbox_info/bbox_list.txt", np.array(bbox_save_list).reshape(-1, np.array(bbox_save_list).shape[-1]))
+
+    save_path=parser.parse_args().save_path
+    np.savetxt(os.path.join(save_path,"bbox_list.txt"), np.array(bbox_save_list).reshape(-1, np.array(bbox_save_list).shape[-1]))

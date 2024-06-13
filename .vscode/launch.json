@@ -252,6 +252,7 @@
         "--experiment_type=push_bag",
         "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
+        ""
 
       ]
     },
@@ -272,7 +273,67 @@
       ]
     },
 
+    {
+      "name": "Python: export issac2sim semantic ply for push_box dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output-dir=./dataset/issac2sim/semantic",
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/issac2sim_pushbox/splat.ply",
+        "--load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=True",
+      ]
+    },
 
+
+    {
+      "name": "Python: export issac2sim for certain time and pose based on push_box dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-deformmesh",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output-dir=./dataset/issac2sim/forward",
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/issac2sim/semantic/splat.ply",
+        "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
+        "--time_stamp=239"
+      ]
+    },
+
+
+    {
+      "name": "Python: render issac2sim for certain camera_view based on push_box dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output_path=./dataset/issac2sim/render",
+
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/issac2sim/semantic/splat.ply",
+        "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
+
+
+      ]
+    },
 
     {
       "name": "Python: export grasp_only deform mesh",

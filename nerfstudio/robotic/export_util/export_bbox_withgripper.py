@@ -216,135 +216,42 @@ def get_bbox_from_base(base_path, scale_factor,center_vector,original_link_path,
                 
 
     return bbox_save_list,forward_point_list
+
+
+
+import argparse
+
+
 if __name__=="__main__":
     # Load the mesh
 
 
+    output_file_path="./dataset/push_box/trajectory/joint_states_data.txt"
 
-    # part_path ="/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/link" # grasp 
-    part_path ="/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_object_dynamic/part/link" # dynamic grasp object
-    asset_path= "/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object"
-    output_file_path="/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt"
 
-    gripper_path="/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/gripper"
-    original_path="/home/lou/Downloads/urdf_2dgs/original_link"
+    original_path="./dataset/original_urdf/original_link"
 
     original_link_path=os.path.join(original_path,"link")
     original_full_gripper_path=os.path.join(original_path,"full_gripper")
     original_gripper_path=os.path.join(original_path,"gripper")
-    original_base_path=os.path.join(original_path,"base_gripper_close")
-    # original_base_path=os.path.join(original_path,"base_push_bbox")
-    # original_base_path=os.path.join(original_path,"base_novel_pose")
+    original_base_path=os.path.join(original_path,"base_push_bag")
 
 
-    # experiment_type = "grasp_object"
-    experiment_type = "novelpose"
 
-    #test this method with grasp_object as well 
-    if experiment_type == "novelpose":
-        center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
+    experiment_type = "push_bag"
+    scale_factor_gt=np.array([1.290,1.167,1.22]) # x,y,z
 
-        scale_factor=np.array([1,1.25,1.65]) # x,y,z
+    center_vector=np.array([-0.25,0.145,-0.71]) #with base group1_bbox_fix push case
 
 
-    bbox_save_list,forward_point_list=get_bbox_from_base(original_base_path,scale_factor,center_vector,original_link_path,original_full_gripper_path,original_gripper_path,output_file_path,experiment_type)
+    bbox_save_list,forward_point_list=get_bbox_from_base(original_base_path,scale_factor_gt,center_vector,original_link_path,original_full_gripper_path,original_gripper_path,output_file_path,experiment_type)
 
     # get bbox from base
 
-    np.savetxt("/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_close/bbox_info/bbox_list.txt", np.array(bbox_save_list).reshape(-1, np.array(bbox_save_list).shape[-1]))
+    np.savetxt("./dataset/issac2sim/semantic/bbox_list.txt", np.array(bbox_save_list).reshape(-1, np.array(bbox_save_list).shape[-1]))
 
     for i in range(len(forward_point_list)):
         forward_point=forward_point_list[i]
-        o3d.io.write_point_cloud("/home/lou/Downloads/urdf_2dgs/original_link/test_bbox_forward/"+str(i)+".ply", o3d.geometry.PointCloud(o3d.utility.Vector3dVector(forward_point)))
-
-    vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list=convert_pointcloud_to_ply(part_path)
-
-    vertices_save_list_gripper,faces_save_list_gripper,file_name_list_gripper,bbox_save_list_gripper,bbox_reoriented_save_list_gripper=convert_pointcloud_to_ply(gripper_path)
-    object_vertices_save_list,object_faces_save_list,object_file_name_list,object_bbox_save_list,object_bbox_reoriented_save_list=convert_pointcloud_to_ply(asset_path)
-
-
-    bbox_reoriented_save_list.insert(7,object_bbox_reoriented_save_list[0])
-    saved_array=np.array(bbox_reoriented_save_list)
-    np.savetxt("/home/lou/gs/nerfstudio/grasp_object_bbox/bbox_list.txt", saved_array.reshape(-1, saved_array.shape[-1]))
-    
-
-    # compute scale by the object bounding box
-
-    # ori_table=object_bbox_reoriented_save_list[1] # orientated bbox of 
-    # extent_table=ori_table[1]-ori_table[0]
-    # # compute center_vector 
-
-    # # scale=extent_table/scale_factor_gt
-    # scale=scale_factor_gt/extent_table
-
-    # Extract the corners of the bounding box of link 0
-    bounding_box_corners = bbox_reoriented_save_list[0]
-    
-    # this method works for  - + - coordinate system for recenter_vector
-    extent_base=bounding_box_corners[1]-bounding_box_corners[0]
-
-    scale=scale_factor_gt/extent_base
-
-    # scale[1]=scale[1]*-1
-
-
-
-    # Get the coordinates of the lower plane center
-    center_vector = bounding_box_corners.mean(axis=0)
-    center_vector[2] = bounding_box_corners[0][2]
-    # experiment_type = "grasp_object"
-    
-
-
-    movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=scale,center_vector_pass=center_vector)   
-
-    individual_transformations_0, final_transformations_list = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=1)  # total length 270
-
-
-
-    recenter_matrix = np.eye(4)
-    recenter_matrix[:3, 3] = -center_vector_gt
-    # final_transformations_list_0.insert(0, recenter_matrix)
-    # final_transformations_list.insert(0, recenter_matrix)
-
-    inverse_transformation=inverse_affine_transformation(final_transformations_list_0)
-
-
-    # test_xyz=o3d.io.read_point_cloud("/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/test_inverse/deform_point2_deform.ply")
-    for i in range(len(vertices_save_list)):
-            select_xyz=vertices_save_list[i]
-
-            if i==0:
-                forward_point=  np.array(select_xyz -center_vector_gt)
-                forward_point=forward_point+center_vector_gt
-            # elif i==2:
-            #     select_xyz=np.asarray(test_xyz.points)
-            #     rotation_inv = inverse_transformation[i-1][:3, :3]
-            #     translation_inv = inverse_transformation[i-1][:3, 3]
-            #     rotation = final_transformations_list[i-1][:3, :3]
-            #     translation = final_transformations_list[i-1][:3, 3]
-            #     deform_point=  np.array(select_xyz @ rotation_inv.T+ translation_inv )
-            #     forward_point=deform_point
-            else:
-                rotation_inv = inverse_transformation[i-1][:3, :3]
-                translation_inv = inverse_transformation[i-1][:3, 3]
-                rotation = final_transformations_list[i-1][:3, :3]
-                translation = final_transformations_list[i-1][:3, 3]
-                
-                select_xyz=select_xyz-center_vector_gt
-                deform_point=  np.array(select_xyz @ rotation_inv.T+ translation_inv )
-                forward_point=deform_point
-                forward_point=  np.array(deform_point @ rotation.T+ translation )
-                forward_point=forward_point+center_vector_gt
-                
-
-            o3d.io.write_point_cloud("/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/recenter_link/"+file_name_list[i], o3d.geometry.PointCloud(o3d.utility.Vector3dVector(forward_point)))
-        # forward_point=  np.array(deform_point @ rotation.T+ translation )
-        # forward_point=forward_point+center_vector_gt
-
-
-
-    print("center_vector_gt",center_vector_gt)
-    print("scale_factor",scale_factor)
+        o3d.io.write_point_cloud(os.path.join(original_path,"test_bbox_forward/"+str(i)+".ply"), o3d.geometry.PointCloud(o3d.utility.Vector3dVector(forward_point)))
 
 
