@@ -66,7 +66,7 @@ dependencies = [
     "gsplat==0.1.8", # update to 1.0.0 in future
     "pytorch-msssim",
     "pathos",
-    "packaging"
+    "packaging",
     "trimesh==4.2.0",
     "open3d==0.18.0",
     "plyfile==1.0.3",
