@@ -203,3 +203,4 @@ omnisim/*
 # nerfstudio/process_data/*
 # nerfstudio/scripts/*
 .vscode/*
+tests/*
