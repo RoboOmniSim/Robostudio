@@ -87,48 +87,8 @@ pip install -e .
 ```
 
 
-## 2. Training your first model!
+## 2.Build up Dynamic physical consistent Gaussian Splatting asset 
 
-TODO:
-
-```bash
-TODO
-```
-
-If everything works, you should see training progress like the following:
-
-<p align="center">
-    <img width="800" alt="image" src="https://user-images.githubusercontent.com/3310961/202766069-cadfd34f-8833-4156-88b7-ad406d688fc0.png">
-</p>
-
-Navigating to the link at the end of the terminal will load the webviewer. If you are running on a remote machine, you will need to port forward the websocket port (defaults to 7007).
-
-<p align="center">
-    <img width="800" alt="image" src="https://user-images.githubusercontent.com/3310961/202766653-586a0daa-466b-4140-a136-6b02f2ce2c54.png">
-</p>
-
-### Resume from checkpoint / visualize existing run
-
-It is possible to load a pretrained model by running
-
-```bash
-ns-train nerfacto --data data/nerfstudio/poster --load-dir {outputs/.../nerfstudio_models}
-```
-
-## Visualize existing run
-
-Given a pretrained model checkpoint, you can start the viewer by running
-
-```bash
-ns-viewer --load-config {outputs/.../config.yml}
-```
-
-
-
-
-## 3. Using Custom Data
-
-TODO
 
 static dataset (Gaussian splatting) 
 
@@ -180,12 +140,11 @@ export part gaussian splatting and semantic ply
 
 ```bash
 ns-export gaussian-splat-mesh
-        --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
-        
-        --output-dir=exports/splat/no_downscale/group1_bbox_fix
+        --load-config=
+        --output-dir=
         --experiment_type=push_bag
-        --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
-        --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
+        --output_file=
+        --static_path=
         --load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt
         --export_part=False
         --use_gripper=True
@@ -196,22 +155,33 @@ ns-export gaussian-splat-mesh
 # load trajectory from omnisim or real world application
 
 
-omnisim or moveit
+omnisim or moveit 
+
+We provide the exported result in the dataset, if you want to export based on your moveit scenes, 
+you can follow the scripts in Robostudio/nerfstudio/robotic/ros
 
 
 # forward rendering and simulation
 
 export deform for single timestamp
 
+
+
+
+ --time_stamp the time_stamp of output scenes 
+
+
 ```bash
 ns-export gaussian-splat-deformmesh
 
-        --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
+        --load-config=
         
         --output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic
         --experiment_type=push_bag
-        --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
-        --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
+        --output_file=
+        --static_path=
+        --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
+        --time_stamp=
 ```
 
 
@@ -219,64 +189,100 @@ render for novel-trajectory and novel-time
 
 ```bash
 ns-export  dynamic_dataset
-        --load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml
+        --load-config=
         --output_path=renders/push_box_dynamic
-
         --experiment_type=push_bag
-        --output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt
-        --static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply
+        --output_file=
+        --static_path=
+        --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
 
 ```
 
 
 
-Backward optimization to refine trajectory and physics parameter
+<!-- Backward optimization to refine trajectory and physics parameter -->
 
-load refined parameter to the omnisim
-
-
+<!-- load refined parameter to the omnisim -->
 
 
 
-## 4. Advanced Options
+
+
+## 3. Advanced Options
 
 obtain urdf from video
 
 ### we use zero-pose data to export urdf
 2dgs obtain robotic arm mesh 
 
+convert dataset from nerfstudio to 2dgs
+
+```bash
+python nerfstudio/robotic/export_util/2dgs_utils/nerfstudioconvert2dgs.py -s "your data" --skip_matching
+```
+
+Train 2dgs and obtain mesh
+
+
+get part based on either base and scale or manual bounding box(recommend manual bounding box)
 
 
 
-get part based on either base and scale or manual bounding box
+infer parameter from LLM 
 
 
 
-infer parameter 
 
 
+
+
+
+## use omnisim-issac backend to implement policy 
 
 export to urdf and fix collision group based on omnisim
-
-
-
-
-use omnisim-issac backend to implement policy 
-
-
 
 video2policy2real
 export policy to real world in format of gripper pose
 
 
+
+
+
 video2policy2render
-export policy to simulation in format of trajectory
+export policy to Gaussian Scenes in format of trajectory
 
 
 
+ --trajectory_file the trajectory from issac only
+
+```bash
+ns-export gaussian-splat-deformmesh
+
+        --load-config=
+        
+        --output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic
+        --experiment_type=issac2sim
+        --output_file=
+        --static_path=
+        --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
+        --time_stamp=
+```
 
 
-## 5. Dataset 
+render for novel-trajectory and novel-time
+
+```bash
+ns-export  dynamic_dataset
+        --load-config=
+        --output_path=renders/push_box_dynamic
+        --experiment_type=issac2sim
+        --output_file=
+        --static_path=
+        --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
+
+```
+
+## 4. Dataset 
 
 
 We will upload four set of data 

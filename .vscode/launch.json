@@ -233,7 +233,8 @@
         "--experiment_type=push_bag",
         "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
-
+        "--export_part=False",
+        "--use_gripper=True",
       ]
     },
 
@@ -252,7 +253,8 @@
         "--experiment_type=push_bag",
         "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
-        ""
+        "--export_part=False",
+        "--use_gripper=True",
 
       ]
     },
@@ -414,7 +416,8 @@
 
         "--output_file=/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt",
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply",
-
+        "--export_part=False",
+        "--use_gripper=True",
       ]
     },
     {
@@ -433,7 +436,8 @@
         "--experiment_type=grasp",
         "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic/splat.ply",
-
+        "--export_part=False",
+        "--use_gripper=True",
       ]
     },
     {
@@ -452,7 +456,8 @@
         "--experiment_type=grasp_object",
         "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
         "--static_path=/home/lou/Downloads/gripper_movement/gripper_part_asset/splat.ply", // static case
-
+        "--export_part=False",
+        "--use_gripper=True",
       ]
     },
 
@@ -471,7 +476,8 @@
         "--experiment_type=grasp_object",
         "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/grasp_object_dynamic/semantic/splat.ply", // dynamic case
-
+        "--export_part=False",
+        "--use_gripper=True",
       ]
     },
     {
@@ -490,7 +496,8 @@
         "--experiment_type=grasp",
         "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic/splat.ply",
-
+        "--export_part=False",
+        "--use_gripper=True",
       ]
     },
 
