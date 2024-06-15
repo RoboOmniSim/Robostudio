@@ -52,7 +52,7 @@ from nerfstudio.robotic.utils.utils import load_transformation_package, relative
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.physics_engine.collision_detection import collision_detection
 from nerfstudio.robotic.kinematic.gripper_utils import *
-
+from nerfstudio.robotic.physics_engine.issac2sim import *
 @dataclass
 class Exporter:
     """Export the mesh from a YML config to a folder."""
@@ -77,9 +77,24 @@ class RoboExporter:
 
     static_path: Path
     """Path to the static object ply file."""
-    load_bbox_info: Path
+
+
+
+    use_gripper: bool=True
+    """Whether to use the gripper for the export."""
+    
+    export_part: bool=False
+    """Whether to export each part of the model to view segmentation quality."""
+    
+    time_stamp: int=1
+    """Time stamp for the simulation."""
+
+
+    load_bbox_info: Path=Path("./dataset/issac2sim/part/bbox_info/bbox_list.txt")
     """Path to the bounding box information file."""
 
+    trajectory_file: Path=Path("./dataset/issac2sim/trajectory/dof_positions.txt")
+    """Path to the trajectory file."""
     
 
 def validate_pipeline(normal_method: str, normal_output_name: str, pipeline: Pipeline) -> None:
@@ -599,7 +614,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
         
 
         # export each part of the model to view segmentation quality 
-        export_part = False
+        export_part = self.export_part
 
 
 
@@ -646,7 +661,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
         bbox_ids_gripper = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper center,  8 is the object,9 is base_link (don;t move actually), 10 is the gripper left down,11 is left up,12 is right down,13 is right up
         bbox_ids_nogripper = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper, 8 is the object,9 is base_link (don;t move actually)
 
-        use_gripper=True
+        use_gripper=self.use_gripper
         if use_gripper:
             bboxes=bboxes_gripper
             bbox_ids=bbox_ids_gripper
@@ -1285,13 +1300,20 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
+            max_gripper_degree=-0.8525
         elif experiment_type=='push_bag':
             
 
 
-            center_vector=np.array([-0.25,0.145,-0.71]) #with base group1_bbox_fix push case
+            # center_vector=np.array([-0.261,0.145,-0.71]) #with base group1_bbox_fix push case
+
+            # scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+            
+            center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
 
             scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+
+            
 
             simulation_timestamp=1.12
             add_simulation=True
@@ -1301,6 +1323,27 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
+            max_gripper_degree=-0.8525
+        elif experiment_type=='issac2sim':
+            
+
+
+            center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
+
+            scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+
+            simulation_timestamp=1.12
+            add_simulation=False
+            add_gripper=True
+            start_time=0
+            end_time_collision=0.5
+            flip_x_coordinate=False
+            add_grasp_control=False
+            add_grasp_object=True
+            max_gripper_degree=-0.42
+            add_trajectory=True
+
+
         elif experiment_type=='grasp':  # grasp data for the gripper only 
             center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
             scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
@@ -1312,6 +1355,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             flip_x_coordinate=False
             add_grasp_control=True
             add_grasp_object=False
+            max_gripper_degree=-0.8525
         elif experiment_type=='grasp_object':  # grasp data for the gripper and object
 
 
@@ -1327,6 +1371,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             flip_x_coordinate=True
             add_grasp_control=True
             add_grasp_object=True
+            max_gripper_degree=-0.8525
         else:
             print('experiment type not found')
             raise ValueError('experiment type not found')
@@ -1356,32 +1401,99 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
 
 
             
-            time_stamp=1 # the time stamp of the transformation package  # fps is 796/4=199 step from 3.33 sec in this bag with 60fps  random pick one deform here 
+            time_stamp=self.time_stamp # the time stamp of the transformation package  # fps is 796/4=199 step from 3.33 sec in this bag with 60fps  random pick one deform here 
  
-            scale_factor=1  # replace by future 
+            scale_factor=dataparser_output.dataparser_scale  # replace by future 
             
 
             # if add_gripper:
             #     output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,
             #                                                                                                                                                  final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
-            #                                                                                                                                                  add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp,flip_x_coordinate=flip_x_coordinate)
-              
+            #                                                                                                                                                    add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp,flip_x_coordinate=flip_x_coordinate)
             
-            if add_gripper and add_grasp_control:
-                add_grasp_control_value=-0.4
+            if add_trajectory:
+
+                # resize the movement_angle_state to the same length as the timestamp of trajectory 
+                traj = np.array(load_trajectory(self.trajectory_file)).flatten().reshape(-1, 6) # for six dof path
+
+
+
+                adaptive_length = len(traj)
+                traj_mode  = [
+                    {
+                        "Time": np.zeros(1),
+                        "Joint Names": ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6','gripper_main','gripper_left_down', 'gripper_left_up', 'gripper_right_down', 'gripper_right_up'],
+                        "Joint Positions":  np.zeros(11) # for 6dof plus 5 gripper joints
+                    }
+                    for _ in range(adaptive_length)
+                    ]
+                t=np.linspace(0, adaptive_length, adaptive_length)
+
+
+                # manually break the dof limit 
+                # max_link_1=-0.05
+                # max_link_2=-0.09
+                # max_link_3=0.17
+                # max_link_4=0.05
+
+                # direct grasp
+                max_link_1=-0.05
+                max_link_2=-0.09
+                max_link_3=0.17
+                max_link_4=0.05
+                extra_link_1=linear_interpolation(0, max_link_1, 10)
+                extra_link_2=linear_interpolation(0, max_link_2, 10)
+                extra_link_3=linear_interpolation(0, max_link_3, 10)
+                extra_link_4=linear_interpolation(0, max_link_4, 10)
+                stage_1=0
+                for i in range(adaptive_length):
+                        traj_mode[i]["Time"] = t
+                        traj_mode[i]["Joint Positions"][:6] = traj[i]
+                        traj_mode[i]["Joint Positions"][6:] = [0,0,0,0,0] # for the gripper joints
+                        
+                        if 230< i <= 240:
+                            traj_mode[i]["Joint Positions"][1] = traj_mode[i]["Joint Positions"][1]+extra_link_1[stage_1]
+                            traj_mode[i]["Joint Positions"][2] = traj_mode[i]["Joint Positions"][2]+extra_link_2[stage_1]
+                            traj_mode[i]["Joint Positions"][3] = traj_mode[i]["Joint Positions"][3]+extra_link_3[stage_1] 
+                            traj_mode[i]["Joint Positions"][4] = traj_mode[i]["Joint Positions"][4]+extra_link_4[stage_1]
+                            stage_1+=1
+                # from timestamp 230-260 we have the gripper control
+
+                # 10 for extra move, 10 for gripper close, 10 for move back
+                movement_angle_state=traj_mode
+
+
+                
+
+                # this is for issac2sim and the default is full control mode 
+                add_grasp_control_value=max_gripper_degree
                 add_grasp_object_control= 0 # this is for the different interaction time between the gripper and the object
                 add_grasp_object_duration= (start_time,end_time_collision) # the object is follow gripper's move in this period
                 output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,
-                                                                                                                                                             final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
-                                                                                                                                                             add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,add_grasp_object=add_grasp_object,
-                                                                                                                                                             add_grasp_object_duration=add_grasp_object_duration,
-                                                                                                                                                             dt=simulation_timestamp,add_grasp_control=add_grasp_control_value,flip_x_coordinate=flip_x_coordinate)
-              
-            
+                                                                                                                                                                final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
+                                                                                                                                                                add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,add_grasp_object=add_grasp_object,
+                                                                                                                                                                add_grasp_object_duration=add_grasp_object_duration,
+                                                                                                                                                                dt=simulation_timestamp,add_grasp_control=add_grasp_control_value,flip_x_coordinate=flip_x_coordinate,add_trajectory=add_trajectory)
+                
+
+
+
             else:
-                output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,
-                                                                                                                                                             center_vector_gt,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp)
-            
+                if add_gripper and add_grasp_control:
+                    add_grasp_control_value=-0.4
+                    add_grasp_object_control= 0 # this is for the different interaction time between the gripper and the object
+                    add_grasp_object_duration= (start_time,end_time_collision) # the object is follow gripper's move in this period
+                    output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,
+                                                                                                                                                                final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
+                                                                                                                                                                add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,add_grasp_object=add_grasp_object,
+                                                                                                                                                                add_grasp_object_duration=add_grasp_object_duration,
+                                                                                                                                                                dt=simulation_timestamp,add_grasp_control=add_grasp_control_value,flip_x_coordinate=flip_x_coordinate)
+                
+                
+                else:
+                    output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,
+                                                                                                                                                                center_vector_gt,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp)
+                
             if add_simulation == True:
                 filename = self.output_dir / f"splat_deform_timestamp{time_stamp}_simulation{simulation_timestamp}.ply"
             elif add_gripper:

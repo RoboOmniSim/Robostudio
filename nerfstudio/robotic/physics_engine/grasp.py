@@ -14,7 +14,7 @@ from nerfstudio.robotic.physics_engine.collision_detection import collision_dete
 
 
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-
+from nerfstudio.robotic.kinematic.gripper_utils import *
 
 from scipy.spatial.transform import Rotation as R
 
@@ -44,22 +44,127 @@ from scipy.spatial.transform import Rotation as R
 # test the kinematic first, and then set up same angle range and pass to collistion detection for visual check
 
 
+def rotation_matrix(axis, angle):
+    """
+    Compute the rotation matrix for a given axis and angle.
+    
+    Parameters:
+    axis (str): 'x', 'y', or 'z' axis
+    angle (float): Angle in radians
+    
+    Returns:
+    np.ndarray: 3x3 rotation matrix
+    """
+    if axis == 'x':
+        return np.array([
+            [1, 0, 0],
+            [0, np.cos(angle), -np.sin(angle)],
+            [0, np.sin(angle), np.cos(angle)]
+        ])
+    elif axis == 'y':
+        return np.array([
+            [np.cos(angle), 0, np.sin(angle)],
+            [0, 1, 0],
+            [-np.sin(angle), 0, np.cos(angle)]
+        ])
+    elif axis == 'z':
+        return np.array([
+            [np.cos(angle), -np.sin(angle), 0],
+            [np.sin(angle), np.cos(angle), 0],
+            [0, 0, 1]
+        ])
+    else:
+        raise ValueError("Invalid axis. Choose from 'x', 'y', 'z'.")
 
 
-# then setup control signal
 
 
 
-def interact_with_gripper(gripper_left_up,gripper_right_up,object_mesh,dt):
+def interact_with_gripper(euler_gripper,dt):
     """
     
     The interaction between the gripper and the object after the grasp start and before the grasp success
     
     """
-
+    transformation=np.eye(4)
+    
+    manipulate_vector=0.015
+    interpolate_value=manipulate_vector*dt/10
+    # print('dt',dt)
+    # print('interpolate_value',interpolate_value)
+    translation=transformation[:3,3]
+    translation[2]=translation[2]+interpolate_value # also need interpolation
+    translation[0]=translation[0]+0
+    euler=euler_gripper
+    axis='y'
+    rotation = rotation_matrix(axis,euler_gripper)
     return rotation, translation
 
+def obtain_relative_transformation(T_0,T_1):
+        return np.dot(np.linalg.inv(T_0),T_1)
 
+def get_object_tracjetory_from_simulation(mark_id,mark_id_offset,start_time_stamp,time_stamp,final_transformations_list,
+                                          movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
+                                          joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper,
+                                          flip_x_coordinate=False,add_grasp_control=False):
+
+
+    individual_transformations_t_minus1, final_transformations_list_t_minus1=gripper_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
+                                                                                joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper,
+                                                                                i=start_time_stamp,flip_x_coordinate=flip_x_coordinate,add_grasp_control=add_grasp_control)
+
+       # x
+    dynamic_scale_x=np.ones(3)
+    dynamic_scale_z=np.ones(3)
+
+    if time_stamp < 265 :
+        dynamic_scale_x[0]=0.7
+        dynamic_scale_x[1]=0.5 # should avoid rotation of arm?
+        dynamic_scale_x[2]=0.99
+        dynamic_scale_z[0]=0.85
+        dynamic_scale_z[1]=0.01
+        dynamic_scale_z[2]=0.72
+    elif 290> time_stamp>=265:
+        dynamic_scale_x[0]=0.8
+        dynamic_scale_x[1]=0.4
+        dynamic_scale_x[2]=0.99
+        dynamic_scale_z[0]=0.85
+        dynamic_scale_z[1]=0.01
+        dynamic_scale_z[2]=0.84
+    elif 300>= time_stamp>=290:
+        dynamic_scale_x[0]=0.8
+        dynamic_scale_x[1]=0.25
+        dynamic_scale_x[2]=0.99
+        dynamic_scale_z[0]=0.85
+        dynamic_scale_z[1]=0.1
+        dynamic_scale_z[2]=0.83
+    else:
+        dynamic_scale_x[0]=0.95
+        dynamic_scale_x[1]=0.01
+        dynamic_scale_x[2]=0.99
+        dynamic_scale_z[0]=0.85
+        dynamic_scale_z[1]=0.01
+        dynamic_scale_z[2]=0.78
+    relative_trans_offset=obtain_relative_transformation(final_transformations_list[mark_id_offset],final_transformations_list_t_minus1[mark_id_offset])
+    # offset_vector=np.array((0,0,0))
+    offset_vector=relative_trans_offset[:3,3]
+    offset_rotation=relative_trans_offset[:3,:3]
+    offset_vector[0]=offset_vector[0]*dynamic_scale_x[0]
+    offset_vector[1]=offset_vector[1]*dynamic_scale_x[1]
+    offset_vector[2]=offset_vector[2]*dynamic_scale_z[2]
+
+    relative_trans=obtain_relative_transformation(final_transformations_list[mark_id],final_transformations_list_t_minus1[mark_id])
+
+    # rotation_rela=relative_trans[:3,:3]
+    rotation_rela=np.eye(3)
+    translation_rela=relative_trans[:3,3]
+    # translation_rela[2]=0
+    translation_rela[0]= translation_rela[0]*dynamic_scale_z[0]
+    translation_rela[1]= translation_rela[1]*dynamic_scale_z[1]
+    translation_rela[2]= translation_rela[2]*dynamic_scale_z[2]
+
+
+    return rotation_rela,translation_rela,offset_vector,offset_rotation
 def gripper_self_detection(gripper_left_up,gripper_right_up,gripper_deform):
     """
     Args:

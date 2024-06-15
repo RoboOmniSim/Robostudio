@@ -68,7 +68,7 @@ import trimesh
 from nerfstudio.robotic.render_util.graphic_utils import *
 import vdbfusion
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-
+from nerfstudio.robotic.physics_engine.issac2sim import *
 def _render_trajectory_video(
     pipeline: Pipeline,
     cameras: Cameras,
@@ -685,7 +685,7 @@ class RoboBaseRender:
     """Path to static scenes file."""
 
 
-    scale_factor: float 
+    scale_factor: float =1.0
     """scaling factor"""
     output_path: Path = Path("renders/output.mp4")
     """Path to output video file."""
@@ -709,6 +709,9 @@ class RoboBaseRender:
     """Whether to render the nearest training camera to the rendered camera."""
     check_occlusions: bool = False
     """If true, checks line-of-sight occlusions when computing camera distance and rejects cameras not visible to each other"""
+    trajectory_file: Path = Path("trajectory.json")
+    """Path to trajectory file."""
+
 
 @dataclass
 class RenderCameraPath(BaseRender):
@@ -1057,6 +1060,7 @@ class dynamicDatasetRender(RoboBaseRender):
         config: TrainerConfig
 
 
+
         # experiment_type='novel_pose' # novelpose or push_bag
 
         # move this to config file 
@@ -1078,12 +1082,17 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
+            render_camera_index=262
             time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
         elif experiment_type=='push_bag':
             
 
 
-            center_vector=np.array([-0.25,0.145,-0.71]) #with base group1_bbox_fix push case
+            # center_vector=np.array([-0.261,0.145,-0.71]) #with base group1_bbox_fix push case
+
+            # scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+            
+            center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
 
             scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
 
@@ -1095,7 +1104,44 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
+
+            render_camera_index=0
             time_list=np.linspace(100, 160, 60).astype(int) # push_bag
+        elif experiment_type=='issac2sim':
+            
+
+            
+
+            center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
+
+            scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+
+            simulation_timestamp=1.12
+            add_simulation=False
+            add_gripper=True
+            start_time=0
+            end_time_collision=0.5
+            flip_x_coordinate=False
+            add_grasp_control=True
+            add_grasp_object=True
+            max_gripper_degree=-0.42
+            add_trajectory=True
+
+
+            render_camera_index=253  #235 245 253
+
+            # max_gripper_degree=-0.8525 # close
+
+
+            grasp_inter_time=10
+            grasp_time_list=np.linspace(240,250,grasp_inter_time+1).astype(int) # stage 1 gripper close and move with object add_grasp_object==True and move_with_gripper==False
+            # print('grasp_time_list',grasp_time_list)
+            grasp_time_list_stage_2=np.linspace(251,260,grasp_inter_time).astype(int) # stage 2 add_grasp_object==True and move_with_gripper==True
+            # print('grasp_time_list_stage_2',grasp_time_list_stage_2)
+            grasp_time_list_stage_3=np.linspace(261,270,grasp_inter_time).astype(int) # stage 3 release object add_grasp_object==True and move_with_gripper==False
+            
+            #300-350 put the box back and render the release
+            time_list=np.linspace(250, 300, 50).astype(int) # push_bag
         elif experiment_type=='grasp':  # grasp data for the gripper only 
             center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
             scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
@@ -1107,7 +1153,13 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=True
             add_grasp_object=False
+
+            max_gripper_degree=-0.8525
+            grasp_inter_time=40
+
+            render_camera_index=212
             time_list=np.linspace(0, 40, 40).astype(int) # grasp
+            grasp_time_list=np.linspace(0,40,grasp_inter_time).astype(int)
         elif experiment_type=='grasp_object':  # grasp data for the gripper and object
 
 
@@ -1123,6 +1175,7 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=True
             add_grasp_control=True
             add_grasp_object=True
+            render_camera_index=0
             time_list=np.linspace(0, 400, 40).astype(int) # grasp
         else:
             print('experiment type not found')
@@ -1140,12 +1193,101 @@ class dynamicDatasetRender(RoboBaseRender):
       
         dynamic_information_list=[]
 
-  
-        # Read the pre timestamp angle state from txt file
-        # movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate)
+
+
         movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate,scale_factor_pass=scale_factor,center_vector_pass=center_vector)
 
         
+        if add_trajectory:
+
+                # resize the movement_angle_state to the same length as the timestamp of trajectory 
+                traj = np.array(load_trajectory(self.trajectory_file)).flatten().reshape(-1, 6) # for six dof path
+
+
+
+                adaptive_length = len(traj)
+                traj_mode  = [
+                    {
+                        "Time": np.zeros(1),
+                        "Joint Names": ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6','gripper_main','gripper_left_down', 'gripper_left_up', 'gripper_right_down', 'gripper_right_up'],
+                        "Joint Positions":  np.zeros(11) # for 6dof plus 5 gripper joints
+                    }
+                    for _ in range(adaptive_length)
+                    ]
+                little_t=np.linspace(0, adaptive_length, adaptive_length)
+
+
+                max_link_1=-0.05
+                max_link_2=-0.09
+                max_link_3=0.17
+                max_link_4=0.05
+                extra_link_1=linear_interpolation(0, max_link_1, 10)
+                extra_link_2=linear_interpolation(0, max_link_2, 10)
+                extra_link_3=linear_interpolation(0, max_link_3, 10)
+                extra_link_4=linear_interpolation(0, max_link_4, 10)
+
+                extra_link_1_reverse=-extra_link_1
+                extra_link_2_reverse=-extra_link_2
+                extra_link_3_reverse=-extra_link_3
+                extra_link_4_reverse=-extra_link_4
+
+
+                # print('extra_link_1',extra_link_1)
+                # print('extra_link_2',extra_link_2)
+                # print('extra_link_3',extra_link_3)
+                # print('extra_link_4',extra_link_4)
+
+                # print('extra_link_1_reverse',extra_link_1_reverse)
+                # print('extra_link_2_reverse',extra_link_2_reverse)
+                # print('extra_link_3_reverse',extra_link_3_reverse)
+                # print('extra_link_4_reverse',extra_link_4_reverse)
+                gripper_link_1=0.7
+
+                stage_1=0
+                stage_2=0
+                stage_3=0
+                stage_4=0
+                for i in range(adaptive_length):
+                        traj_mode[i]["Time"] = little_t
+                        traj_mode[i]["Joint Positions"][:6] = traj[i]
+                        traj_mode[i]["Joint Positions"][6:] = [0,0,0,0,0] # for the gripper joints
+                        
+                        if 230< i <= 240:
+
+                            # get close to object
+                            traj_mode[i]["Joint Positions"][1] = traj_mode[i]["Joint Positions"][1]+extra_link_1[stage_1]
+                            traj_mode[i]["Joint Positions"][2] = traj_mode[i]["Joint Positions"][2]+extra_link_2[stage_1]
+                            traj_mode[i]["Joint Positions"][3] = traj_mode[i]["Joint Positions"][3]+extra_link_3[stage_1] 
+                            traj_mode[i]["Joint Positions"][4] = traj_mode[i]["Joint Positions"][4]+extra_link_4[stage_1]
+                            stage_1+=1
+                        if 240< i <= 250:
+                            # gripper close and interact with object
+                            traj_mode[i]["Joint Positions"][1] = traj_mode[i]["Joint Positions"][1]+extra_link_1[stage_1-1]
+                            traj_mode[i]["Joint Positions"][2] = traj_mode[i]["Joint Positions"][2]+extra_link_2[stage_1-1]
+                            traj_mode[i]["Joint Positions"][3] = traj_mode[i]["Joint Positions"][3]+extra_link_3[stage_1-1] 
+                            traj_mode[i]["Joint Positions"][4] = traj_mode[i]["Joint Positions"][4]+extra_link_4[stage_1-1]
+                            stage_2+=1
+                        if 250< i <= 260:
+                            # grasp success object move with gripper
+                            traj_mode[i]["Joint Positions"][1] = traj_mode[i]["Joint Positions"][1]+extra_link_1[stage_1-1]+extra_link_1_reverse[stage_3]
+                            traj_mode[i]["Joint Positions"][2] = traj_mode[i]["Joint Positions"][2]+extra_link_2[stage_1-1]+extra_link_2_reverse[stage_3]
+                            traj_mode[i]["Joint Positions"][3] = traj_mode[i]["Joint Positions"][3]+extra_link_3[stage_1-1]+extra_link_3_reverse[stage_3]
+                            traj_mode[i]["Joint Positions"][4] = traj_mode[i]["Joint Positions"][4]+extra_link_4[stage_1-1]+extra_link_4_reverse[stage_3]
+                            stage_3+=1
+                        # if 260< i <= 270:
+                        #     # open gripper and release object
+                        #     traj_mode[i]["Joint Positions"][1] = traj_mode[i]["Joint Positions"][1]+extra_link_1[stage_1-1]
+                        #     traj_mode[i]["Joint Positions"][2] = traj_mode[i]["Joint Positions"][2]+extra_link_2[stage_1-1]
+                        #     traj_mode[i]["Joint Positions"][3] = traj_mode[i]["Joint Positions"][3]+extra_link_3[stage_1-1] 
+                        #     traj_mode[i]["Joint Positions"][4] = traj_mode[i]["Joint Positions"][4]+extra_link_4[stage_1-1]
+                        #     stage_4+=1
+        # Read the pre timestamp angle state from txt file
+        # movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate)
+                movement_angle_state=traj_mode
+
+
+
+
         
         
         dynamic_information= {
@@ -1165,6 +1307,8 @@ class dynamicDatasetRender(RoboBaseRender):
         "flip_x_coordinate": flip_x_coordinate,
         "add_grasp_control": add_grasp_control,
         "add_gripper": add_gripper,
+        "move_with_gripper": False,
+        "add_grasp_object": False,
 
         }
 
@@ -1255,7 +1399,7 @@ class dynamicDatasetRender(RoboBaseRender):
 
             # 4 sec grasp close 
             push_time_list=np.array([120,121,122,123,124,125,126,127,128,129,130,131])
-            grasp_time_list=np.linspace(0,40,40).astype(int)
+            
             images_root = Path(os.path.commonpath(dataparser_outputs.image_filenames))
             with Progress(
                 TextColumn(f":movie_camera: Rendering split {split} :movie_camera:"),
@@ -1270,7 +1414,8 @@ class dynamicDatasetRender(RoboBaseRender):
             ) as progress:
                 for camera_idx, (camera, batch) in enumerate(progress.track(dataloader, total=len(dataset))):
                     # if camera_idx != 262: # this is for novel_pose experiment render
-                    if camera_idx != 212 : # frame 259 in grasp only train dataset render
+                    # if camera_idx != 212 : # frame 259 in grasp only train dataset render
+                    if camera_idx != render_camera_index: # frame 259 in grasp only train dataset render
                         continue
                     else:
 
@@ -1299,21 +1444,44 @@ class dynamicDatasetRender(RoboBaseRender):
                                         relative_time=end_time
                                         dynamic_information['add_simulation']=True
                                         # after motion sequence 
+
+                                elif add_grasp_control==True:
+                                    dt_value=time-grasp_time_list[0]
+                                    if time in grasp_time_list:
+                                        
+                                        add_grasp_control_value=max_gripper_degree*dt_value/grasp_inter_time # np.linspace from 0 to -0.8525
+                                        # print('add_grasp_control_value',add_grasp_control_value
+                                        #       )
+                                        dynamic_information['add_grasp_control']=add_grasp_control_value
+                                        dynamic_information['add_grasp_object']=True
+                                        relative_time=dt_value
+                                    elif time in grasp_time_list_stage_2:
+                                        #move object with gripper to simulate grasp success
+                                        dynamic_information['add_grasp_control']=max_gripper_degree
+                                        dynamic_information['move_with_gripper']=True
+                                        dynamic_information['add_grasp_object']=True
+                                        relative_time=dt_value
+                                    elif grasp_time_list_stage_2[9]<=time :
+                                        # grasp_success
+                                        dynamic_information['add_grasp_control']=max_gripper_degree
+                                        dynamic_information['move_with_gripper']=True
+                                        dynamic_information['add_grasp_object']=True
+                                        relative_time=dt_value
+                                    # elif time in grasp_time_list_stage_3:
+                                    #     # release object
+                                    #     dynamic_information['add_grasp_control']=max_gripper_degree
+                                    #     dynamic_information['move_with_gripper']=True
+                                    else:
+                                        dynamic_information['add_grasp_control']=0
+                                        relative_time=0
                                 else:
                                     relative_time=0
                                     dynamic_information['add_simulation']=False
 
-                                if add_grasp_control==True:
-                                    if time in grasp_time_list:
-                                        add_grasp_control_value=-0.8525*time/40 # np.linspace from 0 to -0.8525
-                                        print('add_grasp_control_value',add_grasp_control_value
-                                              )
-                                        dynamic_information['add_grasp_control']=add_grasp_control_value
-                                    else:
-                                        dynamic_information['add_grasp_control']=0
                                 dynamic_information["time_stamp"]=int(time)
                                 dynamic_information["dt"]=relative_time
                                 outputs=pipeline.model.get_dynamic_outputs(camera,dynamic_information)
+                                
                                 time_step=dynamic_information["time_stamp"]
                                 timestep_filename=f"frame_{time_step:05d}"
                             # gt_batch = batch.copy()
@@ -1359,6 +1527,7 @@ class dynamicDatasetRender(RoboBaseRender):
                                         continue
                                 else:
                                     output_image = outputs[output_name]
+
                                     del output_name
 
                                     # Map to color spaces / numpy

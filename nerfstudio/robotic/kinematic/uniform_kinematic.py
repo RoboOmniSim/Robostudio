@@ -19,8 +19,8 @@ def load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=np
         center_vector_gt=center_vector_pass
         scale_factor=scale_factor_pass
 
-        a = [0, 0, -0.427, -0.357, 0, 0]
-
+        a = [0, 0, -0.427, -0.357, 0, -0.015] # pass the gripper a value to the uniform kinematic
+        # a = [0, 0, -0.427, -0.357, 0, -0.015] # gripper close and other case
         #alpha should be default from urdf
 
         alpha = [0, np.pi/2, 0.07, 0, np.pi/2, -np.pi/2] # this 0.07 only for manual adjust for the novel pose because of the numerical error in radians degree and sin computation
@@ -58,8 +58,8 @@ def load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=np
             joint_angles_degrees_gripper[3]=1.30405# for right down
             joint_angles_degrees_gripper[4]=-2.8658# for right up
 
-            a_gripper[0]=-0.025
-            # a_gripper[0]=0
+            a_gripper[0]=-0.0
+            # a_gripper[0]=-0.025 # gripper close case
             a_gripper[1]=-0.03853/scale_factor[2]# gt from phyiscs parameter
             a_gripper[2]=0.041998/scale_factor[2]
             # we apologize for this due to the numerical error, 
