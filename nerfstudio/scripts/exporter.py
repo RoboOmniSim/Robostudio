@@ -602,8 +602,8 @@ class ExportGaussianSplat_mesh(RoboExporter):
         _, pipeline, _, _ = eval_setup(self.load_config)
 
 
+        # Define your bounding boxes as [xmin, ymin, zmin, xmax, ymax, zmax]
 
-        # import from the urdf file
 
         # operation scene bbox
 
@@ -619,11 +619,24 @@ class ExportGaussianSplat_mesh(RoboExporter):
 
 
 
-        # Define your bounding boxes as [xmin, ymin, zmin, xmax, ymax, zmax]
-
-
-
-
+        expand_bbox = False
+        experiment_type = self.experiment_type
+        if experiment_type == "novelpose":
+            expand_bbox=True
+            self.use_gripper=False # no gripper for novelpose
+            contain_object=False
+        elif experiment_type == "push_box":
+            expand_bbox=False
+            self.use_gripper=False # no gripper for push_box
+            contain_object=True
+        elif experiment_type == "grasp":
+            contain_object=False
+            expand_bbox=False
+            self.use_gripper=True # no gripper for push_box
+        elif experiment_type == "grasp_object":
+            contain_object=True
+            expand_bbox=False
+            self.use_gripper=True
         # the inside value is not important and it is just a placeholder during debug
         bboxes_gripper = np.array([
         [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
@@ -652,7 +665,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
         [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
         [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
         [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
-        [0.324, -0.03, -0.307, 0.352, 0.08, -0.25],  # Bounding box 8
+        [0, 0, 0, 0, 0, 0],  # Bounding box 8
         [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9
         ])
 
@@ -668,16 +681,8 @@ class ExportGaussianSplat_mesh(RoboExporter):
         else:
             bboxes=bboxes_nogripper
             bbox_ids=bbox_ids_nogripper
-        grasp_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj' # for 0416 grasp case
 
 
-        # this is for grasp object bbox:
-
-        # load_bbox_info="/home/lou/gs/nerfstudio/grasp_object_bbox/bbox_list.txt"
-
-        # this if for grasp only bboc from forward kinematic 
-        # load_bbox_info="/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_close/bbox_info/bbox_list.txt"
-        # load_bbox_info='/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/bbox_info/bbox_list.txt' # grasp close case static
         load_bbox_info=self.load_bbox_info
         bbox_list=np.loadtxt(load_bbox_info) 
         bbox_list=bbox_list.reshape(-1,6) # 12 total, 0 is base, 1-7 are link, 8-11 are rmatch with 10-13
@@ -685,36 +690,6 @@ class ExportGaussianSplat_mesh(RoboExporter):
         for i in range(len(bbox_list)):
             # replace the bboxes with the new scenes bboxs
             if use_gripper is False:
-                bboxes[i+1]=bbox_list[i]
-            else:
-
-                # no object case
-                # if i==0:
-                #     bboxes[9]=bbox_list[i]
-                # elif i==1:
-                #     bboxes[1]=bbox_list[i]
-                # elif i==2:
-                #     bboxes[2]=bbox_list[i]
-                # elif i==3:
-                #     bboxes[3]=bbox_list[i]
-                # elif i==4:
-                #     bboxes[4]=bbox_list[i]
-                # elif i==5:  
-                #     bboxes[5]=bbox_list[i]
-                # elif i==6:
-                #     bboxes[6]=bbox_list[i]
-                # elif i==7:
-                #     bboxes[7]=bbox_list[i]
-                # elif i==8:
-                #     bboxes[10]=bbox_list[i]
-                # elif i==9:
-                #     bboxes[11]=bbox_list[i]
-                # elif i==10:
-                #     bboxes[12]=bbox_list[i]
-                # elif i==11:
-                #     bboxes[13]=bbox_list[i]
-
-                # object case
                 if i==0:
                     bboxes[9]=bbox_list[i]
                 elif i==1:
@@ -731,64 +706,97 @@ class ExportGaussianSplat_mesh(RoboExporter):
                     bboxes[6]=bbox_list[i]
                 elif i==7:
                     bboxes[7]=bbox_list[i]
-                elif i==8:
-                    bboxes[8]=bbox_list[i]
-                elif i==9:
-                    bboxes[10]=bbox_list[i]
-                elif i==10:
-                    bboxes[11]=bbox_list[i]
-                elif i==11:
-                    bboxes[12]=bbox_list[i]
-                elif i==12:
-                    bboxes[13]=bbox_list[i]  
+
+
+            else:
+
+                if contain_object==False:# no object case
+                    if i==0:
+                        bboxes[9]=bbox_list[i]
+                    elif i==1:
+                        bboxes[1]=bbox_list[i]
+                    elif i==2:
+                        bboxes[2]=bbox_list[i]
+                    elif i==3:
+                        bboxes[3]=bbox_list[i]
+                    elif i==4:
+                        bboxes[4]=bbox_list[i]
+                    elif i==5:  
+                        bboxes[5]=bbox_list[i]
+                    elif i==6:
+                        bboxes[6]=bbox_list[i]
+                    elif i==7:
+                        bboxes[7]=bbox_list[i]
+                    elif i==8:
+                        bboxes[10]=bbox_list[i]
+                    elif i==9:
+                        bboxes[11]=bbox_list[i]
+                    elif i==10:
+                        bboxes[12]=bbox_list[i]
+                    elif i==11:
+                        bboxes[13]=bbox_list[i]
+
+                # object case
+                else:
+                    if i==0:
+                        bboxes[9]=bbox_list[i]
+                    elif i==1:
+                        bboxes[1]=bbox_list[i]
+                    elif i==2:
+                        bboxes[2]=bbox_list[i]
+                    elif i==3:
+                        bboxes[3]=bbox_list[i]
+                    elif i==4:
+                        bboxes[4]=bbox_list[i]
+                    elif i==5:  
+                        bboxes[5]=bbox_list[i]
+                    elif i==6:
+                        bboxes[6]=bbox_list[i]
+                    elif i==7:
+                        bboxes[7]=bbox_list[i]
+                    elif i==8:
+                        bboxes[8]=bbox_list[i]
+                    elif i==9:
+                        bboxes[10]=bbox_list[i]
+                    elif i==10:
+                        bboxes[11]=bbox_list[i]
+                    elif i==11:
+                        bboxes[12]=bbox_list[i]
+                    elif i==12:
+                        bboxes[13]=bbox_list[i]  
 
                 
 
-        expand_bbox = False
+
 
         # novelpose case
-        # if expand_bbox:
-            # for bbox fix.
+        if expand_bbox:
+            # for manual bbox fix for the novelpose part when the manual bbox is not accurate
 
 
-            # # use a knn to make all point in region that belongs to background to its nerest point with sam id
-            # bboxes[3,1] = bboxes[3,1]+0.015   # expand the bounding box by 10% to ensure all points are included
-            # bboxes[3,3] = bboxes[3,3]+0.025 
-            # bboxes[3,0] = bboxes[3,0]*1.05
-            # bboxes[3,2] = bboxes[3,2]*1.05
-            # bboxes[3,4] = bboxes[3,4]*1.05
-            # bboxes[3,5] = bboxes[3,5]*1.05  
-            # bboxes[2,0] = bboxes[2,0]
-            # bboxes[2,3] = bboxes[2,3]+0.03
-            # bboxes[2,2] = bboxes[2,2]
-            # bboxes[2,5] = bboxes[2,5]+0.03
+            # use a knn to make all point in region that belongs to background to its nerest point with sam id
+            bboxes[3,1] = bboxes[3,1]+0.015   # expand the bounding box by 10% to ensure all points are included
+            bboxes[3,3] = bboxes[3,3]+0.025 
+            bboxes[3,0] = bboxes[3,0]*1.05
+            bboxes[3,2] = bboxes[3,2]*1.05
+            bboxes[3,4] = bboxes[3,4]*1.05
+            bboxes[3,5] = bboxes[3,5]*1.05  
+            bboxes[2,0] = bboxes[2,0]
+            bboxes[2,3] = bboxes[2,3]+0.03
+            bboxes[2,2] = bboxes[2,2]
+            bboxes[2,5] = bboxes[2,5]+0.03
 
-            # bboxes[4,4] = bboxes[4,4]+0.015
-            # bboxes[4,3] = bboxes[4,3]+0.02
+            bboxes[4,4] = bboxes[4,4]+0.015
+            bboxes[4,3] = bboxes[4,3]+0.02
             
-            # bboxes[5,0] = bboxes[5,0]
-            # bboxes[5,3] = bboxes[5,3]+0.02
-            # bboxes[5,4] = bboxes[5,4]+0.035
-            # bboxes[:4,2] = bboxes[:4,2]*1.05
+            bboxes[5,0] = bboxes[5,0]
+            bboxes[5,3] = bboxes[5,3]+0.02
+            bboxes[5,4] = bboxes[5,4]+0.035
+            bboxes[:4,2] = bboxes[:4,2]*1.05
 
-            # bboxes[4:6,1]  = bboxes[4:6,1]*1.05
+            bboxes[4:6,1]  = bboxes[4:6,1]*1.05
 
-        # # this is for novel_pose bbox
-        # load_recenter_info_path ='/home/lou/gs/nerfstudio/Recenter_info.txt'
-        # recenter_info=load_txt(load_recenter_info_path)
 
-        # for i in range(len(recenter_info)):
-        #     # replace the bboxes with the new scenes bboxs
-        #     if i ==0:
-        #         # base in not important
-        #         key_info=f'link{i}.ply'
-        #         # bboxes[i]=recenter_info[key_info]['gs_bbox_list']
-        #     else:
-        #         key_info=f'link{i}.ply'
-        #         temp_array=np.zeros(6)
-        #         temp_array[0:3]=recenter_info[key_info][33]
-        #         temp_array[3:6]=recenter_info[key_info][34]
-        #         bboxes[i]=temp_array
 
 
         

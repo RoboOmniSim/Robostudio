@@ -274,7 +274,38 @@
         "--vis=viewer+wandb",
       ]
     },
+    {
+      "name": "Python: train novel_pose for debug",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "splatfacto",
 
+        "--data=./dataset/novelpose/dynamic/dynamic_result",
+        
+        
+        "--vis=viewer+wandb",
+      ]
+    },
+
+
+    {
+      "name": "Python: train grasp for debug",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/train.py",
+      "console": "integratedTerminal",
+      "args": [
+        "splatfacto",
+
+        "--data=./dataset/grasp/static/output_gripper_open",
+        
+        
+        "--vis=viewer+wandb",
+      ]
+    },
     {
       "name": "Python: export issac2sim semantic ply for push_box dataset",
       "type": "python",
@@ -294,8 +325,112 @@
         "--use_gripper=True",
       ]
     },
-
-
+    {
+      "name": "Python: export novelpose part semantic ply for novelpose dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
+        
+        "--output-dir=./dataset/novelpose/semantic/part_gs",
+        "--experiment_type=novelpose",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/novelpose",
+        "--load_bbox_info=./dataset/novelpose/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=False",
+      ]
+    },
+    {
+      "name": "Python: export grasp part semantic ply for grasp static dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        
+        "--output-dir=./dataset/grasp/semantic/part_gs",
+        "--experiment_type=grasp",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/grasp",
+        "--load_bbox_info=./dataset/grasp/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=True",
+      ]
+    },
+    {
+      "name": "Python: export grasp semantic ply for grasp static dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        
+        "--output-dir=./dataset/grasp/semantic",
+        "--experiment_type=grasp",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/grasp",
+        "--load_bbox_info=./dataset/grasp/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=True",
+      ]
+    },
+    {
+      "name": "Python: export novelpose  semantic ply for novelpose dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
+        
+        "--output-dir=./dataset/novelpose/semantic",
+        "--experiment_type=novelpose",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/novelpose",
+        "--load_bbox_info=./dataset/novelpose/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=False",
+      ]
+    },
+    {
+      "name": "Python: render novelpose ",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
+        "--output_file=./dataset/novelpose/trajectory/joint_states_data.txt",
+        "--output_path=./dataset/novelpose/render",
+        "--experiment_type=novelpose",
+        "--static_path=./dataset/novelpose/semantic/splat.ply",
+      ]
+    },
+    {
+      "name": "Python: render grasp only  for certain camera_view ",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        "--output_file=./dataset/grasp/trajectory/joint_states_data.txt",
+        "--output_path=./dataset/grasp/render",
+        "--experiment_type=grasp",
+        "--static_path=./dataset/grasp/semantic/splat.ply",
+      ]
+    },
     {
       "name": "Python: export issac2sim for certain time and pose based on push_box dataset",
       "type": "python",
@@ -336,7 +471,25 @@
 
       ]
     },
+    {
+      "name": "Python: render grasp only  for certain camera_view ",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output_path=./dataset/grasp/render",
 
+        "--experiment_type=grasp",
+        "--output_file=./dataset/grasp/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/grasp/semantic/splat.ply",
+
+
+      ]
+    },
     {
       "name": "Python: export grasp_only deform mesh",
       "type": "python",

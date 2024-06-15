@@ -126,7 +126,7 @@ export part gaussian splatting and semantic ply
 
 --output-dir is the path to save the semantic model
 
---experiemtn_type specific the experiment type
+--experiment_type specific the experiment type
 
 --output_file is the trajectory file from moveit or omnisim
 

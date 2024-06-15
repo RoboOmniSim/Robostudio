@@ -1084,6 +1084,7 @@ class dynamicDatasetRender(RoboBaseRender):
             add_grasp_object=False
             render_camera_index=262
             time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
+            add_trajectory=False
         elif experiment_type=='push_bag':
             
 
@@ -1104,7 +1105,7 @@ class dynamicDatasetRender(RoboBaseRender):
             flip_x_coordinate=False
             add_grasp_control=False
             add_grasp_object=False
-
+            add_trajectory=False
             render_camera_index=0
             time_list=np.linspace(100, 160, 60).astype(int) # push_bag
         elif experiment_type=='issac2sim':
@@ -1156,7 +1157,7 @@ class dynamicDatasetRender(RoboBaseRender):
 
             max_gripper_degree=-0.8525
             grasp_inter_time=40
-
+            add_trajectory=False
             render_camera_index=212
             time_list=np.linspace(0, 40, 40).astype(int) # grasp
             grasp_time_list=np.linspace(0,40,grasp_inter_time).astype(int)
@@ -1166,7 +1167,7 @@ class dynamicDatasetRender(RoboBaseRender):
             center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
             # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
             scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
-
+            add_trajectory=False
             add_simulation=False
             simulation_timestamp=0
             add_gripper=True
