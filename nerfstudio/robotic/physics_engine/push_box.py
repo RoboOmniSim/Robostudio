@@ -184,7 +184,7 @@ def example_push(dt):
     center_of_mass=np.array([0,0,0])
     # for push case:
     # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
-    object_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/box_convex.obj'  # id 8 
+    object_mesh_path='./Robostudio/dataset/push_box/part/object/box_convex.obj'  # id 8 
     # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
 
     # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
@@ -346,7 +346,7 @@ def example_push_backward(dt):
     center_of_mass=np.array([0,0,0])
     # for push case:
     # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
-    object_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/box_convex.obj'  # id 8 
+    object_mesh_path='./Robostudio/dataset/push_box/part/object/box_convex.obj'  # id 8 
     # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
 
     # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
