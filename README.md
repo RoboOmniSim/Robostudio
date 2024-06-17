@@ -256,7 +256,7 @@ export policy to Gaussian Scenes in format of trajectory
 
 ### render result 
 <div align="center">
-  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/6f904562-6843-475d-8193-db0ee2910869">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/87804e24-693d-42dd-8b04-e537d7ed329a">
 </div>
 
 
@@ -304,12 +304,12 @@ and will add more data shortly
 
 ### Grasping
 <div align="center">
-  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/4776e933-c5d0-4b95-ad75-94b95e3917a5">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/ae4b3bfb-6f7e-4cd4-a647-9075ee8c051d">
 </div>
 
 ### novel pose 
 <div align="center">
-  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/17db4774-b1fc-458f-8e5e-2ebec75eeb1f">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/c5354df5-774d-4bdd-a5e5-7f3776fc1740">
 </div>
 
 
