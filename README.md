@@ -200,6 +200,8 @@ ns-export  dynamic_dataset
 
 
 
+
+
 <!-- Backward optimization to refine trajectory and physics parameter -->
 
 <!-- load refined parameter to the omnisim -->
@@ -252,6 +254,13 @@ video2policy2render
 export policy to Gaussian Scenes in format of trajectory
 
 
+### render result 
+<div align="center">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/6f904562-6843-475d-8193-db0ee2910869">
+</div>
+
+
+
 
  --trajectory_file the trajectory from issac only
 
@@ -289,6 +298,21 @@ We will upload four set of data
 
 
 and will add more data shortly
+
+
+## Function of Gaussian Based robotic arm
+
+### Grasping
+<div align="center">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/4776e933-c5d0-4b95-ad75-94b95e3917a5">
+</div>
+
+### novel pose 
+<div align="center">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/17db4774-b1fc-458f-8e5e-2ebec75eeb1f">
+</div>
+
+
 
 
 
