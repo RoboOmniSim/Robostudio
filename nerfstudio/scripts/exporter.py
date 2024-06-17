@@ -1421,55 +1421,10 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             
             if add_trajectory:
 
-                # resize the movement_angle_state to the same length as the timestamp of trajectory 
-                traj = np.array(load_trajectory(self.trajectory_file)).flatten().reshape(-1, 6) # for six dof path
-
-
-
-                adaptive_length = len(traj)
-                traj_mode  = [
-                    {
-                        "Time": np.zeros(1),
-                        "Joint Names": ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6','gripper_main','gripper_left_down', 'gripper_left_up', 'gripper_right_down', 'gripper_right_up'],
-                        "Joint Positions":  np.zeros(11) # for 6dof plus 5 gripper joints
-                    }
-                    for _ in range(adaptive_length)
-                    ]
-                t=np.linspace(0, adaptive_length, adaptive_length)
-
-
-                # manually break the dof limit 
-                # max_link_1=-0.05
-                # max_link_2=-0.09
-                # max_link_3=0.17
-                # max_link_4=0.05
-
-                # direct grasp
-                max_link_1=-0.05
-                max_link_2=-0.09
-                max_link_3=0.17
-                max_link_4=0.05
-                extra_link_1=linear_interpolation(0, max_link_1, 10)
-                extra_link_2=linear_interpolation(0, max_link_2, 10)
-                extra_link_3=linear_interpolation(0, max_link_3, 10)
-                extra_link_4=linear_interpolation(0, max_link_4, 10)
-                stage_1=0
-                for i in range(adaptive_length):
-                        traj_mode[i]["Time"] = t
-                        traj_mode[i]["Joint Positions"][:6] = traj[i]
-                        traj_mode[i]["Joint Positions"][6:] = [0,0,0,0,0] # for the gripper joints
-                        
-                        if 230< i <= 240:
-                            traj_mode[i]["Joint Positions"][1] = traj_mode[i]["Joint Positions"][1]+extra_link_1[stage_1]
-                            traj_mode[i]["Joint Positions"][2] = traj_mode[i]["Joint Positions"][2]+extra_link_2[stage_1]
-                            traj_mode[i]["Joint Positions"][3] = traj_mode[i]["Joint Positions"][3]+extra_link_3[stage_1] 
-                            traj_mode[i]["Joint Positions"][4] = traj_mode[i]["Joint Positions"][4]+extra_link_4[stage_1]
-                            stage_1+=1
-                # from timestamp 230-260 we have the gripper control
-
-                # 10 for extra move, 10 for gripper close, 10 for move back
+    
+                
+                traj_mode=edit_trajectory(self.trajectory_file,start_time)
                 movement_angle_state=traj_mode
-
 
                 
 

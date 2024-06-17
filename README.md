@@ -231,7 +231,7 @@ get part based on either base and scale or manual bounding box(recommend manual 
 infer parameter from LLM 
 
 
-
+load part reconstructed mesh, scale, axis, initial pose and object mesh information to omnisim
 
 
 

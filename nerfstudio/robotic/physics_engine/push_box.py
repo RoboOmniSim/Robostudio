@@ -334,8 +334,10 @@ def example_push(dt):
 # add_collision here hhh 
 
 
+def add_simulation_control(mesh_object,center_of_mass,fulcrum,linear_velocity,angular_velocity,dt):
 
 
+    return 0
 
 
 
