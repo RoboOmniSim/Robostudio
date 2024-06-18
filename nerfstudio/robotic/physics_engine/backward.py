@@ -87,7 +87,7 @@ def optimize(xyz,transformation_t0,projection_matrix,view_mat,uv_gt,depth_gt,del
     class Reproj(nn.Module):
         def __init__(self, t):
             super().__init__()
-            self.pose = pp.Parameter(pp.randn_se3(t))
+            self.pose = pp.Parameter(pp.randn_se3(t))  #replace with the pose from physics simulation
 
         def forward(self, xyz):
             # the last dimension of the output is 6,
@@ -437,6 +437,27 @@ def compute_angular_velocity(xyz_0,xyz_optimized,delta_t):
 
 if __name__ == '__main__':
     
+
+    # experiment with the backward optimization
+
+    # step 1 find the video and write optical flow ground truth
+
+    # mask only the object , load view matrix and projection matrix and the 3D points
+
+
+    # find the uv sequence along with the object in the sequence 
+
+    # downsample the object by only pick the point that represent edges and the mass center of the object
+
+    # start the incremental optimization with certain time interval
+
+    # and export the pose and view the result in 3d viewer and render
+    
+
+
+
+    # if the single view not work, use multiple view to optimize the 3D points by batchify the optimization
+
 
 
     # test the forward simulation and backward optimization
