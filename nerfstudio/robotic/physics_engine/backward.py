@@ -118,6 +118,8 @@ def optimize(xyz,transformation_t0,projection_matrix,view_mat,uv_gt,depth_gt,del
             break
 
     optimized = objective_func.pose
+
+    linearized_pose=optimized.pose.Log() # lie group to lie algebra 
     pts_optimized = pp.mat2SE3(optimized).Act(xyz)
 
 
@@ -136,7 +138,7 @@ def optimize(xyz,transformation_t0,projection_matrix,view_mat,uv_gt,depth_gt,del
 
 
 
-    return pts_optimized,velocities,optimized
+    return pts_optimized,velocities,optimized,linearized_pose
 
 
 
@@ -440,18 +442,30 @@ if __name__ == '__main__':
 
     # experiment with the backward optimization
 
-    # step 1 find the video and write optical flow ground truth
+    # step 1 find the video and write optical flow ground truth  (confidence map)
 
     # mask only the object , load view matrix and projection matrix and the 3D points
 
+
+
+    #levenberg marquardt optimization 
 
     # find the uv sequence along with the object in the sequence 
 
     # downsample the object by only pick the point that represent edges and the mass center of the object
 
-    # start the incremental optimization with certain time interval
+    # downsample trajectory for discrete pose
+
+    # physics engine forward pose pass to each downsampled timestamp (0,1,2,3,4,5)
+
+
+    # start the incremental optimization (0,1) (0,2) (0,3) (0,4) (0,5)
 
     # and export the pose and view the result in 3d viewer and render
+
+    # linearized_pose transform to a combination of taylor series and represent it in newton euler form
+
+    
     
 
 
