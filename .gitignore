@@ -204,3 +204,5 @@ omnisim/*
 # nerfstudio/scripts/*
 .vscode/*
 tests/*
+
+dataset.zip

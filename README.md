@@ -188,7 +188,7 @@ ns-export gaussian-splat-deformmesh
 render for novel-trajectory and novel-time
 
 ```bash
-ns-export  dynamic_dataset
+ns-render  dynamic_dataset
         --load-config=
         --output_path=renders/push_box_dynamic
         --experiment_type=push_bag
@@ -281,7 +281,7 @@ ns-export gaussian-splat-deformmesh
 render for novel-trajectory and novel-time
 
 ```bash
-ns-export  dynamic_dataset
+ns-render  dynamic_dataset
         --load-config=
         --output_path=renders/push_box_dynamic
         --experiment_type=issac2sim
