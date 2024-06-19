@@ -67,7 +67,7 @@ dependencies = [
     "pytorch-msssim",
     "pathos",
     "packaging",
-    "trimesh==4.2.0",
+    "trimesh",
     "open3d==0.18.0",
     "plyfile==1.0.3",
 ]
