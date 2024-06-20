@@ -53,6 +53,7 @@ from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.physics_engine.collision_detection import collision_detection
 from nerfstudio.robotic.kinematic.gripper_utils import *
 from nerfstudio.robotic.physics_engine.issac2sim import *
+from nerfstudio.robotic.config.raw_config import Roboticconfig
 @dataclass
 class Exporter:
     """Export the mesh from a YML config to a folder."""
@@ -617,7 +618,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
         export_part = self.export_part
 
 
-
+        roboconfig=Roboticconfig()
 
         expand_bbox = False
         experiment_type = self.experiment_type
@@ -1293,6 +1294,8 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         experiment_type=self.experiment_type 
         output_file = self.output_file
         static_path=self.static_path
+
+        roboconfig=Roboticconfig()
 
         if experiment_type=='novelpose':
             
