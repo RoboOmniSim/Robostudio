@@ -97,6 +97,8 @@ class RoboExporter:
     trajectory_file: Path=Path("./dataset/issac2sim/trajectory/dof_positions.txt")
     """Path to the trajectory file."""
     
+    meta_sim_path: Path=Path("./dataset/issac2sim/meta_sim/meta_sim.yaml")
+    """Path to the meta simulation file for omnisim adapter."""
 
 def validate_pipeline(normal_method: str, normal_output_name: str, pipeline: Pipeline) -> None:
     """Check that the pipeline is valid for this exporter.
@@ -617,10 +619,20 @@ class ExportGaussianSplat_mesh(RoboExporter):
         # export each part of the model to view segmentation quality 
         export_part = self.export_part
 
-
+        # roboconfig way
+        # update experiment with meta_sim_path
         roboconfig=Roboticconfig()
+        roboconfig.setup_params(self.meta_sim_path)
 
-        expand_bbox = False
+
+        expand_bbox = roboconfig.expand_bbox
+        contain_object = roboconfig.contain_object
+        self.use_gripper = roboconfig.use_gripper
+
+        experiment_type=roboconfig.experiment_type
+        
+
+        # raw
         experiment_type = self.experiment_type
         if experiment_type == "novelpose":
             expand_bbox=True
@@ -688,6 +700,9 @@ class ExportGaussianSplat_mesh(RoboExporter):
         bbox_list=np.loadtxt(load_bbox_info) 
         bbox_list=bbox_list.reshape(-1,6) # 12 total, 0 is base, 1-7 are link, 8-11 are rmatch with 10-13
 
+
+
+        # rewrite this method to submethod 
         for i in range(len(bbox_list)):
             # replace the bboxes with the new scenes bboxs
             if use_gripper is False:
@@ -1291,11 +1306,30 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
 
 
 
+        # omnisim way
+        roboconfig=Roboticconfig()
+        roboconfig.setup_params(self.meta_sim_path)
+
+
+        experiment_type=roboconfig.experiment_type
+        center_vector=roboconfig.center_vector
+        scale_factor=roboconfig.scale_factor
+        simulation_timestamp=roboconfig.simulation_timestamp
+        add_simulation=roboconfig.add_simulation
+        add_gripper=roboconfig.add_gripper
+        start_time=roboconfig.start_time
+        end_time_collision=roboconfig.end_time_collision
+        flip_x_coordinate=roboconfig.flip_x_coordinate
+        add_grasp_control=roboconfig.add_grasp_control
+        add_grasp_object=roboconfig.add_grasp_object
+        max_gripper_degree=roboconfig.max_gripper_degree
+        add_trajectory=roboconfig.add_trajectory
+        
+
+        # raw
         experiment_type=self.experiment_type 
         output_file = self.output_file
         static_path=self.static_path
-
-        roboconfig=Roboticconfig()
 
         if experiment_type=='novelpose':
             

@@ -712,7 +712,8 @@ class RoboBaseRender:
     """If true, checks line-of-sight occlusions when computing camera distance and rejects cameras not visible to each other"""
     trajectory_file: Path = Path("trajectory.json")
     """Path to trajectory file."""
-
+    meta_sim_path: Path= Path("./Robostudio/dataset/config_info/push_bag.yaml")
+    """Path to meta sim file."""
 
 @dataclass
 class RenderCameraPath(BaseRender):
@@ -1059,9 +1060,48 @@ class dynamicDatasetRender(RoboBaseRender):
 
     def main(self):
         config: TrainerConfig
+        
+        # omnisim logic
+        roboconfig=Roboticconfig()
+        roboconfig.setup_params(self.meta_sim_path)
 
 
 
+        
+        experiment_type=roboconfig.experiment_type
+        center_vector=roboconfig.center_vector
+        scale_factor=roboconfig.scale_factor
+        simulation_timestamp=roboconfig.simulation_timestamp
+        add_simulation=roboconfig.add_simulation
+        add_gripper=roboconfig.add_gripper
+        start_time=roboconfig.start_time
+        end_time_collision=roboconfig.end_time_collision
+        flip_x_coordinate=roboconfig.flip_x_coordinate
+        add_grasp_control=roboconfig.add_grasp_control
+        add_grasp_object=roboconfig.add_grasp_object
+        render_camera_index=roboconfig.render_camera_index
+        time_list=roboconfig.time_list
+        add_trajectory=roboconfig.add_trajectory
+        novel_time=roboconfig.novel_time
+        novel_fps_rate=roboconfig.novel_fps_rate
+        max_gripper_degree=roboconfig.max_gripper_degree
+        grasp_inter_time=roboconfig.grasp_inter_time
+        grasp_time_list=roboconfig.grasp_time_list
+        grasp_time_list_stage_2=roboconfig.grasp_time_list_stage_2
+        grasp_time_list_stage_3=roboconfig.grasp_time_list_stage_3
+
+
+
+
+
+
+
+
+
+
+
+
+        # raw
         # experiment_type='novel_pose' # novelpose or push_bag
 
         # move this to config file 

@@ -94,7 +94,8 @@ class Roboticconfig(PrintableConfig):
     """grasp time list for  gripper simulation stage 3, this is stage gripper release object"""
     time_list: Optional[np.ndarray] = np.array([])
     """time list for rendering"""
-
+    novel_fps_rate: Optional[float] = 0
+    """novel fps rate for rendering"""
 
     # urdf config
 
@@ -112,6 +113,26 @@ class Roboticconfig(PrintableConfig):
     engine_backend: Optional[str] = "omni" # omni or python 
     """the backend of physics engine: omni is omnisim, python is gradsim based simulation"""
 
+    def setup_params(self, meta_sim_path: Path):
+        """
+        Setup the parameters for simulation
+        
+        Args:
+            meta_sim_path: Path to the meta simulation file
+            config_params: Dictionary containing configuration parameters
+        
+        Returns:
+            int: Status code (0 for success)
+        """
+        # Iterate over the items in config_params and set them as attributes
+        config_params= yaml.load(meta_sim_path, Loader=yaml.FullLoader)
+        for key, value in config_params.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                print(f"Warning: {key} is not a valid parameter")
+
+        return 0
 
 # helper fucntion, load omnisim metaconfig and transfer it to nerfstudio config
 
