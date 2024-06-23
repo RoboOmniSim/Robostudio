@@ -35,9 +35,9 @@ _It’s as simple as plug and play with robostudio!_
 
 # Quickstart
 
-TODO: what will the below content go through
+TODO: replace the gaussian training and render process with omnisim config stucture
 
-TODO(Yiran): Maybe code from nerfstudio should remove, user can download themselves?
+<!-- TODO(Yiran): Maybe code from nerfstudio should remove, user can download themselves? -->
 
 ## 1. Installation: Setup the environment
 
@@ -246,16 +246,18 @@ load part reconstructed mesh, scale, axis, initial pose and object mesh informat
 
 export to urdf and fix collision group based on omnisim
 
-video2policy2real
+### video2policy2real
 export policy to real world in format of gripper pose
 
+add omnisim data and file here
 
 
 
 
-video2policy2render
+### video2policy2render
 export policy to Gaussian Scenes in format of trajectory
 
+add omnisim data and file here 
 
 ### render result 
 <div align="center">
@@ -318,14 +320,14 @@ and will add more data shortly
 </div>
 
 
-
+<!-- 
 
 
 ### Tensorboard / WandB / Viewer
 
 We support four different methods to track training progress, using the viewer[tensorboard](https://www.tensorflow.org/tensorboard), [Weights and Biases](https://wandb.ai/site), and ,[Comet](https://comet.com/?utm_source=nerf&utm_medium=referral&utm_content=github). You can specify which visualizer to use by appending `--vis {viewer, tensorboard, wandb, comet viewer+wandb, viewer+tensorboard, viewer+comet}` to the training command. Simultaneously utilizing the viewer alongside wandb or tensorboard may cause stuttering issues during evaluation steps. The viewer only works for methods that are fast (ie. nerfacto, instant-ngp), for slower methods like NeRF, use the other loggers.
 
-# Learn More
+# Learn More -->
 
 And that's it for getting started with the basics of Robostudio.
 
