@@ -52,12 +52,12 @@ import open3d as o3d
 import trimesh
 from nerfstudio.robotic.render_util.graphic_utils import *
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-from nerfstudio.robotic.physics_engine.backward import *
+from nerfstudio.robotic.physics_engine.python.backward import *
 
 # physics simulation
-from nerfstudio.robotic.physics_engine.push_box import *
+from nerfstudio.robotic.physics_engine.python.push_box import *
 from nerfstudio.robotic.kinematic.gripper_utils import *
-from nerfstudio.robotic.physics_engine.grasp import *
+from nerfstudio.robotic.physics_engine.python.grasp import *
 def random_quat_tensor(N):
     """
     Defines a random quaternion tensor of shape (N, 4)

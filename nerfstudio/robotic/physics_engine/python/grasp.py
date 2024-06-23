@@ -117,6 +117,7 @@ def get_object_tracjetory_from_simulation(mark_id,mark_id_offset,start_time_stam
     dynamic_scale_x=np.ones(3)
     dynamic_scale_z=np.ones(3)
 
+    # this is the manual linear regressin parameter for object movement
     if time_stamp < 265 :
         dynamic_scale_x[0]=0.7
         dynamic_scale_x[1]=0.5 # should avoid rotation of arm?

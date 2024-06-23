@@ -50,9 +50,9 @@ import trimesh
 
 from nerfstudio.robotic.utils.utils import load_transformation_package, relative_tf_to_global,load_txt,load_txt_bbox
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-from nerfstudio.robotic.physics_engine.collision_detection import collision_detection
+from nerfstudio.robotic.physics_engine.python.collision_detection import collision_detection
 from nerfstudio.robotic.kinematic.gripper_utils import *
-from nerfstudio.robotic.physics_engine.issac2sim import *
+from nerfstudio.robotic.physics_engine.omnisim.issac2sim import *
 from nerfstudio.robotic.config.raw_config import Roboticconfig
 @dataclass
 class Exporter:

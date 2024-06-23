@@ -68,7 +68,7 @@ import trimesh
 from nerfstudio.robotic.render_util.graphic_utils import *
 import vdbfusion
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-from nerfstudio.robotic.physics_engine.issac2sim import *
+from nerfstudio.robotic.physics_engine.omnisim.issac2sim import *
 from nerfstudio.robotic.config.raw_config import Roboticconfig
 def _render_trajectory_video(
     pipeline: Pipeline,
