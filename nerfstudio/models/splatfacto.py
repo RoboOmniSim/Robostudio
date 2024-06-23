@@ -54,10 +54,15 @@ from nerfstudio.robotic.render_util.graphic_utils import *
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.physics_engine.python.backward import *
 
+# render helper functions
+
+from nerfstudio.robotic.render_util.render_helper_func import *
+
 # physics simulation
 from nerfstudio.robotic.physics_engine.python.push_box import *
 from nerfstudio.robotic.kinematic.gripper_utils import *
 from nerfstudio.robotic.physics_engine.python.grasp import *
+
 def random_quat_tensor(N):
     """
     Defines a random quaternion tensor of shape (N, 4)
@@ -1052,23 +1057,15 @@ class SplatfactoModel(Model):
 
 
 
-
+        # assign different physics simulation to different object based on its semantic category
         for i in range(assigned_ids.shape[0]):  # iterate over all sam mask
             
             if i ==0 or i==9:
                 # background and base
                 
                 mark_id=i
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
 
-                semantic_id_ind=(semantic_id==assigned_ids[mark_id]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[mark_id]].reshape(-1,1)
-                # translation= np.dot(R_c, deform_poses_trans) + T_c
-                select_xyz= np.array(xyz[semantic_id_ind])
-                select_opacities=  np.array(opacities[semantic_id_ind])
-                select_scales =  np.array(scales[semantic_id_ind])
-                select_features_extra =  np.array(features_extra[semantic_id_ind])
-                select_rotation =  np.array(rots[semantic_id_ind])
-                select_feature_dc =  np.array(features_dc[semantic_id_ind])
 
                 output_xyz.append(select_xyz)
                 output_opacities.append(select_opacities)
@@ -1086,16 +1083,17 @@ class SplatfactoModel(Model):
 
 
                 mark_id=i
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
 
-                semantic_id_ind=(semantic_id==assigned_ids[mark_id]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[mark_id]].reshape(-1,1)
-                # translation= np.dot(R_c, deform_poses_trans) + T_c
-                select_xyz=  np.array(xyz[semantic_id_ind])
-                select_opacities=  np.array(opacities[semantic_id_ind])
-                select_scales =  np.array(scales[semantic_id_ind])
-                select_features_extra =  np.array(features_extra[semantic_id_ind])
-                select_rotation =  np.array(rots[semantic_id_ind])
-                select_feature_dc =  np.array(features_dc[semantic_id_ind])
+                # semantic_id_ind=(semantic_id==assigned_ids[mark_id]).reshape(-1)
+                # semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[mark_id]].reshape(-1,1)
+                # # translation= np.dot(R_c, deform_poses_trans) + T_c
+                # select_xyz=  np.array(xyz[semantic_id_ind])
+                # select_opacities=  np.array(opacities[semantic_id_ind])
+                # select_scales =  np.array(scales[semantic_id_ind])
+                # select_features_extra =  np.array(features_extra[semantic_id_ind])
+                # select_rotation =  np.array(rots[semantic_id_ind])
+                # select_feature_dc =  np.array(features_dc[semantic_id_ind])
 
 
 
@@ -1550,16 +1548,30 @@ class SplatfactoModel(Model):
 
             else:
 
-                mark_id=i-1
-              
+                # robotic arm kinematic
 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
-                raw_xyz=  np.array(xyz[semantic_id_ind])
-                # if test_inverse:
+                mark_id=i-1
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+
+
+                # semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
+                # semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+               
+
+                # select_opacities=  np.array(opacities[semantic_id_ind])
+                # select_scales =  np.array(scales[semantic_id_ind])
+                # select_features_extra =  np.array(features_extra[semantic_id_ind])
+                # select_rotation =  np.array(rots[semantic_id_ind])
+                # select_feature_dc =  np.array(features_dc[semantic_id_ind])
+                
+
+
+
+                # raw_xyz=  np.array(xyz[semantic_id_ind])
+
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
-                # else:
+
                 rotation=final_transformations_list[mark_id][:3,:3]
                 translation=final_transformations_list[mark_id][:3,3]
 
@@ -1569,18 +1581,7 @@ class SplatfactoModel(Model):
                 forward_point=  np.array(deform_point @ rotation.T+ translation )
 
                 select_xyz=forward_point+center_vector_gt
-
-
-
-
-                select_opacities=  np.array(opacities[semantic_id_ind])
-                select_scales =  np.array(scales[semantic_id_ind])
-                select_features_extra =  np.array(features_extra[semantic_id_ind])
-                select_rotation =  np.array(rots[semantic_id_ind])
-                select_feature_dc =  np.array(features_dc[semantic_id_ind])
-
                 rotation_splat=rotation@rotation_inv
-
 
                 rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
                 select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
@@ -1588,7 +1589,6 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-        
                 output_xyz.append(select_xyz)
                 output_opacities.append(select_opacities)
                 output_scales.append(select_scales)
