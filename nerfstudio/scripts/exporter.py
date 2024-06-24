@@ -1307,23 +1307,23 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
 
 
         # omnisim way
-        roboconfig=Roboticconfig()
-        roboconfig.setup_params(self.meta_sim_path)
+        # roboconfig=Roboticconfig()
+        # roboconfig.setup_params(self.meta_sim_path)
 
 
-        experiment_type=roboconfig.experiment_type
-        center_vector=roboconfig.center_vector
-        scale_factor=roboconfig.scale_factor
-        simulation_timestamp=roboconfig.simulation_timestamp
-        add_simulation=roboconfig.add_simulation
-        add_gripper=roboconfig.add_gripper
-        start_time=roboconfig.start_time
-        end_time_collision=roboconfig.end_time_collision
-        flip_x_coordinate=roboconfig.flip_x_coordinate
-        add_grasp_control=roboconfig.add_grasp_control
-        add_grasp_object=roboconfig.add_grasp_object
-        max_gripper_degree=roboconfig.max_gripper_degree
-        add_trajectory=roboconfig.add_trajectory
+        # experiment_type=roboconfig.experiment_type
+        # center_vector=roboconfig.center_vector
+        # scale_factor=roboconfig.scale_factor
+        # simulation_timestamp=roboconfig.simulation_timestamp
+        # add_simulation=roboconfig.add_simulation
+        # add_gripper=roboconfig.add_gripper
+        # start_time=roboconfig.start_time
+        # end_time_collision=roboconfig.end_time_collision
+        # flip_x_coordinate=roboconfig.flip_x_coordinate
+        # add_grasp_control=roboconfig.add_grasp_control
+        # add_grasp_object=roboconfig.add_grasp_object
+        # max_gripper_degree=roboconfig.max_gripper_degree
+        # add_trajectory=roboconfig.add_trajectory
         
 
         # raw
@@ -1422,14 +1422,18 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             raise ValueError('experiment type not found')
 
 
+        # engine id mapping
+
         if add_gripper:
             
             # gripper_control,joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper=load_gripper_control(output_file,experiment_type,start_time=start_time,end_time=end_time_collision)
                     
 
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
+            engine_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
         else:
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # no gripper
+            engine_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
         # Read the pre timestamp angle state from txt file
         movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate,scale_factor_pass=scale_factor,center_vector_pass=center_vector)
 
