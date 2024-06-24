@@ -7,7 +7,7 @@ import trimesh
 
 
 
-from nerfstudio.robotic.physics_engine.collision_detection import collision_detection
+from nerfstudio.robotic.physics_engine.python.collision_detection import collision_detection
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.kinematic.control_helper import *
 

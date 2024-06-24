@@ -60,51 +60,51 @@ def project_sam_mask(xyz,projection_matrix,view_mat,mask):
 
 
 
-def increment_labels(cameras, labels,xyz):
+# def increment_labels(cameras, labels,xyz):
 
-    # camers 100
+#     # camers 100
 
-    # xyz 10000*3
+#     # xyz 10000*3
 
-    label_list=[[xyz]]*len(camears)
-    for camera in cameras:
-        mask=load_mask
+#     label_list=[[xyz]]*len(camears)
+#     for camera in cameras:
+#         mask=load_mask
 
-        xyz=load_ply
-        projection_matrix,view_mat= camera.extrinsic, intrinsci
-
-
-
-        labels=project_sam_mask(xyz,projection_matrix,view_mat,mask) # share same dimension with xyz
-
-        # move labels to cpu
-        label_list[i]=labels
+#         xyz=load_ply
+#         projection_matrix,view_mat= camera.extrinsic, intrinsci
 
 
 
-    label_list # 100*10000*1
+#         labels=project_sam_mask(xyz,projection_matrix,view_mat,mask) # share same dimension with xyz
 
-    for i in 10000:
-        100 labels, 
-
-        one hot, or any distribution 
-        set this largest value to the semantic mask of this point.
-
-    return semantic_mask
+#         # move labels to cpu
+#         label_list[i]=labels
 
 
-def pixel_trajectory_gs(gs,pixel,traj):
-    traj # pixel*timestamp , optical flow
+
+#     label_list # 100*10000*1
+
+#     for i in 10000:
+#         100 labels, 
+
+#         one hot, or any distribution 
+#         set this largest value to the semantic mask of this point.
+
+#     return semantic_mask
 
 
-    traj # current index, t1 saved value, t0
+# def pixel_trajectory_gs(gs,pixel,traj):
+#     traj # pixel*timestamp , optical flow
 
 
-    t0_pixel_project_gs map to t1_pixel  # supervision t_0 static projection + depth changes
+#     traj # current index, t1 saved value, t0
 
-    # output new_porjection matrix. static projection matrix + depth changes+global transformation
 
-    return new_projection_matrix
+#     t0_pixel_project_gs map to t1_pixel  # supervision t_0 static projection + depth changes
+
+#     # output new_porjection matrix. static projection matrix + depth changes+global transformation
+
+#     return new_projection_matrix
 
 
 

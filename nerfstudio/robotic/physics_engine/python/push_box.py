@@ -13,7 +13,7 @@ import open3d as o3d
 
 
 
-from nerfstudio.robotic.physics_engine.collision_detection import collision_detection
+from nerfstudio.robotic.physics_engine.python.collision_detection import collision_detection
 
 
 
@@ -23,7 +23,7 @@ from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from scipy.spatial.transform import Rotation as R
 
 import pypose as pp
-from nerfstudio.robotic.physics_engine.backward import *
+from nerfstudio.robotic.physics_engine.python.backward import *
 
 def compute_torque(force, application_point):
     r"""Compute the torque due to a force applied at a specific point.

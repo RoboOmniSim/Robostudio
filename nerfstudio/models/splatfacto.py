@@ -979,6 +979,7 @@ class SplatfactoModel(Model):
                         gripper_control=None,joint_angles_degrees_gripper=None, a_gripper=None, alpha_gripper=None, d_gripper=None,add_gripper=False,path=None,add_simulation=False,
                         add_grasp_object=False,add_grasp_object_simulation=0,add_grasp_object_duration=(0,0),add_trajectory=False,move_with_gripper=False,
                         add_grasp_control=0,dt=0,
+                        engine_ids=0,
                         flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,flip_x_coordinate_gripper=False,flip_y_coordinate_gripper=False,flip_z_coordinate_gripper=False):
         """Takes in physics setting, generates the deformation of the object, and computes the output of the model.
         Args:
@@ -999,16 +1000,20 @@ class SplatfactoModel(Model):
             alpha_gripper: the alpha parameter of the gripper
             d_gripper: the d parameter of the gripper
 
-
-            Functional level:
-            add_gripper: the flag of adding gripper
-            path: the path of the object
+            physics setting:
+            engine_ids: the set of id mapping with the semantic category, like mpm, kinematic,dynamic,friction,etc
             add_simulation: the flag of adding simulation
             add_grasp_object: the flag of adding grasp object
             add_grasp_object_simulation: the flag of adding grasp object simulation
             add_grasp_object_duration: the duration of the grasp object
             add_trajectory: the flag of adding trajectory
             add_grasp_control: the flag of adding grasp control
+
+
+            Functional level:
+            add_gripper: the flag of adding gripper
+            path: the path of the object
+
             dt: the time step of the simulation
             flip_x_coordinate: the flag of flipping x coordinate
             flip_y_coordinate: the flag of flipping y coordinate
