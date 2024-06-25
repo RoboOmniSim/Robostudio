@@ -57,7 +57,7 @@ from nerfstudio.robotic.render_util.gaussian_fuse import *
 import pypose as pp
 
 
-from nerfstudio.robotic.physics_engine.backward import optimize_photometrix
+from nerfstudio.robotic.physics_engine.python.backward import optimize_photometrix
 
 
 def random_quat_tensor(N):

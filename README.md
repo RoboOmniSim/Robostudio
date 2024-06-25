@@ -95,7 +95,7 @@ static dataset (Gaussian splatting)
 find the dataset you want to follow:(grasp,zero_pose,novelpose,grasp_object,push_bag)
 
 ```bash
-ns-train  splatfacto --data --vis+wandb
+ns-train  splatfacto --data 
 ```
 
 
