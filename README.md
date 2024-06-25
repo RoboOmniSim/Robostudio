@@ -94,8 +94,9 @@ static dataset (Gaussian splatting)
 
 find the dataset you want to follow:(grasp,zero_pose,novelpose,grasp_object,push_bag)
 
+--data is path of dataset
 ```bash
-ns-train  splatfacto --data --vis+wandb
+ns-train  splatfacto --data 
 ```
 
 
@@ -267,8 +268,9 @@ add omnisim data and file here
 
 
 
- --trajectory_file the trajectory from issac only
+ --trajectory_file the trajectory from issac2sim only
 
+This export the issac trajectory for certain time-stamp
 ```bash
 ns-export gaussian-splat-deformmesh
 
