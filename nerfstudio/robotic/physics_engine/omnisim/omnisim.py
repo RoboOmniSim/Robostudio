@@ -11,6 +11,13 @@ def load_object_trajectory():
     """
     Load object trajectory from omnisim issac backend tensor
     """
+
+
+    # bos pos and id from omnisim.py
+
+
+
+
     pass
 
 
@@ -18,6 +25,9 @@ def load_robotic_trajectory():
     """
     Load robotic trajectory from omnisim issac backend tensor
     """
+
+
+    # robotic trajectory from omnisim.py
     pass
 
 

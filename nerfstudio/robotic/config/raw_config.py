@@ -149,6 +149,9 @@ def omni2gs_config(omni_config_path: Path, gs_config_path: Path):
 
     """
     
+    # 
+
+
     return 0
 
 
@@ -174,6 +177,22 @@ def export_urdf_to_omnisim_config(omni_urdf_path: Path, twodgs_urdf_config_path:
 
     ## export all information to omnisim config
 
+
+
+    # object level urdf : mass, friction, edit urdf's dae and obj from y-up to z-up, edit parameter in dae, edit rpy to pi/2,0,0 in obj urdf
+
+
+    # setup target position of gripper center
+
+
+
+    # table scale
+
+
+    # real world position
+    #franka_pose.p = gymapi.Vec3(0, 0, 0.28)
+
+    #table_pose.p = gymapi.Vec3(0.5, 0.0, 0.5 * table_dims.z)
 
     return 0
 
