@@ -1069,7 +1069,7 @@ class SplatfactoModel(Model):
                 # background and base
                 
                 mark_id=i
-                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
 
 
                 output_xyz.append(select_xyz)
@@ -1088,7 +1088,7 @@ class SplatfactoModel(Model):
 
 
                 mark_id=i
-                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
 
                 # semantic_id_ind=(semantic_id==assigned_ids[mark_id]).reshape(-1)
                 # semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[mark_id]].reshape(-1,1)
@@ -1107,7 +1107,7 @@ class SplatfactoModel(Model):
                 if add_simulation==True:
 
                     # dt=0.8
-                    recenter_vector,rotation, translation,simulation_position=example_push(dt)
+                    recenter_vector,rotation, translation,simulation_position,adaptive_vector=example_push(dt)
                     raw_xyz= select_xyz
 
 
@@ -1117,9 +1117,11 @@ class SplatfactoModel(Model):
 
                     forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
 
-                    forward_point=forward_point-simulation_position
-
+                    # raw
+                    # forward_point=forward_point-simulation_position
+                    forward_point=forward_point+adaptive_vector
                     output_xyz_object=forward_point+recenter_vector
+                    # output_xyz_object=forward_point
 
                     rotation_splat=rotation
 
@@ -1185,7 +1187,7 @@ class SplatfactoModel(Model):
                         output_semantic_id.append(semantic_id_ind_sam)
                     elif  move_with_gripper==False and add_grasp_object==True:
 
-                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim=example_push(dt)
+                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
                         # beyond the simulation time is the same as the simulation time
                         if time_diff>10:
@@ -1223,7 +1225,7 @@ class SplatfactoModel(Model):
                         output_semantic_id.append(semantic_id_ind_sam)
                     else:
                         # offset_vector=np.array([0,-0.02,-0.02]) # this is due to the absolute value difference between the gripper and the object
-                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim=example_push(dt)
+                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
                         # beyond the simulation time is the same as the simulation time
                         if time_diff>10:
@@ -1291,10 +1293,10 @@ class SplatfactoModel(Model):
                 mark_id=5  #6-1
                 # apply deformation 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
                 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+                # semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
+                # semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1332,10 +1334,9 @@ class SplatfactoModel(Model):
 
 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
                 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1373,10 +1374,8 @@ class SplatfactoModel(Model):
                 mark_id=8
                 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-                
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1417,10 +1416,8 @@ class SplatfactoModel(Model):
                 mark_id=9
 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
                 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1458,10 +1455,8 @@ class SplatfactoModel(Model):
                 # right up finger of gripper
                 mark_id=10
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-                
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1498,11 +1493,9 @@ class SplatfactoModel(Model):
                 # robotic arm kinematic
 
                 mark_id=i-1
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
 
 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
 
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]

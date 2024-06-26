@@ -9,9 +9,9 @@ import torch
 
 
 
-def filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc):
-    semantic_id_ind=(semantic_id==assigned_ids[mark_id]).reshape(-1)
-    semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[mark_id]].reshape(-1,1)
+def filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=0):
+    semantic_id_ind=(semantic_id==assigned_ids[index]).reshape(-1)
+    semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[index]].reshape(-1,1)
         
     select_xyz= np.array(xyz[semantic_id_ind])
     select_opacities=  np.array(opacities[semantic_id_ind])

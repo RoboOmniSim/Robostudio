@@ -1062,38 +1062,53 @@ class dynamicDatasetRender(RoboBaseRender):
         config: TrainerConfig
         
         # omnisim logic
-        # roboconfig=Roboticconfig()
-        # roboconfig.setup_params(self.meta_sim_path)
+        roboconfig=Roboticconfig()
+        roboconfig.setup_params(self.meta_sim_path)
 
-
+        output_file =self.output_file
+        static_path=self.static_path
 
         
-        # experiment_type=roboconfig.experiment_type
-        # center_vector=roboconfig.center_vector
-        # scale_factor=roboconfig.scale_factor
-        # simulation_timestamp=roboconfig.simulation_timestamp
-        # add_simulation=roboconfig.add_simulation
-        # add_gripper=roboconfig.add_gripper
-        # start_time=roboconfig.start_time
-        # end_time_collision=roboconfig.end_time_collision
-        # flip_x_coordinate=roboconfig.flip_x_coordinate
-        # add_grasp_control=roboconfig.add_grasp_control
-        # add_grasp_object=roboconfig.add_grasp_object
-        # render_camera_index=roboconfig.render_camera_index
-        # time_list=roboconfig.time_list
-        # add_trajectory=roboconfig.add_trajectory
-        # novel_time=roboconfig.novel_time
-        # novel_fps_rate=roboconfig.novel_fps_rate
-        # max_gripper_degree=roboconfig.max_gripper_degree
-        # grasp_inter_time=roboconfig.grasp_inter_time
-        # grasp_time_list=roboconfig.grasp_time_list
-        # grasp_time_list_stage_2=roboconfig.grasp_time_list_stage_2
-        # grasp_time_list_stage_3=roboconfig.grasp_time_list_stage_3
+        experiment_type=roboconfig.experiment_type
+        center_vector=roboconfig.center_vector
+        scale_factor=roboconfig.scale_factor
+        simulation_timestamp=roboconfig.simulation_timestamp
+        add_simulation=roboconfig.add_simulation
+        add_gripper=roboconfig.add_gripper
+        start_time=roboconfig.start_time
+        end_time=roboconfig.end_time
+        flip_x_coordinate=roboconfig.flip_x_coordinate
+        add_grasp_control=roboconfig.add_grasp_control
+        add_grasp_object=roboconfig.add_grasp_object
+        render_camera_index=roboconfig.render_camera_index
 
 
+        add_trajectory=roboconfig.add_trajectory
+        novel_time=roboconfig.novel_time
+        novel_fps_rate=roboconfig.novel_fps_rate
+        max_gripper_degree=roboconfig.max_gripper_degree
 
 
+        time_list_start=roboconfig.time_list_start
+        time_list_end=roboconfig.time_list_end
+        time_list=np.linspace(time_list_start, time_list_end, time_list_end-time_list_start).astype(int)
 
+        grasp_inter_time=roboconfig.grasp_inter_time
+        grasp_time_list_start=roboconfig.grasp_time_list_start
+        grasp_time_list_end=roboconfig.grasp_time_list_end
+        grasp_time_list=np.linspace(grasp_time_list_start,grasp_time_list_end,grasp_inter_time+1).astype(int)
+        grasp_time_list_stage_2_start=roboconfig.grasp_time_list_stage_2_start
+        grasp_time_list_stage_2_end=roboconfig.grasp_time_list_stage_2_end
+        grasp_time_list_stage_2=np.linspace(grasp_time_list_stage_2_start,grasp_time_list_stage_2_end,grasp_inter_time).astype(int)
+        grasp_time_list_stage_3_start=roboconfig.grasp_time_list_stage_3_start
+        grasp_time_list_stage_3_end=roboconfig.grasp_time_list_stage_3_end
+        grasp_time_list_stage_3=np.linspace(grasp_time_list_stage_3_start,grasp_time_list_stage_3_end,grasp_inter_time).astype(int)
+
+
+        push_time_list_start=roboconfig.push_time_list_start
+        push_time_list_end=roboconfig.push_time_list_end
+
+        push_time_list=np.linspace(push_time_list_start,push_time_list_end,push_time_list_end-push_time_list_start).astype(int)
 
 
 
@@ -1106,154 +1121,163 @@ class dynamicDatasetRender(RoboBaseRender):
 
         # move this to config file 
         # experiment_type='push_bag' # novelpose or push_bag
-        experiment_type=self.experiment_type # novelpose or push_bag
-        output_file =self.output_file
-        static_path=self.static_path
-        if experiment_type=='novelpose':
+        # experiment_type=self.experiment_type # novelpose or push_bag
+        # output_file =self.output_file
+        # static_path=self.static_path
+        # if experiment_type=='novelpose':
             
-            center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
+        #     center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
 
-            scale_factor=np.array([1,1.25,1.65]) # x,y,z
+        #     scale_factor=np.array([1,1.25,1.65]) # x,y,z
 
-            simulation_timestamp=0
-            add_simulation=False
-            add_gripper=False
-            start_time=0
-            end_time_collision=0.5
-            flip_x_coordinate=False
-            add_grasp_control=False
-            add_grasp_object=False
-            render_camera_index=262
-            time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
-            add_trajectory=False
+        #     simulation_timestamp=0
+        #     add_simulation=False
+        #     add_gripper=False
+        #     start_time =0
+        #     end_time = 3.24
+        #     flip_x_coordinate=False
+        #     add_grasp_control=False
+        #     add_grasp_object=False
+        #     render_camera_index=262
+        #     time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
+        #     add_trajectory=False
 
-            novel_time=False
-        elif experiment_type=='push_bag':
-            
-
-
-            # center_vector=np.array([-0.261,0.145,-0.71]) #with base group1_bbox_fix push case
-
-            # scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-            
-            center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
-
-            scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-
-            simulation_timestamp=1.12
-            add_simulation=True
-            add_gripper=False
-            start_time=0
-            end_time_collision=0.5
-            flip_x_coordinate=False
-            add_grasp_control=False
-            add_grasp_object=False
-            add_trajectory=False
-            render_camera_index=0
-            time_list=np.linspace(100, 160, 60).astype(int) # push_bag
-
-            novel_time=False
-        elif experiment_type=='issac2sim':
+        #     novel_time=False
+        # elif experiment_type=='push_bag':
             
 
+
+        #     # center_vector=np.array([-0.261,0.145,-0.71]) #with base group1_bbox_fix push case
+
+        #     # scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+            
+        #     center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
+
+        #     scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
+
+        #     simulation_timestamp=1.12
+        #     add_simulation=True
+        #     add_gripper=False
+        #     start_time =0
+        #     end_time = 3.24
+        #     flip_x_coordinate=False
+        #     add_grasp_control=False
+        #     add_grasp_object=False
+        #     add_trajectory=False
+        #     render_camera_index=0
+        #     time_list=np.linspace(100, 160, 60).astype(int) # push_bag
+
+        #     novel_time=False
+        # 4 sec grasp close 
+            # push_time_list=np.array([120,121,122,123,124,125,126,127,128,129,130,131])
+        # elif experiment_type=='issac2sim':
             
 
-            center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
-
-            scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-
-            simulation_timestamp=1.12
-            add_simulation=False
-            add_gripper=True
-            start_time=0
-            end_time_collision=0.5
-            flip_x_coordinate=False
-            add_grasp_control=True
-            add_grasp_object=True
-            max_gripper_degree=-0.42
-            add_trajectory=True
-
-
-            render_camera_index=253  #235 245 253
-
-            # max_gripper_degree=-0.8525 # close
-
-
-            grasp_inter_time=10
-            grasp_time_list=np.linspace(240,250,grasp_inter_time+1).astype(int) # stage 1 gripper close and move with object add_grasp_object==True and move_with_gripper==False
-            # print('grasp_time_list',grasp_time_list)
-            grasp_time_list_stage_2=np.linspace(251,260,grasp_inter_time).astype(int) # stage 2 add_grasp_object==True and move_with_gripper==True
-            # print('grasp_time_list_stage_2',grasp_time_list_stage_2)
-            grasp_time_list_stage_3=np.linspace(261,270,grasp_inter_time).astype(int) # stage 3 release object add_grasp_object==True and move_with_gripper==False
             
-            #300-350 put the box back and render the release
-            time_list=np.linspace(250, 300, 50).astype(int) # push_bag
 
-            novel_time=False
-        elif experiment_type=='grasp':  # grasp data for the gripper only 
-            center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
-            scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
-            add_simulation=False
-            simulation_timestamp=0
-            add_gripper=True
-            start_time=0
-            end_time_collision=1
-            flip_x_coordinate=False
-            add_grasp_control=True
-            add_grasp_object=False
+        #     center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
 
-            max_gripper_degree=-0.8525
-            grasp_inter_time=40
-            add_trajectory=False
-            render_camera_index=212
-            time_list=np.linspace(0, 40, 40).astype(int) # grasp
-            grasp_time_list=np.linspace(0,40,grasp_inter_time).astype(int)
+        #     scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
 
-            novel_time=False
-        elif experiment_type=='grasp_object':  # grasp data for the gripper and object
+        #     simulation_timestamp=1.12
+        #     add_simulation=False
+        #     add_gripper=True
+        #     start_time =0
+        #     end_time = 3.24
+        #     flip_x_coordinate=False
+        #     add_grasp_control=True
+        #     add_grasp_object=True
+        #     max_gripper_degree=-0.42
+        #     add_trajectory=True
 
 
-            center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
+        #     render_camera_index=253  #235 245 253
 
-            scale_factor=np.array([1,1.25,1.65]) # x,y,z
-
-            simulation_timestamp=0
-            add_simulation=False
-            add_gripper=False
-            start_time=0
-            end_time_collision=0.5
-            flip_x_coordinate=False
-            add_grasp_control=False
-            add_grasp_object=False
-            render_camera_index=262
-            time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
-            add_trajectory=False
-
-            novel_time=True
-            novel_fps_rate=6 # this 
-        elif experiment_type=='novel_time':  # noveltime experiment for nove pose data
+        #     # max_gripper_degree=-0.8525 # close
 
 
-            center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
-            # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
-            scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
-            add_trajectory=False
-            add_simulation=False
-            simulation_timestamp=0
-            add_gripper=True
-            start_time=0
-            end_time_collision=0.5
-            flip_x_coordinate=True
-            add_grasp_control=True
-            add_grasp_object=True
-            render_camera_index=0
-            time_list=np.linspace(0, 400, 40).astype(int) # grasp
+        #     grasp_inter_time=10
+        #     grasp_time_list=np.linspace(240,250,grasp_inter_time+1).astype(int) # stage 1 gripper close and move with object add_grasp_object==True and move_with_gripper==False
+        #     # print('grasp_time_list',grasp_time_list)
+        #     grasp_time_list_stage_2=np.linspace(251,260,grasp_inter_time).astype(int) # stage 2 add_grasp_object==True and move_with_gripper==True
+        #     # print('grasp_time_list_stage_2',grasp_time_list_stage_2)
+        #     grasp_time_list_stage_3=np.linspace(261,270,grasp_inter_time).astype(int) # stage 3 release object add_grasp_object==True and move_with_gripper==False
+            
+        #     #300-350 put the box back and render the release
+        #     time_list=np.linspace(250, 300, 50).astype(int) # push_bag
 
-            novel_time=False
-        else:
-            print('experiment type not found')
-            raise ValueError('experiment type not found')
+        #     novel_time=False
+        # elif experiment_type=='grasp':  # grasp data for the gripper only 
+        #     center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
+        #     scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
+        #     add_simulation=False
+        #     simulation_timestamp=0
+        #     add_gripper=True
+        #     start_time =0
+        #     end_time = 3.24
+        #     flip_x_coordinate=False
+        #     add_grasp_control=True
+        #     add_grasp_object=False
 
+        #     max_gripper_degree=-0.8525
+        #     grasp_inter_time=40
+        #     add_trajectory=False
+        #     render_camera_index=212
+        #     time_list=np.linspace(0, 40, 40).astype(int) # grasp
+        #     grasp_time_list=np.linspace(0,40,grasp_inter_time).astype(int)
+
+        #     novel_time=False
+        # elif experiment_type=='grasp_object':  # grasp data for the gripper and object
+
+            
+        #     center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
+        #     # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
+        #     scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
+
+        #     add_simulation=False
+        #     simulation_timestamp=0
+        #     add_gripper=True
+
+        #     flip_x_coordinate=True
+        #     add_grasp_control=True
+        #     add_grasp_object=True
+        #     max_gripper_degree=-0.8525
+
+
+
+        #     start_time =0
+        #     end_time = 3.24
+
+        #     render_camera_index=262
+        #     time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
+        #     add_trajectory=False
+
+        #     novel_time=False
+        #     novel_fps_rate=6 # this 
+        # elif experiment_type=='novel_time':  # noveltime experiment for nove pose data
+
+
+        #     center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
+        #     # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
+        #     scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
+        #     add_trajectory=False
+        #     add_simulation=False
+        #     simulation_timestamp=0
+        #     add_gripper=True
+        #     start_time =0
+        #     end_time = 3.24
+        #     flip_x_coordinate=True
+        #     add_grasp_control=True
+        #     add_grasp_object=True
+        #     render_camera_index=0
+        #     time_list=np.linspace(0, 400, 40).astype(int) # grasp
+
+        #     novel_time=False
+        # else:
+        #     print('experiment type not found')
+        #     raise ValueError('experiment type not found')
+
+        # engine id mapping
 
         if add_gripper:
             
@@ -1261,8 +1285,10 @@ class dynamicDatasetRender(RoboBaseRender):
                     
 
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
+            engine_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
         else:
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # no gripper
+            engine_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # with gripper
       
         dynamic_information_list=[]
 
@@ -1393,8 +1419,7 @@ class dynamicDatasetRender(RoboBaseRender):
             )
             
 
-            # 4 sec grasp close 
-            push_time_list=np.array([120,121,122,123,124,125,126,127,128,129,130,131])
+
             
             images_root = Path(os.path.commonpath(dataparser_outputs.image_filenames))
             with Progress(
@@ -1418,10 +1443,9 @@ class dynamicDatasetRender(RoboBaseRender):
                             with torch.no_grad():
                                 # outputs = pipeline.model.get_outputs_for_camera(camera)+
                                 if add_simulation==True:
-                                    start_time =0
-                                    end_time = 1.12
+
                                     interpolated_times = np.linspace(start_time, end_time, push_time_list.shape[0])
-                                    if time < 120:
+                                    if time < push_time_list[0]:
                                         relative_time=start_time
                                         dynamic_information['add_simulation']=False
                                         # no intersection

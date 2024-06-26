@@ -62,10 +62,6 @@ class Roboticconfig(PrintableConfig):
     """whether to add objct simulation"""
     add_gripper: Optional[bool] = False
     """whether to add gripper"""
-    start_time: Optional[float] = 0
-    """start time for simulation"""
-    end_time_collision: Optional[float] = 0
-    """end time for collision"""
     flip_x_coordinate: Optional[bool] = False
     """whether to flip x coordinate"""
     flip_y_coordinate: Optional[bool] = False
@@ -84,15 +80,40 @@ class Roboticconfig(PrintableConfig):
     """whether to add trajectory"""
     render_camera_index: Optional[int] = 0
     """camera index for render"""
+
+    start_time: Optional[float] = 0
+    """start time for object simulation"""
+    end_time: Optional[float] = 0
+    """end time for object simulation"""
+
+    end_time_collision: Optional[float] = 0
+    """end time for object grasp simulation"""
+
+    push_time_list_start:Optional[int] = 0
+    """push time list for object simulation"""
+    push_time_list_end:Optional[int] = 0
+    """push time list for object simulation"""
+
     grasp_inter_time: Optional[float] = 0
     """grasp interval time for four different gripper simulation stage"""
-    grasp_time_list: Optional[np.ndarray] = np.array([])
+    grasp_time_list_start: Optional[int] = 0
     """grasp time list for  gripper simulation stage 1, this is stage gripper close and move with object"""
-    grasp_time_list_stage_2: Optional[np.ndarray] = np.array([])
+    grasp_time_list_end: Optional[int] = 0
+    """grasp time list for  gripper simulation stage 1, this is stage gripper close and move with object"""
+
+    grasp_time_list_stage_2_start: Optional[int] = 0
     """grasp time list for  gripper simulation stage 2, this is stage gripper grasp success and move with object"""
-    grasp_time_list_stage_3: Optional[np.ndarray] = np.array([])
+    grasp_time_list_stage_2_end: Optional[int] = 0
+    """grasp time list for  gripper simulation stage 2, this is stage gripper grasp success and move with object"""
+
+    grasp_time_list_stage_3_start: Optional[int] = 0
     """grasp time list for  gripper simulation stage 3, this is stage gripper release object"""
-    time_list: Optional[np.ndarray] = np.array([])
+    grasp_time_list_stage_3_end: Optional[int] = 0
+    """grasp time list for  gripper simulation stage 3, this is stage gripper release object"""
+
+    time_list_start: Optional[int] =0
+    """time list for rendering"""
+    time_list_end: Optional[int] = 0
     """time list for rendering"""
     novel_fps_rate: Optional[float] = 0
     """novel fps rate for rendering"""
@@ -125,7 +146,8 @@ class Roboticconfig(PrintableConfig):
             int: Status code (0 for success)
         """
         # Iterate over the items in config_params and set them as attributes
-        config_params= yaml.load(meta_sim_path, Loader=yaml.FullLoader)
+        with open(meta_sim_path, 'r') as file:
+            config_params = yaml.safe_load(file)
         for key, value in config_params.items():
             if hasattr(self, key):
                 setattr(self, key, value)

@@ -149,7 +149,7 @@ ns-export gaussian-splat-mesh
         --load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt
         --export_part=False
         --use_gripper=True
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./push_bag.yaml
 ```
 
 
@@ -184,7 +184,7 @@ ns-export gaussian-splat-deformmesh
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
         --time_stamp=
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 ```
 
 
@@ -198,7 +198,7 @@ ns-render  dynamic_dataset
         --output_file=
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 
 ```
 
@@ -282,7 +282,7 @@ ns-export gaussian-splat-deformmesh
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
         --time_stamp=
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 ```
 
 
@@ -296,7 +296,7 @@ ns-render  dynamic_dataset
         --output_file=
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 
 ```
 

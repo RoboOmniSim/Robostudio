@@ -1,0 +1,36 @@
+experiment_type: issac2sim
+
+
+center_vector: [-0.261, 0.138, -0.71]  # with base group1_bbox_fix push case
+
+scale_factor: [1.290, 1.167, 1.22]  # x, y, z
+
+simulation_timestamp: 1.12
+add_simulation: False
+add_gripper: True
+start_time: 0
+end_time: 3.24
+end_time_collision: 0.5
+flip_x_coordinate: False
+add_grasp_control: True
+add_grasp_object: True
+max_gripper_degree: -0.42
+add_trajectory: True
+
+render_camera_index: 100  # 235 245 253
+
+grasp_inter_time: 10
+grasp_time_list_start: 240  # start of stage 1 gripper close and move with object
+grasp_time_list_end: 250  # end of stage 1 gripper close and move with object
+
+grasp_time_list_stage_2_start: 251  # start of stage 2 gripper grasp success and move with object
+grasp_time_list_stage_2_end: 260  # end of stage 2 gripper grasp success and move with object
+
+grasp_time_list_stage_3_start: 261  # start of stage 3 gripper release object
+grasp_time_list_stage_3_end: 270  # end of stage 3 gripper release object
+
+time_list_start: 10  # start time for push_bag
+time_list_end: 300  # end time for push_bag
+
+novel_time: False
+novel_fps_rate: 6

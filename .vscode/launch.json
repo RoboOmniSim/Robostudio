@@ -26,174 +26,10 @@
       "console": "integratedTerminal",
       "justMyCode": true
     },
-    {
-      "name": "Python: train",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "instant_ngp",
-        "--viewer.no-enable",
-        "--logging.event-writer=wandb"
-      ]
-    },
-    {
-      "name": "Python: train ngp",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": ["instant_ngp"]
-    },
-    {
-      "name": "Python: train ngp nerfstudio",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "instant_ngp",
-        // "--experiment_name=nerfstudio_experiment",
-        "--logging.local-writer.max-log-size=0",
-        "--viewer.no-enable"
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
-      ]
-    },
-    
-    {
-      "name": "Python: train Splatfactozero_pose_tsdf",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "robostudio-mesh",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        // "--data=/home/lou/Downloads/gripper_movement/output_grasp",
-        "--load-config=/home/lou/gs/nerfstudio/outputs/result/splatfacto/2024-05-12_023235/config.yml",
-          
-        "--output-dir=zero_pose_mesh",
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
-      ]
-    },
+   
+   
 
 
-
-    {
-      "name": "Python: train Splatfactozero_pose",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "splatfacto",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        // "--data=/home/lou/Downloads/gripper_movement/output_grasp",
-        "--data=/home/lou/Downloads/zero_pose/result",
-        
-        "--vis=viewer+wandb",
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
-      ]
-    },
-
-    {
-      "name": "Python: train Splatfacto_output_grasp",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "splatfacto",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        // "--data=/home/lou/Downloads/gripper_movement/output_grasp",
-        "--data=/home/lou/Downloads/gripper_movement/output_grasp",
-        
-        "--vis=viewer+wandb",
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
-      ]
-    },
-
-
-    {
-      "name": "Python: train Splatfacto_gripper_open",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "splatfacto",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        // "--data=/home/lou/Downloads/gripper_movement/output_grasp",
-        "--data=/home/lou/Downloads/gripper_movement/output_gripper_open",
-        
-        "--vis=viewer+wandb",
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
-      ]
-    },
-    {
-      "name": "Python: train Splatfacto_gripper_grasp_object_withdynamic",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "splatfacto",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        // "--data=/home/lou/Downloads/gripper_movement/output_grasp",
-        "--data=/home/lou/Downloads/gripper_movement/merged_output_grasp",
-        // "--output_dir=/home/lou/Downloads/gripper_movement/dynamic_grasp_object",
-        
-        "--vis=viewer+wandb",
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
-      ]
-    },
     
 
     {
@@ -207,7 +43,7 @@
         // "--experiment_name=nerfstudio_experiment",
         // "--logging.local-writer.max-log-size=0",
         // "--viewer.no-enable"
-        "--load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
         
         "--output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic",
         "--experiment_type=push_bag",
@@ -215,6 +51,9 @@
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
       ]
     },
+
+
+
 
     {
       "name": "Python: export SplatfactobackwardModel push box",
@@ -401,21 +240,7 @@
         "--use_gripper=False",
       ]
     },
-    {
-      "name": "Python: render novelpose ",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/render.py",
-      "console": "integratedTerminal",
-      "args": [
-        "dynamic_dataset",
-        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
-        "--output_file=./dataset/novelpose/trajectory/joint_states_data.txt",
-        "--output_path=./dataset/novelpose/render",
-        "--experiment_type=novelpose",
-        "--static_path=./dataset/novelpose/semantic/splat.ply",
-      ]
-    },
+
     {
       "name": "Python: render grasp only  for certain camera_view ",
       "type": "python",
@@ -431,106 +256,9 @@
         "--static_path=./dataset/grasp/semantic/splat.ply",
       ]
     },
-    {
-      "name": "Python: export issac2sim for certain time and pose based on push_box dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-deformmesh",
-        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
-        
-        "--output-dir=./dataset/issac2sim/forward",
-        "--experiment_type=issac2sim",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./dataset/issac2sim/semantic/splat.ply",
-        "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
-        "--time_stamp=239"
-      ]
-    },
 
 
-    {
-      "name": "Python: render issac2sim for certain camera_view based on push_box dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/render.py",
-      "console": "integratedTerminal",
-      "args": [
-        "dynamic_dataset",
-        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
-        
-        "--output_path=./dataset/issac2sim/render",
 
-        "--experiment_type=issac2sim",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./dataset/issac2sim/semantic/splat.ply",
-        "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
-
-
-      ]
-    },
-    {
-      "name": "Python: render grasp only  for certain camera_view ",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/render.py",
-      "console": "integratedTerminal",
-      "args": [
-        "dynamic_dataset",
-        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
-        
-        "--output_path=./dataset/grasp/render",
-
-        "--experiment_type=grasp",
-        "--output_file=./dataset/grasp/trajectory/joint_states_data.txt",
-        "--static_path=./dataset/grasp/semantic/splat.ply",
-
-
-      ]
-    },
-    {
-      "name": "Python: export grasp_only deform mesh",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-deformmesh",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        "--load-config=/home/lou/gs/nerfstudio/outputs/output_gripper_open/splatfacto/2024-05-15_182117/config.yml",
-        
-        "--output-dir=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/deform",
-        "--experiment_type=grasp",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic/splat.ply",
-
-
-      ]
-    },
-    {
-      "name": "Python: export SplatfactobackwardModel_deform_novelpose",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-deformmesh",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        "--load-config=/home/lou/gs/nerfstudio/outputs/novel_pose_dynamic/splatfacto/2024-04-05_203609/config.yml",
-        
-        "--output-dir=exports/splat/no_downscale/novel_pose_dynamic/deform",
-        "--experiment_type=novelpose",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply",
-
-      ]
-    },
 
     {
       "name": "Python: export SplatfactobackwardModel_deform_object_grasp_dynamic",
@@ -654,24 +382,6 @@
       ]
     },
 
-    {
-      "name": "Python: render dynamic single time stamp result grasp only checkpoint",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/render.py",
-      "console": "integratedTerminal",
-      "args": [
-        "dynamic_dataset",
-        "--load-config=/home/lou/gs/nerfstudio/outputs/output_gripper_open/splatfacto/2024-05-15_182117/config.yml",
-        
-        "--output_path=renders/grasp_only_dynamic",
-
-        "--experiment_type=grasp",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic/splat.ply",
-
-      ]
-    },
 
 
 
@@ -695,46 +405,65 @@
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/grasp_object_dynamic/semantic/splat.ply", // dynamic case
       ]
     },
-    {
-      "name": "Python: render dynamic single time stamp result novel pose  checkpoint",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/render.py",
-      "console": "integratedTerminal",
-      "args": [
-        "dynamic_dataset",
 
-        "--load-config=/home/lou/gs/nerfstudio/outputs/novel_pose_dynamic/splatfacto/2024-04-05_203609/config.yml",
-        "--output_path=renders/novel_pose_dynamic",
-        "--experiment_type=novelpose",
 
-        "--output_file=/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply",
-
-      ]
-    },
 
 
     {
-      "name": "Python: render dynamic single time stamp result push box checkpoint",
+      "name": "Python: export push box deform v2",
       "type": "python",
       "request": "launch",
-      "program": "nerfstudio/scripts/render.py",
+      "program": "nerfstudio/scripts/exporter.py",
       "console": "integratedTerminal",
       "args": [
-        "dynamic_dataset",
-        "--load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml",
-        "--output_path=renders/push_box_dynamic",
+        "gaussian-splat-deformmesh",
 
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic",
         "--experiment_type=push_bag",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
-
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/push_box/semantic/splat.ply",
+        "--meta_sim_path=./config_info/push_bag.yaml"
       ]
     },
-  
+
+
     {
-      "name": "Python: export SplatfactobackwardModel_deform",
+      "name": "Python: render push box deform v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output_path=renders/push_box_dynamic",
+        "--experiment_type=push_bag",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/push_box/semantic/splat.ply",
+        "--meta_sim_path=./config_info/push_bag.yaml"
+      ]
+    },
+    {
+      "name": "Python: render novelpose v2 ",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
+        "--output_file=./dataset/novelpose/trajectory/joint_states_data.txt",
+        "--output_path=./dataset/novelpose/render",
+        "--experiment_type=novelpose",
+        "--static_path=./dataset/novelpose/semantic/splat.ply",
+        "--meta_sim_path=./config_info/novelpose.yaml"
+      ]
+    },
+    {
+      "name": "Python: export novelpose deform v2",
       "type": "python",
       "request": "launch",
       "program": "nerfstudio/scripts/exporter.py",
@@ -744,102 +473,94 @@
         // "--experiment_name=nerfstudio_experiment",
         // "--logging.local-writer.max-log-size=0",
         // "--viewer.no-enable"
-        "--load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
         
-        "--output-dir=exports/splat/no_downscale/group1_bbox_fix",
-        // viewer
-        // "--viewer.enable",
-        // "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        // "--viewer.websocket-port=8014",
-        // "--pipeline.model.randomize-background",
-        // "--pipeline.model.cone-angle=0.00390625",
-        // "nerfstudio-data"
+        "--output_file=./dataset/novelpose/trajectory/joint_states_data.txt",
+        "--output-dir=./dataset/novelpose/render",
+        "--experiment_type=novelpose",
+        "--static_path=./dataset/novelpose/semantic/splat.ply",
+        "--meta_sim_path=./config_info/novelpose.yaml"
+      ]
+    },
+    {
+      "name": "Python: render grasp v2 ",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        "--output_file=./dataset/grasp/trajectory/joint_states_data.txt",
+        "--output_path=./dataset/grasp/render",
+        "--experiment_type=grasp",
+        "--static_path=./dataset/grasp/semantic/splat.ply",
+        "--meta_sim_path=./config_info/grasp.yaml"
+      ]
+    },
+    {
+      "name": "Python: export grasp v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-deformmesh",
+        // "--experiment_name=nerfstudio_experiment",
+        // "--logging.local-writer.max-log-size=0",
+        // "--viewer.no-enable"
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        "--output_file=./dataset/grasp/trajectory/joint_states_data.txt",
+        "--output-dir=./dataset/grasp/render",
+        "--experiment_type=grasp",
+        "--static_path=./dataset/grasp/semantic/splat.ply",
+        "--meta_sim_path=./config_info/grasp.yaml"
+
+
+      ]
+    },
+    {
+      "name": "Python: export issac2sim v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-deformmesh",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output-dir=./dataset/issac2sim/forward",
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/issac2sim/semantic/splat.ply",
+        "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
+        "--time_stamp=239",
+        "--meta_sim_path=./config_info/issac2sim.yaml"
+      ]
+    },
+
+
+    {
+      "name": "Python: render issac2sim v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/render.py",
+      "console": "integratedTerminal",
+      "args": [
+        "dynamic_dataset",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output_path=./dataset/issac2sim/render",
+
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/issac2sim/semantic/splat.ply",
+        "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
+
+        "--meta_sim_path=./config_info/issac2sim.yaml"
       ]
     },
   
 
-    {
-      "name": "Python: train ngp-friends",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": [
-        "instant_ngp",
-        "--viewer.enable",
-        "--viewer.zmq-url=tcp://127.0.0.1:6001",
-        "--viewer.websocket-port=8014",
-        "--steps_per_save=1000000",
-        "--steps_per_test=1000000",
-        "--pipeline.model.density-field-params.base-scale=4",
-        "--pipeline.model.density-field-params.num-cascades=1",
-        "pipeline.datamanager.train-dataparser:friends-data-parser-config",
-        "--pipeline.datamanager.train-dataparser.scene-scale=4"
-      ]
-    },
-    {
-      "name": "Python: train semantic_nerfw",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "args": ["semantic_nerf"]
-    },
-    {
-      "name": "Python: NeuS on Replica",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "justMyCode": false,
-      "env": { "CUDA_VISIBLE_DEVICES": "0" },
-      "args": [
-        "neus",
-        "--pipeline.model.sdf-field.inside-outside=True",
-        "--pipeline.model.mono-depth-loss-mult=0.1",
-        "--pipeline.model.mono-normal-loss-mult=0.05",
-        "--vis=wandb",
-        "sdfstudio-data",
-        "--data=data/sdfstudio-demo-data/replica-room0",
-        "--include_mono_prior=True"
-      ]
-    },
-    {
-      "name": "Python: NeuS-facto on Replica",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "justMyCode": false,
-      "env": { "CUDA_VISIBLE_DEVICES": "0" },
-      "args": [
-        "neus-facto",
-        "--pipeline.model.sdf-field.inside-outside=True",
-        "--pipeline.model.mono-depth-loss-mult=0.1",
-        "--pipeline.model.mono-normal-loss-mult=0.05",
-        "--vis=wandb",
-        "sdfstudio-data",
-        "--data=data/sdfstudio-demo-data/replica-room0",
-        "--include_mono_prior=True"
-      ]
-    },
-    {
-      "name": "Python: NeuS-facto on DTU (no mono-prior)",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/train.py",
-      "console": "integratedTerminal",
-      "justMyCode": false,
-      "env": { "CUDA_VISIBLE_DEVICES": "0" },
-      "args": [
-        "neus-facto",
-        "--pipeline.model.sdf-field.inside-outside=False",
-        "--vis=wandb",
-        "sdfstudio-data",
-        "--data=data/sdfstudio-demo-data/dtu-scan65",
-        "--include_mono_prior=False",
-        "--auto-orient=True"
-      ]
-    }
   ]
 }
