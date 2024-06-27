@@ -7,7 +7,14 @@ import os
 
 from dataclasses import dataclass, field
 
+def load_config(config_path):
 
+    with open(config_path, 'r') as stream:
+        try:
+            config = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    return config
 
 def semantic_category_engine_config(semantic_category,engine_id,config_file):
     """

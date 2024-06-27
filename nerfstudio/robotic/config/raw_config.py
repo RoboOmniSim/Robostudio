@@ -125,7 +125,8 @@ class Roboticconfig(PrintableConfig):
 
     arm_model: Optional[str] = "default" # default or custom
     """arm model for urdf file"""
-
+    relationship_config_path: Optional[Path] = Path("relationship_config.yaml")
+    """semantic simulation relationship config path for urdf file"""
     # Physics engine config
     novel_time: Optional[bool] = False
     """whether to add novel time interpolation"""

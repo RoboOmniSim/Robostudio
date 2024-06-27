@@ -54,6 +54,7 @@ from nerfstudio.robotic.physics_engine.python.collision_detection import collisi
 from nerfstudio.robotic.kinematic.gripper_utils import *
 from nerfstudio.robotic.physics_engine.omnisim.issac2sim import *
 from nerfstudio.robotic.config.raw_config import Roboticconfig
+from nerfstudio.robotic.physics_engine.base import *
 @dataclass
 class Exporter:
     """Export the mesh from a YML config to a folder."""
@@ -1055,7 +1056,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         add_trajectory=roboconfig.add_trajectory
         
         link_edit_info=roboconfig.link_edit_info
-
+        relationship_config=load_config(roboconfig.relationship_config_path)
         # engine id mapping
 
         if add_gripper:
@@ -1111,6 +1112,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
                                                                                                                                                                 final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
                                                                                                                                                                 add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,add_grasp_object=add_grasp_object,
                                                                                                                                                                 add_grasp_object_duration=add_grasp_object_duration,
+                                                                                                                                                                relationship_config=relationship_config,
                                                                                                                                                                 dt=simulation_timestamp,add_grasp_control=add_grasp_control_value,flip_x_coordinate=flip_x_coordinate,add_trajectory=add_trajectory)
                 
 
@@ -1125,11 +1127,13 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
                                                                                                                                                                 final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
                                                                                                                                                                 add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,add_grasp_object=add_grasp_object,
                                                                                                                                                                 add_grasp_object_duration=add_grasp_object_duration,
+                                                                                                                                                                relationship_config=relationship_config,
                                                                                                                                                                 dt=simulation_timestamp,add_grasp_control=add_grasp_control_value,flip_x_coordinate=flip_x_coordinate)
                 
                 
                 else:
                     output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,
+                                                                                                                                                                relationship_config=relationship_config,
                                                                                                                                                                 center_vector_gt,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp)
                 
             if add_simulation == True:

@@ -1113,7 +1113,7 @@ class dynamicDatasetRender(RoboBaseRender):
 
         push_time_list=np.linspace(push_time_list_start,push_time_list_end,push_time_list_end-push_time_list_start).astype(int)
 
-
+        relationship_config=load_config(roboconfig.relationship_config_path)
         link_edit_info=roboconfig.link_edit_info
 
         # engine id mapping
@@ -1161,7 +1161,8 @@ class dynamicDatasetRender(RoboBaseRender):
         "add_gripper": add_gripper,
         "move_with_gripper": False,
         "add_grasp_object": False,
-
+        "engine_ids": engine_ids,
+        "relationship_config":relationship_config,
         }
 
 
