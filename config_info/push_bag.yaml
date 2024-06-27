@@ -11,14 +11,14 @@ add_simulation: True
 add_gripper: False
 start_time: 0
 end_time_collision: 0.5
-end_time: 3.24
+end_time: 1.825
 flip_x_coordinate: False
 add_grasp_control: False
 add_grasp_object: False
 max_gripper_degree: -0.8525
 add_trajectory: False
 
-render_camera_index: 253  # 235 245 253
+render_camera_index: 255  # 235 245 253
 
 # max_gripper_degree: -0.8525 # close
 
@@ -26,9 +26,9 @@ grasp_inter_time: 10
 
 push_time_list_start: 123
 
-push_time_list_end: 132
+push_time_list_end: 129
 
-grasp_time_list_start: 1240
+grasp_time_list_start: 240
 #""grasp time list for  gripper simulation stage 1, this is stage gripper close and move with object"""
 grasp_time_list_end: 250
 #""grasp time list for  gripper simulation stage 1, this is stage gripper close and move with object"""

@@ -295,14 +295,15 @@ def interpolate_position_x(angle, mid_position, max_position=0.035):
     
     if angle <= 45:
         # Normalize the angle to the range [0, 1]
-        normalized_angle = angle / 45.0
+
         # Apply sine-based interpolation from [0, 1] to [0, mid_position]
-        interpolated_value = mid_position * np.sin(np.pi / 2 * normalized_angle)
+        interpolated_value = mid_position + abs(max_position - mid_position) * np.sin(np.pi / 2 * angle)
     else:
         # Normalize the angle to the range [0, 1]
         normalized_angle = (angle - 45) / 45.0
         # Apply sine-based interpolation from [0, 1] to [mid_position, max_position]
-        interpolated_value = mid_position + (max_position - mid_position) * np.sin(np.pi / 2 * normalized_angle)
+    # normalized_angle = angle 
+        interpolated_value = mid_position + abs(max_position - mid_position) * np.sin(np.pi / 2 * normalized_angle)
     
     return interpolated_value
 
@@ -347,7 +348,7 @@ def example_push(dt):
     center_of_mass=bb_recentered.centroid
     # Compute the moment of inertia
     moment_of_inertia = compute_moment_of_inertia(mass, dimensions)
-    force=np.array([0.1,0,0])
+    force=np.array([0.20,0,0])
 
     # raw
     # simulation_position=np.array([0.0, 0.0, 0.013])
@@ -357,7 +358,7 @@ def example_push(dt):
     # force_position = center_of_mass # torque vector
     torque=compute_torque(force, force_position)  # torque vector
     # Time step for integration
-
+    dt=dt+0.5
 
     # Compute angular acceleration
     angular_acceleration = compute_angular_acceleration(torque, moment_of_inertia)
