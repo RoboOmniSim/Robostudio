@@ -17,7 +17,7 @@ add_grasp_object: True
 max_gripper_degree: -0.42
 add_trajectory: True
 
-render_camera_index: 100  # 235 245 253
+render_camera_index: 103  # 235 245 253
 
 grasp_inter_time: 10
 grasp_time_list_start: 240  # start of stage 1 gripper close and move with object
@@ -41,3 +41,8 @@ novel_fps_rate: 6
 expand_bbox: False
 use_gripper: False 
 contain_object: True
+
+
+#moveit edit link
+link_edit_info : [0,-0.05,-0.09,0.17,0.05,0,0,0,0,0,0,0,0]
+

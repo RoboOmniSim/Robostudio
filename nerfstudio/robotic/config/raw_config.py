@@ -129,7 +129,8 @@ class Roboticconfig(PrintableConfig):
     # Physics engine config
     novel_time: Optional[bool] = False
     """whether to add novel time interpolation"""
-
+    link_edit_info: Optional[np.ndarray] = np.zeros(13)
+    """link edit information for novel time interpolation"""
 
     engine_backend: Optional[str] = "omni" # omni or python 
     """the backend of physics engine: omni is omnisim, python is gradsim based simulation"""

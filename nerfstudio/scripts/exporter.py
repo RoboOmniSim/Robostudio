@@ -1054,7 +1054,7 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         max_gripper_degree=roboconfig.max_gripper_degree
         add_trajectory=roboconfig.add_trajectory
         
-
+        link_edit_info=roboconfig.link_edit_info
 
         # engine id mapping
 
@@ -1097,8 +1097,8 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             if add_trajectory:
 
     
-                
-                traj_mode=edit_trajectory(self.trajectory_file,start_time)
+
+                traj_mode=edit_trajectory(self.trajectory_file,start_time,link_edit=link_edit_info)
                 movement_angle_state=traj_mode
 
                 

@@ -1064,7 +1064,10 @@ class dynamicDatasetRender(RoboBaseRender):
         # omnisim logic
         roboconfig=Roboticconfig()
         roboconfig.setup_params(self.meta_sim_path)
+        
 
+
+        # update the parameters
         output_file =self.output_file
         static_path=self.static_path
 
@@ -1111,179 +1114,12 @@ class dynamicDatasetRender(RoboBaseRender):
         push_time_list=np.linspace(push_time_list_start,push_time_list_end,push_time_list_end-push_time_list_start).astype(int)
 
 
-
-
-
-
-
-        # raw
-        # experiment_type='novel_pose' # novelpose or push_bag
-
-        # move this to config file 
-        # experiment_type='push_bag' # novelpose or push_bag
-        # experiment_type=self.experiment_type # novelpose or push_bag
-        # output_file =self.output_file
-        # static_path=self.static_path
-        # if experiment_type=='novelpose':
-            
-        #     center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
-
-        #     scale_factor=np.array([1,1.25,1.65]) # x,y,z
-
-        #     simulation_timestamp=0
-        #     add_simulation=False
-        #     add_gripper=False
-        #     start_time =0
-        #     end_time = 3.24
-        #     flip_x_coordinate=False
-        #     add_grasp_control=False
-        #     add_grasp_object=False
-        #     render_camera_index=262
-        #     time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
-        #     add_trajectory=False
-
-        #     novel_time=False
-        # elif experiment_type=='push_bag':
-            
-
-
-        #     # center_vector=np.array([-0.261,0.145,-0.71]) #with base group1_bbox_fix push case
-
-        #     # scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-            
-        #     center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
-
-        #     scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-
-        #     simulation_timestamp=1.12
-        #     add_simulation=True
-        #     add_gripper=False
-        #     start_time =0
-        #     end_time = 3.24
-        #     flip_x_coordinate=False
-        #     add_grasp_control=False
-        #     add_grasp_object=False
-        #     add_trajectory=False
-        #     render_camera_index=0
-        #     time_list=np.linspace(100, 160, 60).astype(int) # push_bag
-
-        #     novel_time=False
-        # 4 sec grasp close 
-            # push_time_list=np.array([120,121,122,123,124,125,126,127,128,129,130,131])
-        # elif experiment_type=='issac2sim':
-            
-
-            
-
-        #     center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
-
-        #     scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-
-        #     simulation_timestamp=1.12
-        #     add_simulation=False
-        #     add_gripper=True
-        #     start_time =0
-        #     end_time = 3.24
-        #     flip_x_coordinate=False
-        #     add_grasp_control=True
-        #     add_grasp_object=True
-        #     max_gripper_degree=-0.42
-        #     add_trajectory=True
-
-
-        #     render_camera_index=253  #235 245 253
-
-        #     # max_gripper_degree=-0.8525 # close
-
-
-        #     grasp_inter_time=10
-        #     grasp_time_list=np.linspace(240,250,grasp_inter_time+1).astype(int) # stage 1 gripper close and move with object add_grasp_object==True and move_with_gripper==False
-        #     # print('grasp_time_list',grasp_time_list)
-        #     grasp_time_list_stage_2=np.linspace(251,260,grasp_inter_time).astype(int) # stage 2 add_grasp_object==True and move_with_gripper==True
-        #     # print('grasp_time_list_stage_2',grasp_time_list_stage_2)
-        #     grasp_time_list_stage_3=np.linspace(261,270,grasp_inter_time).astype(int) # stage 3 release object add_grasp_object==True and move_with_gripper==False
-            
-        #     #300-350 put the box back and render the release
-        #     time_list=np.linspace(250, 300, 50).astype(int) # push_bag
-
-        #     novel_time=False
-        # elif experiment_type=='grasp':  # grasp data for the gripper only 
-        #     center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
-        #     scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
-        #     add_simulation=False
-        #     simulation_timestamp=0
-        #     add_gripper=True
-        #     start_time =0
-        #     end_time = 3.24
-        #     flip_x_coordinate=False
-        #     add_grasp_control=True
-        #     add_grasp_object=False
-
-        #     max_gripper_degree=-0.8525
-        #     grasp_inter_time=40
-        #     add_trajectory=False
-        #     render_camera_index=212
-        #     time_list=np.linspace(0, 40, 40).astype(int) # grasp
-        #     grasp_time_list=np.linspace(0,40,grasp_inter_time).astype(int)
-
-        #     novel_time=False
-        # elif experiment_type=='grasp_object':  # grasp data for the gripper and object
-
-            
-        #     center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
-        #     # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
-        #     scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
-
-        #     add_simulation=False
-        #     simulation_timestamp=0
-        #     add_gripper=True
-
-        #     flip_x_coordinate=True
-        #     add_grasp_control=True
-        #     add_grasp_object=True
-        #     max_gripper_degree=-0.8525
-
-
-
-        #     start_time =0
-        #     end_time = 3.24
-
-        #     render_camera_index=262
-        #     time_list=np.linspace(250, 650, 400).astype(int) # novel_pose
-        #     add_trajectory=False
-
-        #     novel_time=False
-        #     novel_fps_rate=6 # this 
-        # elif experiment_type=='novel_time':  # noveltime experiment for nove pose data
-
-
-        #     center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
-        #     # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
-        #     scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
-        #     add_trajectory=False
-        #     add_simulation=False
-        #     simulation_timestamp=0
-        #     add_gripper=True
-        #     start_time =0
-        #     end_time = 3.24
-        #     flip_x_coordinate=True
-        #     add_grasp_control=True
-        #     add_grasp_object=True
-        #     render_camera_index=0
-        #     time_list=np.linspace(0, 400, 40).astype(int) # grasp
-
-        #     novel_time=False
-        # else:
-        #     print('experiment type not found')
-        #     raise ValueError('experiment type not found')
+        link_edit_info=roboconfig.link_edit_info
 
         # engine id mapping
 
         if add_gripper:
-            
             # gripper_control,joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper=load_gripper_control(output_file,experiment_type,start_time=start_time,end_time=end_time_collision)
-                    
-
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
             engine_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # with gripper
         else:
@@ -1298,16 +1134,10 @@ class dynamicDatasetRender(RoboBaseRender):
 
         
         if add_trajectory:
-                
-                traj_mode=edit_trajectory(self.trajectory_file,start_time)
+                traj_mode=edit_trajectory(self.trajectory_file,start_time,link_edit=link_edit_info)
                 movement_angle_state=traj_mode
-
-
-
         if novel_time==True:
             interpolated_traj=interpolate_trajectory(time_list,final_transformations_list_0)
-            
-
             movement_angle_state=interpolated_traj
 
         
@@ -1434,61 +1264,43 @@ class dynamicDatasetRender(RoboBaseRender):
                 TimeElapsedColumn(),
             ) as progress:
                 for camera_idx, (camera, batch) in enumerate(progress.track(dataloader, total=len(dataset))):
-                    # if camera_idx != 262: # this is for novel_pose experiment render
-                    # if camera_idx != 212 : # frame 259 in grasp only train dataset render
-                    if camera_idx != render_camera_index: # frame 259 in grasp only train dataset render
+                    if camera_idx != render_camera_index:
                         continue
                     else:
                         for time in time_list:
                             with torch.no_grad():
-                                # outputs = pipeline.model.get_outputs_for_camera(camera)+
                                 if add_simulation==True:
 
                                     interpolated_times = np.linspace(start_time, end_time, push_time_list.shape[0])
                                     if time < push_time_list[0]:
                                         relative_time=start_time
                                         dynamic_information['add_simulation']=False
-                                        # no intersection
-                                    elif time in push_time_list: #120-131
+                                    elif time in push_time_list: 
                                         for index, t in enumerate(push_time_list):
                                             if t==time:
                                                 relative_time=interpolated_times[index]
                                                 dynamic_information['add_simulation']=True
-                                        # reinterpolate from 0 to 1.12 based on 60 fps
-                                        # relative_time=interpolated_times[index]
-                                        # motion simulation
-
                                     else:
                                         relative_time=end_time
                                         dynamic_information['add_simulation']=True
-                                        # after motion sequence 
-
                                 elif add_grasp_control==True:
                                     dt_value=time-grasp_time_list[0]
                                     if time in grasp_time_list:
                                         
-                                        add_grasp_control_value=max_gripper_degree*dt_value/grasp_inter_time # np.linspace from 0 to -0.8525
-                                        # print('add_grasp_control_value',add_grasp_control_value
-                                        #       )
+                                        add_grasp_control_value=max_gripper_degree*dt_value/grasp_inter_time 
                                         dynamic_information['add_grasp_control']=add_grasp_control_value
                                         dynamic_information['add_grasp_object']=True
                                         relative_time=dt_value
                                     elif time in grasp_time_list_stage_2:
-                                        #move object with gripper to simulate grasp success
                                         dynamic_information['add_grasp_control']=max_gripper_degree
                                         dynamic_information['move_with_gripper']=True
                                         dynamic_information['add_grasp_object']=True
                                         relative_time=dt_value
                                     elif grasp_time_list_stage_2[9]<=time :
-                                        # grasp_success
                                         dynamic_information['add_grasp_control']=max_gripper_degree
                                         dynamic_information['move_with_gripper']=True
                                         dynamic_information['add_grasp_object']=True
                                         relative_time=dt_value
-                                    # elif time in grasp_time_list_stage_3:
-                                    #     # release object
-                                    #     dynamic_information['add_grasp_control']=max_gripper_degree
-                                    #     dynamic_information['move_with_gripper']=True
                                     else:
                                         dynamic_information['add_grasp_control']=0
                                         relative_time=0
@@ -1502,41 +1314,15 @@ class dynamicDatasetRender(RoboBaseRender):
                                 
                                 time_step=dynamic_information["time_stamp"]
                                 timestep_filename=f"frame_{time_step:05d}"
-                            # gt_batch = batch.copy()
-                            # gt_batch["rgb"] = gt_batch.pop("image")
-                            # all_outputs = (
-                            #     list(outputs.keys())
-                            #     + [f"raw-{x}" for x in outputs.keys()]
-                            #     + [f"gt-{x}" for x in gt_batch.keys()]
-                            #     + [f"raw-gt-{x}" for x in gt_batch.keys()]
-                            # )
                             rendered_output_names = self.rendered_output_names
                             if rendered_output_names is None:
                                 rendered_output_names = list(outputs.keys())
                             for rendered_output_name in rendered_output_names:
-                                # if rendered_output_name not in all_outputs:
-                                #     CONSOLE.rule("Error", style="red")
-                                #     CONSOLE.print(
-                                #         f"Could not find {rendered_output_name} in the model outputs", justify="center"
-                                #     )
-                                #     CONSOLE.print(
-                                #         f"Please set --rendered-output-name to one of: {all_outputs}", justify="center"
-                                #     )
-                                #     sys.exit(1)
-
                                 is_raw = False
                                 is_depth = False
                                 image_name = f"{camera_idx:05d}"
-
-                                # Try to get the original filename
                                 image_name_raw = dataparser_outputs.image_filenames[camera_idx].relative_to(images_root) 
-
-                                # no time
                                 image_name = image_name_raw
-
-
-                                #time
-                                # image_name = f"{time:05d}_{image_name_raw}"
                                 output_path = self.output_path / image_name/rendered_output_name/ timestep_filename
                                 output_path.parent.mkdir(exist_ok=True, parents=True)
 
@@ -1547,8 +1333,6 @@ class dynamicDatasetRender(RoboBaseRender):
                                     output_image = outputs[output_name]
 
                                     del output_name
-
-                                    # Map to color spaces / numpy
                                     if is_raw:
                                         output_image = output_image.cpu().numpy()
                                     elif is_depth:
@@ -1595,188 +1379,6 @@ class dynamicDatasetRender(RoboBaseRender):
         for split in self.split.split("+"):
             table.add_row(f"Outputs {split}", str(self.output_path / split))
         CONSOLE.print(Panel(table, title="[bold][green]:tada: Render on split {} Complete :tada:[/bold]", expand=False))
-
-
-
-# @dataclass
-# class DatasetRender(BaseRender):
-#     """Render all images in the dataset."""
-
-#     output_path: Path = Path("renders")
-#     """Path to output video file."""
-#     data: Optional[Path] = None
-#     """Override path to the dataset."""
-#     downscale_factor: Optional[float] = None
-#     """Scaling factor to apply to the camera image resolution."""
-#     split: Literal["train", "val", "test", "train+test"] = "test"
-#     """Split to render."""
-#     rendered_output_names: Optional[List[str]] = field(default_factory=lambda: None)
-#     """Name of the renderer outputs to use. rgb, depth, raw-depth, gt-rgb etc. By default all outputs are rendered."""
-
-#     def main(self):
-#         config: TrainerConfig
-
-#         def update_config(config: TrainerConfig) -> TrainerConfig:
-#             data_manager_config = config.pipeline.datamanager
-#             assert isinstance(data_manager_config, (VanillaDataManagerConfig, FullImageDatamanagerConfig))
-#             data_manager_config.eval_num_images_to_sample_from = -1
-#             data_manager_config.eval_num_times_to_repeat_images = -1
-#             if isinstance(data_manager_config, VanillaDataManagerConfig):
-#                 data_manager_config.train_num_images_to_sample_from = -1
-#                 data_manager_config.train_num_times_to_repeat_images = -1
-#             if self.data is not None:
-#                 data_manager_config.data = self.data
-#             if self.downscale_factor is not None:
-#                 assert hasattr(data_manager_config.dataparser, "downscale_factor")
-#                 setattr(data_manager_config.dataparser, "downscale_factor", self.downscale_factor)
-#             return config
-
-#         config, pipeline, _, _ = eval_setup(
-#             self.load_config,
-#             eval_num_rays_per_chunk=self.eval_num_rays_per_chunk,
-#             test_mode="inference",
-#             update_config_callback=update_config,
-#         )
-#         data_manager_config = config.pipeline.datamanager
-#         assert isinstance(data_manager_config, (VanillaDataManagerConfig, FullImageDatamanagerConfig))
-
-#         for split in self.split.split("+"):
-#             datamanager: VanillaDataManager
-#             dataset: Dataset
-#             if split == "train":
-#                 with _disable_datamanager_setup(data_manager_config._target):  # pylint: disable=protected-access
-#                     datamanager = data_manager_config.setup(test_mode="test", device=pipeline.device)
-
-#                 dataset = datamanager.train_dataset
-#                 dataparser_outputs = getattr(dataset, "_dataparser_outputs", datamanager.train_dataparser_outputs)
-#             else:
-#                 with _disable_datamanager_setup(data_manager_config._target):  # pylint: disable=protected-access
-#                     datamanager = data_manager_config.setup(test_mode=split, device=pipeline.device)
-
-#                 dataset = datamanager.eval_dataset
-#                 dataparser_outputs = getattr(dataset, "_dataparser_outputs", None)
-#                 if dataparser_outputs is None:
-#                     dataparser_outputs = datamanager.dataparser.get_dataparser_outputs(split=datamanager.test_split)
-#             dataloader = FixedIndicesEvalDataloader(
-#                 input_dataset=dataset,
-#                 device=datamanager.device,
-#                 num_workers=datamanager.world_size * 4,
-#             )
-#             images_root = Path(os.path.commonpath(dataparser_outputs.image_filenames))
-#             with Progress(
-#                 TextColumn(f":movie_camera: Rendering split {split} :movie_camera:"),
-#                 BarColumn(),
-#                 TaskProgressColumn(
-#                     text_format="[progress.percentage]{task.completed}/{task.total:>.0f}({task.percentage:>3.1f}%)",
-#                     show_speed=True,
-#                 ),
-#                 ItersPerSecColumn(suffix="fps"),
-#                 TimeRemainingColumn(elapsed_when_finished=False, compact=False),
-#                 TimeElapsedColumn(),
-#             ) as progress:
-#                 for camera_idx, (camera, batch) in enumerate(progress.track(dataloader, total=len(dataset))):
-#                     with torch.no_grad():
-#                         outputs = pipeline.model.get_outputs_for_camera(camera)
-
-#                     gt_batch = batch.copy()
-#                     gt_batch["rgb"] = gt_batch.pop("image")
-#                     all_outputs = (
-#                         list(outputs.keys())
-#                         + [f"raw-{x}" for x in outputs.keys()]
-#                         + [f"gt-{x}" for x in gt_batch.keys()]
-#                         + [f"raw-gt-{x}" for x in gt_batch.keys()]
-#                     )
-#                     rendered_output_names = self.rendered_output_names
-#                     if rendered_output_names is None:
-#                         rendered_output_names = ["gt-rgb"] + list(outputs.keys())
-#                     for rendered_output_name in rendered_output_names:
-#                         if rendered_output_name not in all_outputs:
-#                             CONSOLE.rule("Error", style="red")
-#                             CONSOLE.print(
-#                                 f"Could not find {rendered_output_name} in the model outputs", justify="center"
-#                             )
-#                             CONSOLE.print(
-#                                 f"Please set --rendered-output-name to one of: {all_outputs}", justify="center"
-#                             )
-#                             sys.exit(1)
-
-#                         is_raw = False
-#                         is_depth = rendered_output_name.find("depth") != -1
-#                         image_name = f"{camera_idx:05d}"
-
-#                         # Try to get the original filename
-#                         image_name = dataparser_outputs.image_filenames[camera_idx].relative_to(images_root)
-
-#                         output_path = self.output_path / split / rendered_output_name / image_name
-#                         output_path.parent.mkdir(exist_ok=True, parents=True)
-
-#                         output_name = rendered_output_name
-#                         if output_name.startswith("raw-"):
-#                             output_name = output_name[4:]
-#                             is_raw = True
-#                             if output_name.startswith("gt-"):
-#                                 output_name = output_name[3:]
-#                                 output_image = gt_batch[output_name]
-#                             else:
-#                                 output_image = outputs[output_name]
-#                                 if is_depth:
-#                                     # Divide by the dataparser scale factor
-#                                     output_image.div_(dataparser_outputs.dataparser_scale)
-#                         else:
-#                             if output_name.startswith("gt-"):
-#                                 output_name = output_name[3:]
-#                                 output_image = gt_batch[output_name]
-#                             else:
-#                                 output_image = outputs[output_name]
-#                         del output_name
-
-#                         # Map to color spaces / numpy
-#                         if is_raw:
-#                             output_image = output_image.cpu().numpy()
-#                         elif is_depth:
-#                             output_image = (
-#                                 colormaps.apply_depth_colormap(
-#                                     output_image,
-#                                     accumulation=outputs["accumulation"],
-#                                     near_plane=self.depth_near_plane,
-#                                     far_plane=self.depth_far_plane,
-#                                     colormap_options=self.colormap_options,
-#                                 )
-#                                 .cpu()
-#                                 .numpy()
-#                             )
-#                         else:
-#                             output_image = (
-#                                 colormaps.apply_colormap(
-#                                     image=output_image,
-#                                     colormap_options=self.colormap_options,
-#                                 )
-#                                 .cpu()
-#                                 .numpy()
-#                             )
-
-#                         # Save to file
-#                         if is_raw:
-#                             with gzip.open(output_path.with_suffix(".npy.gz"), "wb") as f:
-#                                 np.save(f, output_image)
-#                         elif self.image_format == "png":
-#                             media.write_image(output_path.with_suffix(".png"), output_image, fmt="png")
-#                         elif self.image_format == "jpeg":
-#                             media.write_image(
-#                                 output_path.with_suffix(".jpg"), output_image, fmt="jpeg", quality=self.jpeg_quality
-#                             )
-#                         else:
-#                             raise ValueError(f"Unknown image format {self.image_format}")
-
-#         table = Table(
-#             title=None,
-#             show_header=False,
-#             box=box.MINIMAL,
-#             title_style=style.Style(bold=True),
-#         )
-#         for split in self.split.split("+"):
-#             table.add_row(f"Outputs {split}", str(self.output_path / split))
-#         CONSOLE.print(Panel(table, title="[bold][green]:tada: Render on split {} Complete :tada:[/bold]", expand=False))
 
 
 
@@ -2046,15 +1648,7 @@ class Datasetmesh(RoboBaseRender):
                 for camera_idx, (camera, batch) in enumerate(progress.track(dataloader, total=len(dataset))):
                     with torch.no_grad():
                         outputs = pipeline.model.get_outputs_for_camera(camera)
-
-
-
-               
-                    
-                        
                         image = outputs["rgb"]
-                        
-                        
                         # camera.downsample_scale(args.resolution)
                         camera = camera.to("cuda")
                         
@@ -2099,101 +1693,6 @@ class Datasetmesh(RoboBaseRender):
                         cam_center = P_inv[:3, 3]
                         vdb_volume.integrate(rendered_pcd_world.double().cpu().numpy(), extrinsic=cam_center.double().cpu().numpy())
 
-                    
-                    # gt_batch = batch.copy()
-                    # gt_batch["rgb"] = gt_batch.pop("image")
-                    # all_outputs = (
-                    #     list(outputs.keys())
-                    #     + [f"raw-{x}" for x in outputs.keys()]
-                    #     + [f"gt-{x}" for x in gt_batch.keys()]
-                    #     + [f"raw-gt-{x}" for x in gt_batch.keys()]
-                    # )
-                    # rendered_output_names = self.rendered_output_names
-                    # if rendered_output_names is None:
-                    #     rendered_output_names = ["gt-rgb"] + list(outputs.keys())
-                    # for rendered_output_name in rendered_output_names:
-                    #     if rendered_output_name not in all_outputs:
-                    #         CONSOLE.rule("Error", style="red")
-                    #         CONSOLE.print(
-                    #             f"Could not find {rendered_output_name} in the model outputs", justify="center"
-                    #         )
-                    #         CONSOLE.print(
-                    #             f"Please set --rendered-output-name to one of: {all_outputs}", justify="center"
-                    #         )
-                    #         sys.exit(1)
-
-                    #     is_raw = False
-                    #     is_depth = False
-                    #     image_name = f"{camera_idx:05d}"
-
-                    #     # Try to get the original filename
-                    #     image_name = dataparser_outputs.image_filenames[camera_idx].relative_to(images_root)
-
-                    #     output_path = self.output_path / split / rendered_output_name / image_name
-                    #     output_path.parent.mkdir(exist_ok=True, parents=True)
-
-                    #     output_name = rendered_output_name
-
-                    #     # no need to render background
-                    #     if rendered_output_name =='background':
-                    #         continue
-                    #     if output_name.startswith("raw-"):
-                    #         output_name = output_name[4:]
-                    #         is_raw = True
-                    #         if output_name.startswith("gt-"):
-                    #             output_name = output_name[3:]
-                    #             output_image = gt_batch[output_name]
-                    #         else:
-                    #             output_image = outputs[output_name]
-                    #             if is_depth:
-                    #                 # Divide by the dataparser scale factor
-                    #                 output_image.div_(dataparser_outputs.dataparser_scale)
-                    #     else:
-                    #         if output_name.startswith("gt-"):
-                    #             output_name = output_name[3:]
-                    #             output_image = gt_batch[output_name]
-                    #         else:
-                    #             output_image = outputs[output_name]
-                    #     del output_name
-
-                    #     # Map to color spaces / numpy
-                    #     if is_raw:
-                    #         output_image = output_image.cpu().numpy()
-                    #     elif is_depth:
-                    #         output_image = (
-                    #             colormaps.apply_depth_colormap(
-                    #                 output_image,
-                    #                 accumulation=outputs["accumulation"],
-                    #                 near_plane=self.depth_near_plane,
-                    #                 far_plane=self.depth_far_plane,
-                    #                 colormap_options=self.colormap_options,
-                    #             )
-                    #             .cpu()
-                    #             .numpy()
-                    #         )
-                    #     else:
-                    #         output_image = (
-                    #             colormaps.apply_colormap(
-                    #                 image=output_image,
-                    #                 colormap_options=self.colormap_options,
-                    #             )
-                    #             .cpu()
-                    #             .numpy()
-                    #         )
-
-                    #     # Save to file
-                    #     if is_raw:
-                    #         with gzip.open(output_path.with_suffix(".npy.gz"), "wb") as f:
-                    #             np.save(f, output_image)
-                    #     elif self.image_format == "png":
-                    #         media.write_image(output_path.with_suffix(".png"), output_image, fmt="png")
-                    #     elif self.image_format == "jpeg":
-                    #         media.write_image(
-                    #             output_path.with_suffix(".jpg"), output_image, fmt="jpeg", quality=self.jpeg_quality
-                    #         )
-                    #     else:
-                    #         raise ValueError(f"Unknown image format {self.image_format}")
-                
                 vertices, faces = vdb_volume.extract_triangle_mesh(min_weight=5)
                 geo_mesh = trimesh.Trimesh(vertices, faces)
                 work_dir='/home/lou/gs/nerfstudio/exports/splat/no_downscale/vdbmesh'

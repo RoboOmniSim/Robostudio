@@ -52,7 +52,7 @@ def create_transformation_matrix_mdh_gripper_euler(theta, a, alpha, d):
 
 
 
-
+    T=np.eye(4)
 
 
 

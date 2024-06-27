@@ -20,30 +20,6 @@ from scipy.spatial.transform import Rotation as R
 
 
 
-
-
-
-
-# we need to use the mesh box to keep the stop distance of gripper 
-
-
-
-
-
-
-# and make the object as the same recenter and transformation of the gripper 
-
-
-
-# collision detection between the gripper final part convex mesh and object
-
-
-# find the self closed angle and the angle range for right and left finger
-
-
-# test the kinematic first, and then set up same angle range and pass to collistion detection for visual check
-
-
 def rotation_matrix(axis, angle):
     """
     Compute the rotation matrix for a given axis and angle.

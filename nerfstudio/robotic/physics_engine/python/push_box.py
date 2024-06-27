@@ -6,17 +6,7 @@ import numpy as np
 import trimesh
 import open3d as o3d
 
-
-
-
-
-
-
-
 from nerfstudio.robotic.physics_engine.python.collision_detection import collision_detection
-
-
-
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 
 
@@ -59,20 +49,6 @@ def compute_linear_velocity(angular_velocity, position_vector):
 
 def leverage_simulation(mesh,center_of_mass,fulcrum,linear_velocity,angular_velocity,dt):
 
-    # the start center is the center of obj bbox
-
-
-
-
-    # the end center is the center when object is laying on the ground (ie,the bottom of orignial bbox + the center y axis)
-
-    # center_of_mass = np.array([0.0, 0.0, 0.0])  # Initial center of mass
-    # fulcrum = np.array([0.5, 0.5, 0.0])  # Fulcrum position
-    # linear_velocity = np.array([1.0, 0.0, 0.0])  # Linear velocity
-    # angular_velocity = np.array([0.0, 0.0, 1.0])  # Angular velocity (rotation around z-axis)
-      # Time step
-
-    # Compute global transformation
     new_rotation_matrix, translation_vector = compute_global_transformation(center_of_mass, fulcrum, linear_velocity, angular_velocity, dt)
 
     return new_rotation_matrix, translation_vector
@@ -81,10 +57,6 @@ def leverage_simulation(mesh,center_of_mass,fulcrum,linear_velocity,angular_velo
 
 
 def compute_angular_velocity(xyz_0,xyz_optimized,delta_t):
-
-
-
-
 
     # angular velocity very time consuming so replace it in future 
 
@@ -314,33 +286,22 @@ def example_push(dt):
     mass = 10  # mass of the box in grams
     # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
     center_of_mass=np.array([0,0,0])
-    # for push case:
-    # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
+
     from pathlib import Path
     object_mesh_path=Path('dataset/push_box/part/object/box_convex.obj') # id 8 
-    # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
-
-    # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
-    # object_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/box_convex.obj'
-    # ground_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/table_convex.obj'
 
     mesh_object = trimesh.load(object_mesh_path)
-    # mesh_ground = trimesh.load(ground_mesh_path)
-    # gripper_mesh = trimesh.load(gripper_mesh_path)
+
 
     bb=mesh_object.bounding_box_oriented
 
     corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
 
 
-    # raw
-    # recenter_vector=find_lower_plane_center(corners)
-
     recenter_vector=find_object_center(corners)
 
     mesh_object.apply_translation(-recenter_vector)
 
-    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_recenter.obj')
 
     dimensions=bb.extents
 
@@ -367,7 +328,6 @@ def example_push(dt):
     angular_velocity = integrate_angular_acceleration(angular_acceleration, dt)
 
     fulfrum_position=np.array([0,0,0]) # the position of the fulcrum
-    # force_position=np.array([1,0,0])
     
 
     # Position vector of the point where you want to compute the linear velocity
@@ -436,12 +396,6 @@ def example_push_backward(dt):
     corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
 
     recenter_vector=find_lower_plane_center(corners)
-
-    
-
-    # mesh_object.apply_translation(-recenter_vector)
-
-    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_recenter.obj')
 
     dimensions=bb.extents
 
