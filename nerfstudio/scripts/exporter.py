@@ -627,29 +627,29 @@ class ExportGaussianSplat_mesh(RoboExporter):
 
         expand_bbox = roboconfig.expand_bbox
         contain_object = roboconfig.contain_object
-        self.use_gripper = roboconfig.use_gripper
+        use_gripper = roboconfig.use_gripper
 
         experiment_type=roboconfig.experiment_type
         
 
-        # raw
-        experiment_type = self.experiment_type
-        if experiment_type == "novelpose":
-            expand_bbox=True
-            self.use_gripper=False # no gripper for novelpose
-            contain_object=False
-        elif experiment_type == "push_box":
-            expand_bbox=False
-            self.use_gripper=False # no gripper for push_box
-            contain_object=True
-        elif experiment_type == "grasp":
-            contain_object=False
-            expand_bbox=False
-            self.use_gripper=True # no gripper for push_box
-        elif experiment_type == "grasp_object":
-            contain_object=True
-            expand_bbox=False
-            self.use_gripper=True
+        # # raw
+        # experiment_type = self.experiment_type
+        # if experiment_type == "novelpose":
+        #     expand_bbox=True
+        #     self.use_gripper=False # no gripper for novelpose
+        #     contain_object=False
+        # elif experiment_type == "push_box":
+        #     expand_bbox=False
+        #     self.use_gripper=False # no gripper for push_box
+        #     contain_object=True
+        # elif experiment_type == "grasp":
+        #     contain_object=False
+        #     expand_bbox=False
+        #     self.use_gripper=True # no gripper for push_box
+        # elif experiment_type == "grasp_object":
+        #     contain_object=True
+        #     expand_bbox=False
+        #     self.use_gripper=True
         # the inside value is not important and it is just a placeholder during debug
         bboxes_gripper = np.array([
         [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
@@ -687,7 +687,6 @@ class ExportGaussianSplat_mesh(RoboExporter):
         bbox_ids_gripper = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper center,  8 is the object,9 is base_link (don;t move actually), 10 is the gripper left down,11 is left up,12 is right down,13 is right up
         bbox_ids_nogripper = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper, 8 is the object,9 is base_link (don;t move actually)
 
-        use_gripper=self.use_gripper
         if use_gripper:
             bboxes=bboxes_gripper
             bbox_ids=bbox_ids_gripper
@@ -853,14 +852,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
             n = positions.shape[0]
 
 
-            use_gcno = False
-            use_sugar = False
-            if use_gcno:
-                normals=0 # the normals from the gcno
-            elif use_sugar:
-                normals=0   # the normals from the sugar
-            else:
-                normals=np.zeros_like(positions, dtype=np.float32)
+            normals=np.zeros_like(positions, dtype=np.float32)
 
                 
             map_to_tensors["positions"] = positions
@@ -998,272 +990,6 @@ class ExportGaussianSplat_mesh(RoboExporter):
 
 
 @dataclass
-class ExportGaussianSplat_resampledmesh(RoboExporter):
-
-    """
-    Export 3D Gaussian Splatting model with gripper and full model id for our resampled mesh
-    """
-
-    def main(self) -> None:
-        if not self.output_dir.exists():
-            self.output_dir.mkdir(parents=True)
-
-        _, pipeline, _, _ = eval_setup(self.load_config)
-
-
-
-        # import from the urdf file
-
-        # operation scene bbox
-
-        operation_scene_bbox = np.array([[-1, -1, -1, 1, 1, 1],[-0.4,-0.3,-0.86,1.0,0.5,-0.04]])
-
-        operation_scene_bbox_ids = np.array([0,1]) # 0 is background, 1 is the operation scene
-
-        # Define your bounding boxes as [xmin, ymin, zmin, xmax, ymax, zmax]
-        bboxes = np.array([
-        [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
-        [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
-        [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
-        [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
-        [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
-        [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
-        [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
-        [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
-        [0.324, -0.03, -0.307, 0.352, 0.08, -0.25],  # Bounding box 8
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9
-        ])
-
-        # IDs for each bounding box
-        bbox_ids_gripper = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper center,  8 is the object,9 is base_link (don;t move actually), 10 is the gripper left down,11 is left up,12 is right down,13 is right up
-        bbox_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper, 8 is the object,9 is base_link (don;t move actually)
-        expand_bbox = True
-        if expand_bbox:
-            bboxes[:4,:] = bboxes[:4,:] * 1.05  # expand the bounding box by 10% to ensure all points are included
-
-
-
-
-
-
-
-        assert isinstance(pipeline.model, SplatfactoModel)
-
-        model: SplatfactoModel = pipeline.model
-
-
-        
-
-
-        dataparser_output=pipeline.datamanager.dataparser._generate_dataparser_outputs()
-
-
-        global_transform = dataparser_output.dataparser_transforms
-        global_scale=dataparser_output.dataparser_scale
-
-
-        load_recenter_info_path ='/home/lou/gs/nerfstudio/Recenter_info.txt'
-        recenter_info=load_txt(load_recenter_info_path)
-
-        for i in range(len(recenter_info)):
-            # replace the bboxes with the new scenes bboxs
-            bboxes[i]=recenter_info[i]['gs_bbox_list']
-
-
-
-
-
-
-        filename = self.output_dir / "splat.ply"
-
-        map_to_tensors = {}
-        map_to_tensors_new = {}
-        
-
-
-        if_deformable = False
-
-
-
-        # pipeline should be remove all points that need to be deform
-
-
-        # use is_deformed to deform, then add it back to the entire checkpoint to export
-
-
-
-        # also if we want to retrain from a timestamp, just need to reload the deformed point in that scene
-
-
-        # also in bbox but has no 0 id can be deleted (by the strict operation scene bbox, the one above is the coarse one)
-
-        with torch.no_grad():
-            positions = model.means.cpu().numpy()
-            colors=model.colors.cpu().numpy()
-
-
-
-            n = positions.shape[0]
-
-
-            dataparser = pipeline.datamanager.dataparser
-            bbox_operation = np.array([[-1, -1, -1, 1, 1, 1]])
-            get_resamplemesh=False
-            if get_resamplemesh==True:
-                mesh=model.get_mesh(dataparser,bbox_operation,map_to_tensors,colors)
-
-            get_vdbmesh=True
-            if get_vdbmesh==True:
-                cameras=dataparser.get_cameras()
-                mesh=model.get_vdbmesh(cameras)
-
-            use_gcno = False
-            use_sugar = False
-            if use_gcno:
-                normals=0 # the normals from the gcno
-            elif use_sugar:
-                normals=0   # the normals from the sugar
-            else:
-                normals=np.zeros_like(positions, dtype=np.float32)
-
-                
-            map_to_tensors["positions"] = positions
-            map_to_tensors["normals"] = normals
-            
-
-
-
-
-
-            assigned_ids = np.zeros((n,4), dtype=int)
-
-
-            for i, bbox in enumerate(bboxes):
-                in_bbox = np.all((positions >= bbox[:3]) & (positions <= bbox[3:]), axis=1)
-                assigned_ids[in_bbox,0] = bbox_ids[i]
-
-
-        
-            group_id_4=4
-            group_id_5=5
-            group_id_6=6
-            if group_id_4 == 4:
-                i=group_id_4
-                bbox=bboxes[group_id_4,:]
-                in_bbox = np.all((positions >= bbox[:3]) & (positions <= bbox[3:]), axis=1)
-                assigned_ids[in_bbox,1] = bbox_ids[i]
-
-            if group_id_5 == 5:
-                i=group_id_5
-                bbox=bboxes[group_id_5,:]
-                in_bbox = np.all((positions >= bbox[:3]) & (positions <= bbox[3:]), axis=1)
-                assigned_ids[in_bbox,2] = bbox_ids[i]
-            if group_id_6 == 6:
-                i=group_id_6
-                bbox=bboxes[group_id_6,:]
-                in_bbox = np.all((positions >= bbox[:3]) & (positions <= bbox[3:]), axis=1)
-                assigned_ids[in_bbox,3] = bbox_ids[i]
-
-
-            for i in range(assigned_ids.shape[0]):
-                if assigned_ids[i,1] == 4 and assigned_ids[i,0] == 5:
-                    assigned_ids[i,0] = assigned_ids[i,1]
-                    
-                if assigned_ids[i,3] == 6 and assigned_ids[i,0] == 5:
-                    assigned_ids[i,0] = assigned_ids[i,1]
-
-
-            # for i, bbox in enumerate(operation_scene_bbox):
-            #     in_bbox = np.all((positions >= bbox[:3]) & (positions <= bbox[3:]), axis=1)
-            #     assigned_ids[in_bbox] = operation_scene_bbox_ids[i]
-            assigned_ids_new = assigned_ids[:,0]
-            map_to_tensors["semantic_id"] = np.array(assigned_ids_new.reshape(-1,1),dtype=np.float32)  # standard datastructure   
-
-
-
-
-
-            if model.config.sh_degree > 0:
-                shs_0 = model.shs_0.contiguous().cpu().numpy()
-                for i in range(shs_0.shape[1]):
-                    map_to_tensors[f"f_dc_{i}"] = shs_0[:, i, None]
-
-                # transpose(1, 2) was needed to match the sh order in Inria version
-                shs_rest = model.shs_rest.transpose(1, 2).contiguous().cpu().numpy()
-                shs_rest = shs_rest.reshape((n, -1))
-                for i in range(shs_rest.shape[-1]):
-                    map_to_tensors[f"f_rest_{i}"] = shs_rest[:, i, None]
-            else:
-                colors = torch.clamp(model.colors.clone(), 0.0, 1.0).data.cpu().numpy()
-                map_to_tensors["colors"] = (colors * 255).astype(np.int8)
-
-            map_to_tensors["opacity"] = model.opacities.data.cpu().numpy()
-
-            scales = model.scales.data.cpu().numpy()
-            for i in range(3):
-                map_to_tensors[f"scale_{i}"] = scales[:, i, None]
-
-            quats = model.quats.data.cpu().numpy()
-            for i in range(4):
-                map_to_tensors[f"rot_{i}"] = quats[:, i, None]
-            
-            
-            
-            
-
-
-
-        group_id=6
-
-
-
-        assigned_ids_new = assigned_ids[:,0]
-        selected_points = positions[assigned_ids_new == group_id]
-
-
-        export_part = False
-        if export_part:
-            map_to_tensors_new['positions'] = selected_points
-            map_to_tensors_new['normals'] = normals[assigned_ids_new == group_id]
-            map_to_tensors_new['semantic_id'] =  np.array(assigned_ids_new[assigned_ids_new == group_id].reshape(-1,1),dtype=np.float32)
-            if model.config.sh_degree > 0:
-                shs_0 = model.shs_0.detach().contiguous().cpu().numpy()
-                for i in range(shs_0.shape[1]):
-                    map_to_tensors_new[f"f_dc_{i}"] = shs_0[:, i, None][assigned_ids_new == group_id]
-
-                # transpose(1, 2) was needed to match the sh order in Inria version
-                shs_rest = model.shs_rest.transpose(1, 2).detach().contiguous().cpu().numpy()
-                shs_rest = shs_rest.reshape((n, -1))
-                for i in range(shs_rest.shape[-1]):
-                    map_to_tensors_new[f"f_rest_{i}"] = shs_rest[:, i, None][assigned_ids_new == group_id]
-            else:
-                colors = torch.clamp(model.colors.clone(), 0.0, 1.0).data.cpu().numpy()
-                map_to_tensors_new["colors"] = (colors * 255).astype(np.int8)[assigned_ids_new == group_id]
-
-            map_to_tensors_new["opacity"] = model.opacities.data.cpu().numpy()[assigned_ids_new == group_id]
-
-            scales = model.scales.data.cpu().numpy()
-            for i in range(3):
-                map_to_tensors_new[f"scale_{i}"] = scales[:, i, None][assigned_ids_new == group_id]
-
-            quats = model.quats.data.cpu().numpy()
-            for i in range(4):
-                map_to_tensors_new[f"rot_{i}"] = quats[:, i, None][assigned_ids_new == group_id]
-
-
-            pcd = o3d.t.geometry.PointCloud(map_to_tensors_new)
-            
-            part_filename=self.output_dir / f"splat_part_{group_id}.ply"
-            o3d.t.io.write_point_cloud(str(part_filename), pcd)
-
-        else:
-            pcd = o3d.t.geometry.PointCloud(map_to_tensors)
-
-            o3d.t.io.write_point_cloud(str(filename), pcd)
-
-
-
-@dataclass
 class ExportGaussianSplat_mesh_deform(RoboExporter):
 
     """
@@ -1328,101 +1054,6 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         max_gripper_degree=roboconfig.max_gripper_degree
         add_trajectory=roboconfig.add_trajectory
         
-
-        # raw
-        # experiment_type=self.experiment_type 
-        # output_file = self.output_file
-        # static_path=self.static_path
-
-        # if experiment_type=='novelpose':
-            
-        #     center_vector=np.array([-0.157,0.1715,-0.55]) #with base novel_pose
-
-        #     scale_factor=np.array([1,1.25,1.65]) # x,y,z
-
-        #     simulation_timestamp=0
-        #     add_simulation=False
-        #     add_gripper=False
-        #     start_time=0
-        #     end_time_collision=0.5
-        #     flip_x_coordinate=False
-        #     add_grasp_control=False
-        #     add_grasp_object=False
-        #     max_gripper_degree=-0.8525
-        # elif experiment_type=='push_bag':
-            
-
-
-        #     # center_vector=np.array([-0.261,0.145,-0.71]) #with base group1_bbox_fix push case
-
-        #     # scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-            
-        #     center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
-
-        #     scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-
-        #     add_trajectory=False
-
-        #     simulation_timestamp=1.12
-        #     add_simulation=True
-        #     add_gripper=False
-        #     start_time=0
-        #     end_time_collision=0.5
-        #     flip_x_coordinate=False
-        #     add_grasp_control=False
-        #     add_grasp_object=False
-        #     max_gripper_degree=-0.8525
-        # elif experiment_type=='issac2sim':
-            
-
-
-        #     center_vector=np.array([-0.261,0.138,-0.71]) #with base group1_bbox_fix push case
-
-        #     scale_factor=np.array([1.290,1.167,1.22]) # x,y,z
-
-        #     simulation_timestamp=1.12
-        #     add_simulation=False
-        #     add_gripper=True
-        #     start_time=0
-        #     end_time_collision=0.5
-        #     flip_x_coordinate=False
-        #     add_grasp_control=False
-        #     add_grasp_object=True
-        #     max_gripper_degree=-0.42
-        #     add_trajectory=True
-
-
-        # elif experiment_type=='grasp':  # grasp data for the gripper only 
-        #     center_vector=np.array([-0.135,0.1125,-0.78]) #with base grasp only case
-        #     scale_factor=np.array([1.1,1.15,1.18]) # x,y,z
-        #     add_simulation=False
-        #     simulation_timestamp=0
-        #     add_gripper=True
-        #     start_time=0
-        #     end_time_collision=1
-        #     flip_x_coordinate=False
-        #     add_grasp_control=True
-        #     add_grasp_object=False
-        #     max_gripper_degree=-0.8525
-        # elif experiment_type=='grasp_object':  # grasp data for the gripper and object
-
-
-        #     center_vector=np.array([ 0.206349,    0.1249724, -0.70869258]) #with base grasp_object static fixed
-        #     # center_vector_gt=np.array([  0.20764898,  0.15431145, -0.73875328]) #with base grasp_object dynamic
-        #     scale_factor=np.array([1.2615,1.35,1.220]) # x,y,z
-
-        #     add_simulation=False
-        #     simulation_timestamp=0
-        #     add_gripper=True
-        #     start_time=0
-        #     end_time_collision=0.5
-        #     flip_x_coordinate=True
-        #     add_grasp_control=True
-        #     add_grasp_object=True
-        #     max_gripper_degree=-0.8525
-        # else:
-        #     print('experiment type not found')
-        #     raise ValueError('experiment type not found')
 
 
         # engine id mapping
@@ -1516,30 +1147,13 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         output_rots=np.concatenate(output_rots)
         output_features_dc=np.concatenate(output_features_dc)
         output_semantic_id=np.concatenate(output_semantic_id)
-        # pipeline should be remove all points that need to be deform
-
-
-        # use is_deformed to deform, then add it back to the entire checkpoint to export
-
-
-
-        # also if we want to retrain from a timestamp, just need to reload the deformed point in that scene
-
-
-
 
         with torch.no_grad():
 
 
 
-            use_gcno = False
-            use_sugar = False
-            if use_gcno:
-                normals=0 # the normals from the gcno
-            elif use_sugar:
-                normals=0   # the normals from the sugar
-            else:
-                normals=np.zeros_like(output_xyz, dtype=np.float32)
+
+            normals=np.zeros_like(output_xyz, dtype=np.float32)
 
                 
             map_to_tensors["positions"] = output_xyz
@@ -1598,7 +1212,7 @@ Commands = tyro.conf.FlagConversionOff[
         Annotated[ExportGaussianSplat, tyro.conf.subcommand(name="gaussian-splat")],
         Annotated[ExportGaussianSplat_mesh, tyro.conf.subcommand(name="gaussian-splat-mesh")],
         Annotated[ExportGaussianSplat_mesh_deform, tyro.conf.subcommand(name="gaussian-splat-deformmesh")],
-        Annotated[ExportGaussianSplat_resampledmesh, tyro.conf.subcommand(name="gaussian-splat-resampledmesh")],
+        # Annotated[ExportGaussianSplat_resampledmesh, tyro.conf.subcommand(name="gaussian-splat-resampledmesh")],
         
     ]
 ]

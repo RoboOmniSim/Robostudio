@@ -30,3 +30,10 @@ time_list_end: 40  # end time for grasp
 novel_time: False
 novel_fps_rate: 6
 
+
+
+# exporter utils
+
+expand_bbox: False
+use_gripper: False 
+contain_object: True

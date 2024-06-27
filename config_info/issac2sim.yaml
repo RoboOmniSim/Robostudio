@@ -34,3 +34,10 @@ time_list_end: 300  # end time for push_bag
 
 novel_time: False
 novel_fps_rate: 6
+
+
+# exporter utils
+
+expand_bbox: False
+use_gripper: False 
+contain_object: True

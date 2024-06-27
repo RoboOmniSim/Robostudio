@@ -50,3 +50,10 @@ time_list_end: 160
 
 
 novel_time: False
+
+
+# exporter utils
+
+expand_bbox: False
+use_gripper: False 
+contain_object: True

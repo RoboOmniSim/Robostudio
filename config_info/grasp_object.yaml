@@ -38,3 +38,12 @@ time_list_end: 650  # novel_pose end time
 
 novel_time: False
 novel_fps_rate: 6
+
+
+
+
+# exporter utils
+
+expand_bbox: True
+use_gripper: False 
+contain_object: True
