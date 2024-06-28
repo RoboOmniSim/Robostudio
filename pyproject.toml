@@ -68,6 +68,7 @@ dependencies = [
     "pathos",
     "packaging",
     "trimesh",
+    "kornia",
     "open3d==0.18.0",
     "plyfile==1.0.3",
 ]
