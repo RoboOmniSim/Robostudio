@@ -635,78 +635,14 @@ class ExportGaussianSplat_mesh(RoboExporter):
         gripper_model = roboconfig.gripper_model
         experiment_type=roboconfig.experiment_type
         
-
-        # # raw
-        # experiment_type = self.experiment_type
-        # if experiment_type == "novelpose":
-        #     expand_bbox=True
-        #     self.use_gripper=False # no gripper for novelpose
-        #     contain_object=False
-        # elif experiment_type == "push_box":
-        #     expand_bbox=False
-        #     self.use_gripper=False # no gripper for push_box
-        #     contain_object=True
-        # elif experiment_type == "grasp":
-        #     contain_object=False
-        #     expand_bbox=False
-        #     self.use_gripper=True # no gripper for push_box
-        # elif experiment_type == "grasp_object":
-        #     contain_object=True
-        #     expand_bbox=False
-        #     self.use_gripper=True
-        # the inside value is not important and it is just a placeholder during debug
-        bbox_ids_gripper = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper center,  8 is the object,9 is base_link (don;t move actually), 10 is the gripper left down,11 is left up,12 is right down,13 is right up
-        bbox_ids_nogripper = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper, 8 is the object,9 is base_link (don;t move actually)
-
-        if use_gripper:
-            bbox_ids=bbox_ids_gripper
-        else:
-            bbox_ids=bbox_ids_nogripper
+        sam=roboconfig.semantic_category
+        bbox_ids=np.array(roboconfig.assigned_ids)
 
 
-        bboxes_gripper=np.zeros((len(bbox_ids),6))
-        bboxes_nogripper=np.zeros((len(bbox_ids),6))
-
-        bboxes_gripper[0]=operation_scene_bbox[0]
-        bboxes_nogripper[0]=operation_scene_bbox[0]
-        # bboxes_gripper = np.array([
-        # [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
-        # [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
-        # [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
-        # [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
-        # [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
-        # [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
-        # [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
-        # [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
-        # [0, 0, 0, 0, 0, 0],  # Bounding box 8 object
-        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9 base_link
-        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 10
-        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 11
-        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 12
-        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 13
-        # ])
+        bboxes=np.zeros((len(bbox_ids),6))
 
 
-        # bboxes_nogripper = np.array([
-        # [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
-        # [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
-        # [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
-        # [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
-        # [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
-        # [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
-        # [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
-        # [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
-        # [0, 0, 0, 0, 0, 0],  # Bounding box 8
-        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9
-        # ])
-
-        # IDs for each bounding box
-        
-        if use_gripper:
-            bboxes=bboxes_gripper
-        else:
-            bboxes=bboxes_nogripper
-
+        bboxes[0]=operation_scene_bbox[0]
 
 
         load_bbox_info=self.load_bbox_info
@@ -714,8 +650,10 @@ class ExportGaussianSplat_mesh(RoboExporter):
         bbox_list=bbox_list.reshape(-1,6) # 12 total, 0 is base, 1-7 are link, 8-11 are rmatch with 10-13
 
         if use_gripper is False:
-            bboxes=process_robot_arm_bbox(bbox_list,bboxes,arm_model)
-        # rewrite this method to submethod 
+            if contain_object==False:# no object case
+                bboxes=process_robot_arm_bbox(bbox_list,bboxes,arm_model)
+            else :
+                bboxes=process_robot_arm_object_bbox(bbox_list,bboxes,arm_model)
         else:
 
             if contain_object==False:# no object case
@@ -727,7 +665,7 @@ class ExportGaussianSplat_mesh(RoboExporter):
 
         # novelpose case
         if expand_bbox:
-            bboxes=expand_bbox(bboxes)
+            bboxes=expand_bbox_method(bboxes)
 
         assert isinstance(pipeline.model, SplatfactoModel)
 

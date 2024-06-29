@@ -30,73 +30,10 @@
    
 
 
-    
-
-    {
-      "name": "Python: export SplatfactobackwardModel push box deform",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-deformmesh",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
-        
-        "--output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic",
-        "--experiment_type=push_bag",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
-      ]
-    },
 
 
 
 
-    {
-      "name": "Python: export SplatfactobackwardModel push box",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-        // "--experiment_name=nerfstudio_experiment",
-        // "--logging.local-writer.max-log-size=0",
-        // "--viewer.no-enable"
-        "--load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml",
-        
-        "--output-dir=exports/splat/no_downscale/group1_bbox_fix",
-        "--experiment_type=push_bag",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
-
-    {
-      "name": "Python: export issac2sim for push_box dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-
-        "--load-config=/home/lou/gs/nerfstudio/outputs/edit_image_colmap/splatfacto/2024-03-19_175705/config.yml",
-        
-        "--output-dir=exports/splat/no_downscale/group1_bbox_fix",
-        "--experiment_type=push_bag",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" ,
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply",
-        "--export_part=False",
-        "--use_gripper=True",
-
-      ]
-    },
 
     {
       "name": "Python: train issac2sim for push_box dataset",
@@ -145,101 +82,7 @@
         "--vis=viewer+wandb",
       ]
     },
-    {
-      "name": "Python: export issac2sim semantic ply for push_box dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
-        
-        "--output-dir=./dataset/issac2sim/semantic",
-        "--experiment_type=issac2sim",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./exports/splat/no_downscale/issac2sim_pushbox/splat.ply",
-        "--load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt",
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
-    {
-      "name": "Python: export novelpose part semantic ply for novelpose dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
-        
-        "--output-dir=./dataset/novelpose/semantic/part_gs",
-        "--experiment_type=novelpose",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./exports/splat/no_downscale/novelpose",
-        "--load_bbox_info=./dataset/novelpose/part/bbox_info/bbox_list.txt",
-        "--export_part=True",
-        "--use_gripper=False",
-      ]
-    },
-    {
-      "name": "Python: export grasp part semantic ply for grasp static dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
-        
-        "--output-dir=./dataset/grasp/semantic/part_gs",
-        "--experiment_type=grasp",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./exports/splat/no_downscale/grasp",
-        "--load_bbox_info=./dataset/grasp/part/bbox_info/bbox_list.txt",
-        "--export_part=True",
-        "--use_gripper=True",
-      ]
-    },
-    {
-      "name": "Python: export grasp semantic ply for grasp static dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
-        
-        "--output-dir=./dataset/grasp/semantic",
-        "--experiment_type=grasp",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./exports/splat/no_downscale/grasp",
-        "--load_bbox_info=./dataset/grasp/part/bbox_info/bbox_list.txt",
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
-    {
-      "name": "Python: export novelpose  semantic ply for novelpose dataset",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
-        
-        "--output-dir=./dataset/novelpose/semantic",
-        "--experiment_type=novelpose",
-        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
-        "--static_path=./exports/splat/no_downscale/novelpose",
-        "--load_bbox_info=./dataset/novelpose/part/bbox_info/bbox_list.txt",
-        "--export_part=False",
-        "--use_gripper=False",
-      ]
-    },
+
 
     {
       "name": "Python: render grasp only  for certain camera_view ",
@@ -281,66 +124,8 @@
       ]
     },
 
-    {
-      "name": "Python: export SplatfactobackwardModel novel pose mesh",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
 
-        "--load-config=/home/lou/gs/nerfstudio/outputs/novel_pose_dynamic/splatfacto/2024-04-05_203609/config.yml",
-        
-        "--output-dir=exports/splat/no_downscale/novel_pose_dynamic",
-        "--experiment_type=novelpose",
 
-        "--output_file=/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply",
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
-    {
-      "name": "Python: export SplatfactobackwardModel grasp_close_mesh",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-
-        "--load-config=/home/lou/gs/nerfstudio/outputs/output_gripper_open/splatfacto/2024-05-15_182117/config.yml", // this is the static only
-        
-        
-        "--output-dir=exports/splat/no_downscale/grasp_close_mesh",
-        "--experiment_type=grasp",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic/splat.ply",
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
-    {
-      "name": "Python: export SplatfactobackwardModel grasp static object deform",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-
-        "--load-config=/home/lou/gs/nerfstudio/outputs/output_gripper_open/splatfacto/2024-05-15_182117/config.yml", // this is the static only
-
-        
-        "--output-dir=exports/splat/no_downscale/grasp_object_dynamic_mesh",
-        "--experiment_type=grasp_object",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
-        "--static_path=/home/lou/Downloads/gripper_movement/gripper_part_asset/splat.ply", // static case
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
 
     {
       "name": "Python: export SplatfactobackwardModel grasp object dynamic mesh",
@@ -357,26 +142,6 @@
         "--experiment_type=grasp_object",
         "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
         "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/grasp_object_dynamic/semantic/splat.ply", // dynamic case
-        "--export_part=False",
-        "--use_gripper=True",
-      ]
-    },
-    {
-      "name": "Python: export SplatfactobackwardModel grasp gripper close only",
-      "type": "python",
-      "request": "launch",
-      "program": "nerfstudio/scripts/exporter.py",
-      "console": "integratedTerminal",
-      "args": [
-        "gaussian-splat-mesh",
-
-        "--load-config=/home/lou/gs/nerfstudio/outputs/output_gripper_open/splatfacto/2024-05-15_182117/config.yml",
-        
-        "--output-dir=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic",
-
-        "--experiment_type=grasp",
-        "--output_file=/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt",
-        "--static_path=/home/lou/gs/nerfstudio/exports/splat/no_downscale/gripper_grasp_open/semantic/splat.ply",
         "--export_part=False",
         "--use_gripper=True",
       ]
@@ -558,6 +323,194 @@
         "--trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt",
 
         "--meta_sim_path=./config_info/issac2sim.yaml"
+      ]
+    },
+    {
+      "name": "Python: export issac2sim semantic part ply for push_box dataset v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output-dir=./dataset/issac2sim/semantic/part_gs",
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/issac2sim_pushbox/splat.ply",
+        "--load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=True",
+        "--meta_sim_path=./config_info/issac2sim.yaml"
+      ]
+    },
+    {
+      "name": "Python: export issac2sim semantic ply for push_box dataset v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        
+        "--output-dir=./dataset/issac2sim/semantic",
+        "--experiment_type=issac2sim",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/issac2sim_pushbox/splat.ply",
+        "--load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=True",
+        "--meta_sim_path=./config_info/issac2sim.yaml"
+      ]
+    },
+    {
+      "name": "Python: export novelpose part semantic ply for novelpose dataset v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
+        
+        "--output-dir=./dataset/novelpose/semantic/part_gs",
+        "--experiment_type=novelpose",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/novelpose",
+        "--load_bbox_info=./dataset/novelpose/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=False",
+        "--meta_sim_path=./config_info/novelpose.yaml"
+      ]
+    },
+    {
+      "name": "Python: export grasp part semantic ply for grasp static dataset v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        
+        "--output-dir=./dataset/grasp/semantic/part_gs",
+        "--experiment_type=grasp",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/grasp",
+        "--load_bbox_info=./dataset/grasp/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=True",
+        "--meta_sim_path=./config_info/grasp.yaml"
+      ]
+    },
+    {
+      "name": "Python: export grasp semantic ply for grasp static dataset v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/output_gripper_open/splatfacto/2024-06-15_002436/config.yml",
+        
+        "--output-dir=./dataset/grasp/semantic",
+        "--experiment_type=grasp",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/grasp",
+        "--load_bbox_info=./dataset/grasp/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=True",
+        "--meta_sim_path=./config_info/grasp.yaml"
+      ]
+    },
+    {
+      "name": "Python: export novelpose  semantic ply for novelpose dataset v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/dynamic_result/splatfacto/2024-06-14_223638/config.yml",
+        
+        "--output-dir=./dataset/novelpose/semantic",
+        "--experiment_type=novelpose",
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./exports/splat/no_downscale/novelpose",
+        "--load_bbox_info=./dataset/novelpose/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=False",
+        "--meta_sim_path=./config_info/novelpose.yaml"
+      ]
+    },
+    {
+      "name": "Python: export grasp object part v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/merged_output_grasp/splatfacto/2024-05-30_215738/config.yml", //contain dynamic
+        
+        "--output-dir=./dataset/grasp_object/semantic/part_gs",
+        "--experiment_type=grasp_object",
+               
+        "--output_file=./dataset/grasp_object/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/grasp_object/semantic/splat.ply", // dynamic case
+        "--load_bbox_info=./dataset/grasp_object/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=False",
+        "--meta_sim_path=./config_info/grasp_object.yaml",
+
+
+      ]
+    },
+    {
+      "name": "Python: export push box part v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/edit_image_colmap/splatfacto/2024-06-12_012818/config.yml",
+        "--output-dir=./dataset/push_box/semantic/part_gs",
+        "--experiment_type=push_bag",
+               
+        "--output_file=./dataset/push_box/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/push_box/semantic/splat.ply", // dynamic case
+        "--load_bbox_info=./dataset/push_box/part/bbox_info/bbox_list.txt",
+        "--export_part=True",
+        "--use_gripper=False",
+        "--meta_sim_path=./config_info/push_bag.yaml",
+
+
+      ]
+    },
+    {
+      "name": "Python: export grasp object v2",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/scripts/exporter.py",
+      "console": "integratedTerminal",
+      "args": [
+        "gaussian-splat-mesh",
+        "--load-config=./outputs/merged_output_grasp/splatfacto/2024-05-30_215738/config.yml", //contain dynamic
+        
+        "--output-dir=./dataset/grasp_object/semantic",
+        "--experiment_type=grasp_object",
+               
+        "--output_file=./dataset/grasp_object/trajectory/joint_states_data.txt",
+        "--static_path=./dataset/grasp_object/semantic/splat.ply", // dynamic case
+        "--load_bbox_info=./dataset/grasp_object/part/bbox_info/bbox_list.txt",
+        "--export_part=False",
+        "--use_gripper=False",
+        "--meta_sim_path=./config_info/grasp_object.yaml",
+
+
       ]
     },
   

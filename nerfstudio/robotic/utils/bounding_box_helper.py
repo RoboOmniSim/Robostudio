@@ -95,7 +95,43 @@ def process_robot_gripper_bbox(bbox_list,bboxes,arm_model,gripper_model):
         return bboxes
     else:
         return bboxes
-    
+
+
+def process_robot_arm_object_bbox(bbox_list,bboxes,arm_model):
+    """
+    Process the robot arm bounding box.
+
+    Args:
+        bbox_list: the bounding box list
+        bboxes: the bounding box
+        arm_model: the arm model
+
+    Returns:
+        updated bounding box list
+    """
+    if arm_model == "default":
+        for i in range(len(bbox_list)):
+            if i==0:
+                    bboxes[9]=bbox_list[i]
+            elif i==1:
+                    bboxes[1]=bbox_list[i]
+            elif i==2:
+                    bboxes[2]=bbox_list[i]
+            elif i==3:
+                    bboxes[3]=bbox_list[i]
+            elif i==4:
+                    bboxes[4]=bbox_list[i]
+            elif i==5:  
+                    bboxes[5]=bbox_list[i]
+            elif i==6:
+                    bboxes[6]=bbox_list[i]
+            elif i==7:
+                    bboxes[7]=bbox_list[i]
+            elif i==8:
+                    bboxes[8]=bbox_list[i]
+        return bboxes
+    else:
+        return bboxes
 
 def process_robot_gripper_object_bbox(bbox_list,bboxes,arm_model,gripper_model):
     """
