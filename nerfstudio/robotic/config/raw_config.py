@@ -125,7 +125,7 @@ class Roboticconfig(PrintableConfig):
 
     arm_model: Optional[str] = "default" # default or custom
     """arm model for urdf file"""
-    relationship_config_path: Optional[Path] = Path("relationship_config.yaml")
+    relationship_config_path: Optional[Path] = Path("config_info/relationship.yaml")
     """semantic simulation relationship config path for urdf file"""
     # Physics engine config
     novel_time: Optional[bool] = False
@@ -133,8 +133,16 @@ class Roboticconfig(PrintableConfig):
     link_edit_info: Optional[np.ndarray] = np.zeros(13)
     """link edit information for novel time interpolation"""
 
-    engine_backend: Optional[str] = "omni" # omni or python 
+    engine_backend: Optional[str] = "python" # omni or python 
     """the backend of physics engine: omni is omnisim, python is gradsim based simulation"""
+
+    assigned_ids: Optional[np.ndarray] = np.zeros(7)
+
+    """the semantic id for group tracing and simulation"""
+
+    semantic_category: Optional[list] = ["kinematic","gripper","newton_euler","FEM","MPM","SPH","articulated"]
+    """assign the semantic category for each group"""
+
 
     def setup_params(self, meta_sim_path: Path):
         """

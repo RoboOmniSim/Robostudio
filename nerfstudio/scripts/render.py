@@ -70,6 +70,8 @@ import vdbfusion
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.physics_engine.omnisim.issac2sim import *
 from nerfstudio.robotic.config.raw_config import Roboticconfig
+from nerfstudio.robotic.physics_engine.base import *
+from nerfstudio.robotic.physics_engine.omnisim.omnisim import load_object_trajectory,load_robotic_trajectory
 def _render_trajectory_video(
     pipeline: Pipeline,
     cameras: Cameras,
@@ -1113,7 +1115,19 @@ class dynamicDatasetRender(RoboBaseRender):
 
         push_time_list=np.linspace(push_time_list_start,push_time_list_end,push_time_list_end-push_time_list_start).astype(int)
 
-        relationship_config=load_config(roboconfig.relationship_config_path)
+
+        # simulation
+        engine_backend=roboconfig.engine_backend
+        if engine_backend=="omnisim":
+            # load trajectory from omnisim
+            relationship_config=None
+            omnisim_config=None
+            load_object_trajectory(omnisim_config)
+            load_robotic_trajectory(omnisim_config)
+        elif engine_backend=="python":
+            relationship_config=load_yaml_config(roboconfig.relationship_config_path)
+            engine_ids=roboconfig.semantic_category
+            assigned_ids=roboconfig.assigned_ids
         link_edit_info=roboconfig.link_edit_info
 
         # engine id mapping
@@ -1125,6 +1139,7 @@ class dynamicDatasetRender(RoboBaseRender):
         else:
             assigned_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # no gripper
             engine_ids = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # with gripper
+
       
         dynamic_information_list=[]
 

@@ -55,6 +55,8 @@ from nerfstudio.robotic.kinematic.gripper_utils import *
 from nerfstudio.robotic.physics_engine.omnisim.issac2sim import *
 from nerfstudio.robotic.config.raw_config import Roboticconfig
 from nerfstudio.robotic.physics_engine.base import *
+from nerfstudio.robotic.utils.bounding_box_helper import *
+from nerfstudio.robotic.physics_engine.omnisim.omnisim import load_object_trajectory,load_robotic_trajectory
 @dataclass
 class Exporter:
     """Export the mesh from a YML config to a folder."""
@@ -629,7 +631,8 @@ class ExportGaussianSplat_mesh(RoboExporter):
         expand_bbox = roboconfig.expand_bbox
         contain_object = roboconfig.contain_object
         use_gripper = roboconfig.use_gripper
-
+        arm_model = roboconfig.arm_model
+        gripper_model = roboconfig.gripper_model
         experiment_type=roboconfig.experiment_type
         
 
@@ -652,173 +655,79 @@ class ExportGaussianSplat_mesh(RoboExporter):
         #     expand_bbox=False
         #     self.use_gripper=True
         # the inside value is not important and it is just a placeholder during debug
-        bboxes_gripper = np.array([
-        [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
-        [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
-        [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
-        [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
-        [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
-        [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
-        [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
-        [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
-        [0, 0, 0, 0, 0, 0],  # Bounding box 8 object
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9 base_link
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 10
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 11
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 12
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 13
-        ])
-
-
-        bboxes_nogripper = np.array([
-        [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
-        [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
-        [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
-        [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
-        [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
-        [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
-        [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
-        [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
-        [0, 0, 0, 0, 0, 0],  # Bounding box 8
-        [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9
-        ])
-
-        # IDs for each bounding box
-             
         bbox_ids_gripper = np.array([0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper center,  8 is the object,9 is base_link (don;t move actually), 10 is the gripper left down,11 is left up,12 is right down,13 is right up
         bbox_ids_nogripper = np.array([0,1, 2, 3, 4,5,6,7,8,9])  # based on label map in the urdf file  0 is background, 1-6 are the linkage, 7 is the gripper, 8 is the object,9 is base_link (don;t move actually)
 
         if use_gripper:
-            bboxes=bboxes_gripper
             bbox_ids=bbox_ids_gripper
         else:
-            bboxes=bboxes_nogripper
             bbox_ids=bbox_ids_nogripper
+
+
+        bboxes_gripper=np.zeros((len(bbox_ids),6))
+        bboxes_nogripper=np.zeros((len(bbox_ids),6))
+
+        bboxes_gripper[0]=operation_scene_bbox[0]
+        bboxes_nogripper[0]=operation_scene_bbox[0]
+        # bboxes_gripper = np.array([
+        # [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
+        # [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
+        # [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
+        # [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
+        # [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
+        # [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
+        # [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
+        # [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
+        # [0, 0, 0, 0, 0, 0],  # Bounding box 8 object
+        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9 base_link
+        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 10
+        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 11
+        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 12
+        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 13
+        # ])
+
+
+        # bboxes_nogripper = np.array([
+        # [-1, -1, -1, 1, 1, 1],  # Bounding box 0 # all point is in bounded scene 
+        # [-0.304, 0.07, -0.652, -0.205, 0.19, -0.508],  # Bounding box 1
+        # [-0.302, -0.059, -0.64, -0.166, 0.082, -0.15],  # Bounding box 2
+        # [-0.265, 0.06, -0.3, 0.1, 0.17, -0.11],  # Bounding box 3
+        # [0, -0.02, -0.25, 0.127, 0.06, -0.12],   # Bounding box 4
+        # [0.051, -0.023, -0.18, 0.192, 0.047, -0.04],  # Bounding box 5
+        # [0.148, -0.018, -0.19, 0.206, 0.047, -0.13],  # Bounding box 6
+        # [0.184, -0.04, -0.27, 0.311, 0.07, -0.14],  # Bounding box 7
+        # [0, 0, 0, 0, 0, 0],  # Bounding box 8
+        # [-0.3, 0.08, -0.71, -0.2, 0.21, -0.63],  # Bounding box 9
+        # ])
+
+        # IDs for each bounding box
+        
+        if use_gripper:
+            bboxes=bboxes_gripper
+        else:
+            bboxes=bboxes_nogripper
+
 
 
         load_bbox_info=self.load_bbox_info
         bbox_list=np.loadtxt(load_bbox_info) 
         bbox_list=bbox_list.reshape(-1,6) # 12 total, 0 is base, 1-7 are link, 8-11 are rmatch with 10-13
 
-
-
+        if use_gripper is False:
+            bboxes=process_robot_arm_bbox(bbox_list,bboxes,arm_model)
         # rewrite this method to submethod 
-        for i in range(len(bbox_list)):
-            # replace the bboxes with the new scenes bboxs
-            if use_gripper is False:
-                if i==0:
-                    bboxes[9]=bbox_list[i]
-                elif i==1:
-                    bboxes[1]=bbox_list[i]
-                elif i==2:
-                    bboxes[2]=bbox_list[i]
-                elif i==3:
-                    bboxes[3]=bbox_list[i]
-                elif i==4:
-                    bboxes[4]=bbox_list[i]
-                elif i==5:  
-                    bboxes[5]=bbox_list[i]
-                elif i==6:
-                    bboxes[6]=bbox_list[i]
-                elif i==7:
-                    bboxes[7]=bbox_list[i]
+        else:
 
-
-            else:
-
-                if contain_object==False:# no object case
-                    if i==0:
-                        bboxes[9]=bbox_list[i]
-                    elif i==1:
-                        bboxes[1]=bbox_list[i]
-                    elif i==2:
-                        bboxes[2]=bbox_list[i]
-                    elif i==3:
-                        bboxes[3]=bbox_list[i]
-                    elif i==4:
-                        bboxes[4]=bbox_list[i]
-                    elif i==5:  
-                        bboxes[5]=bbox_list[i]
-                    elif i==6:
-                        bboxes[6]=bbox_list[i]
-                    elif i==7:
-                        bboxes[7]=bbox_list[i]
-                    elif i==8:
-                        bboxes[10]=bbox_list[i]
-                    elif i==9:
-                        bboxes[11]=bbox_list[i]
-                    elif i==10:
-                        bboxes[12]=bbox_list[i]
-                    elif i==11:
-                        bboxes[13]=bbox_list[i]
-
+            if contain_object==False:# no object case
+                bboxes=process_robot_gripper_bbox(bbox_list,bboxes,arm_model,gripper_model)
+            else:                
                 # object case
-                else:
-                    if i==0:
-                        bboxes[9]=bbox_list[i]
-                    elif i==1:
-                        bboxes[1]=bbox_list[i]
-                    elif i==2:
-                        bboxes[2]=bbox_list[i]
-                    elif i==3:
-                        bboxes[3]=bbox_list[i]
-                    elif i==4:
-                        bboxes[4]=bbox_list[i]
-                    elif i==5:  
-                        bboxes[5]=bbox_list[i]
-                    elif i==6:
-                        bboxes[6]=bbox_list[i]
-                    elif i==7:
-                        bboxes[7]=bbox_list[i]
-                    elif i==8:
-                        bboxes[8]=bbox_list[i]
-                    elif i==9:
-                        bboxes[10]=bbox_list[i]
-                    elif i==10:
-                        bboxes[11]=bbox_list[i]
-                    elif i==11:
-                        bboxes[12]=bbox_list[i]
-                    elif i==12:
-                        bboxes[13]=bbox_list[i]  
-
-                
-
+                bboxes=process_robot_gripper_object_bbox(bbox_list,bboxes,arm_model,gripper_model)
 
 
         # novelpose case
         if expand_bbox:
-            # for manual bbox fix for the novelpose part when the manual bbox is not accurate
-
-
-            # use a knn to make all point in region that belongs to background to its nerest point with sam id
-            bboxes[3,1] = bboxes[3,1]+0.015   # expand the bounding box by 10% to ensure all points are included
-            bboxes[3,3] = bboxes[3,3]+0.025 
-            bboxes[3,0] = bboxes[3,0]*1.05
-            bboxes[3,2] = bboxes[3,2]*1.05
-            bboxes[3,4] = bboxes[3,4]*1.05
-            bboxes[3,5] = bboxes[3,5]*1.05  
-            bboxes[2,0] = bboxes[2,0]
-            bboxes[2,3] = bboxes[2,3]+0.03
-            bboxes[2,2] = bboxes[2,2]
-            bboxes[2,5] = bboxes[2,5]+0.03
-
-            bboxes[4,4] = bboxes[4,4]+0.015
-            bboxes[4,3] = bboxes[4,3]+0.02
-            
-            bboxes[5,0] = bboxes[5,0]
-            bboxes[5,3] = bboxes[5,3]+0.02
-            bboxes[5,4] = bboxes[5,4]+0.035
-            bboxes[:4,2] = bboxes[:4,2]*1.05
-
-            bboxes[4:6,1]  = bboxes[4:6,1]*1.05
-
-
-
-
-        
-
-
-
+            bboxes=expand_bbox(bboxes)
 
         assert isinstance(pipeline.model, SplatfactoModel)
 
@@ -1056,7 +965,22 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
         add_trajectory=roboconfig.add_trajectory
         
         link_edit_info=roboconfig.link_edit_info
-        relationship_config=load_config(roboconfig.relationship_config_path)
+
+
+
+        # simulation
+        engine_backend=roboconfig.engine_backend
+        if engine_backend=="omnisim":
+            # load trajectory from omnisim
+            relationship_config=None
+            omnisim_config=None
+            load_object_trajectory(omnisim_config)
+            load_robotic_trajectory(omnisim_config)
+        elif engine_backend=="python":
+            relationship_config=load_yaml_config(roboconfig.relationship_config_path)
+            engine_ids=roboconfig.semantic_category # list
+            assigned_ids=roboconfig.assigned_ids
+
         # engine id mapping
 
         if add_gripper:
@@ -1074,31 +998,12 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
 
         if_deformable = True
 
-      
-
         if if_deformable:
 
-            # the render should be all
-
-
-            # total is 241 for push box
-
-
-            
-            time_stamp=self.time_stamp # the time stamp of the transformation package  # fps is 796/4=199 step from 3.33 sec in this bag with 60fps  random pick one deform here 
- 
+            time_stamp=self.time_stamp 
             scale_factor=dataparser_output.dataparser_scale  # replace by future 
-            
 
-            # if add_gripper:
-            #     output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,
-            #                                                                                                                                                  final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
-            #                                                                                                                                                    add_gripper=add_gripper,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp,flip_x_coordinate=flip_x_coordinate)
-            
             if add_trajectory:
-
-    
-
                 traj_mode=edit_trajectory(self.trajectory_file,start_time,link_edit=link_edit_info)
                 movement_angle_state=traj_mode
 
@@ -1154,23 +1059,12 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
 
         with torch.no_grad():
 
-
-
-
             normals=np.zeros_like(output_xyz, dtype=np.float32)
 
                 
             map_to_tensors["positions"] = output_xyz
             map_to_tensors["normals"] = normals
-            
-
-
             map_to_tensors["semantic_id"] = np.array(output_semantic_id,dtype=np.float32)  # standard datastructure   
-
-
-
-
-
 
             
             for i in range(output_features_dc.shape[1]):
@@ -1184,9 +1078,6 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
 
             map_to_tensors["opacity"] = output_opacities
 
-            
-
-            # edit here 
             for i in range(3):
                 map_to_tensors[f"scale_{i}"] = output_scales[:, i, None]
 
@@ -1194,13 +1085,6 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             for i in range(4):
                 map_to_tensors[f"rot_{i}"] = output_rots[:, i, None]
             
-            
-            
-            
-            
-
-
-                
        
         pcd = o3d.t.geometry.PointCloud(map_to_tensors)
 
