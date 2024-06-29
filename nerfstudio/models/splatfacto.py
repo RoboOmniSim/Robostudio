@@ -62,7 +62,7 @@ from nerfstudio.robotic.render_util.render_helper_func import *
 from nerfstudio.robotic.physics_engine.python.push_box import *
 from nerfstudio.robotic.kinematic.gripper_utils import *
 from nerfstudio.robotic.physics_engine.python.grasp import *
-from nerfstudio.robotic.physics_engine.base import semantic_category_engine_config, engine_config
+from nerfstudio.robotic.physics_engine.base import semantic_category_engine_config
 
 def random_quat_tensor(N):
     """

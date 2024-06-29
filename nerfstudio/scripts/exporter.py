@@ -1038,8 +1038,9 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
                 
                 else:
                     output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id=model.get_deformation(time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,
+                                                                                                                                                                center_vector_gt,
                                                                                                                                                                 relationship_config=relationship_config,
-                                                                                                                                                                center_vector_gt,path=static_path,add_simulation=add_simulation,dt=simulation_timestamp)
+                                                                                                                                                                path=static_path,add_simulation=add_simulation,dt=simulation_timestamp)
                 
             if add_simulation == True:
                 filename = self.output_dir / f"splat_deform_timestamp{time_stamp}_simulation{simulation_timestamp}.ply"
