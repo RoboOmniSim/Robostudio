@@ -35,8 +35,8 @@ if __name__ == '__main__':
     # output_video = '/home/lou/gs/nerfstudio/renders/push_box_dynamic/frame_00293.mp4'
 
 
-    image_folder = '/home/lou/gs/Robostudio/dataset/issac2sim/render/frame_00283.png/rgb'
-    output_video = '/home/lou/gs/Robostudio/dataset/issac2sim/render/frame_00283.mp4'
+    image_folder = '/home/lou/gs/Robostudio/renders/push_box_dynamic/frame_00285.png/rgb'
+    output_video = '/home/lou/gs/Robostudio/renders/push_box_dynamic/frame_00285.mp4'
 
     # if os.path.exists(output_video) is False:
     #     os.makedirs(output_video)

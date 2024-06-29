@@ -62,6 +62,7 @@ from nerfstudio.robotic.render_util.render_helper_func import *
 from nerfstudio.robotic.physics_engine.python.push_box import *
 from nerfstudio.robotic.kinematic.gripper_utils import *
 from nerfstudio.robotic.physics_engine.python.grasp import *
+from nerfstudio.robotic.physics_engine.base import semantic_category_engine_config
 
 def random_quat_tensor(N):
     """
@@ -979,7 +980,7 @@ class SplatfactoModel(Model):
                         gripper_control=None,joint_angles_degrees_gripper=None, a_gripper=None, alpha_gripper=None, d_gripper=None,add_gripper=False,path=None,add_simulation=False,
                         add_grasp_object=False,add_grasp_object_simulation=0,add_grasp_object_duration=(0,0),add_trajectory=False,move_with_gripper=False,
                         add_grasp_control=0,dt=0,
-                        engine_ids=0,
+                        engine_ids=0,relationship_config=0,
                         flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,flip_x_coordinate_gripper=False,flip_y_coordinate_gripper=False,flip_z_coordinate_gripper=False):
         """Takes in physics setting, generates the deformation of the object, and computes the output of the model.
         Args:
@@ -1002,6 +1003,7 @@ class SplatfactoModel(Model):
 
             physics setting:
             engine_ids: the set of id mapping with the semantic category, like mpm, kinematic,dynamic,friction,etc
+            relationship_config: the relationship configuration of the simulation
             add_simulation: the flag of adding simulation
             add_grasp_object: the flag of adding grasp object
             add_grasp_object_simulation: the flag of adding grasp object simulation
@@ -1035,7 +1037,8 @@ class SplatfactoModel(Model):
         
         xyz, features_dc, features_extra, opacities, scales, rots,semantic_id=load_ply_sam(path, max_sh_degree=3)
 
-
+        # assign engine based on engine parameter
+        # engine_inference=semantic_category_engine_config(engine_ids,relationship_config)
 
         if add_gripper==True:
             individual_transformations, final_transformations_list=gripper_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
@@ -1064,12 +1067,19 @@ class SplatfactoModel(Model):
 
         # assign different physics simulation to different object based on its semantic category
         for i in range(assigned_ids.shape[0]):  # iterate over all sam mask
-            
+
+            # engine_used=engine_inference[i]
+
+            # since the assigned_ids and engine_inference are the same length
+            # engine used should map the equation to the right engine
+
+
             if i ==0 or i==9:
+                
                 # background and base
                 
                 mark_id=i
-                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
 
 
                 output_xyz.append(select_xyz)
@@ -1088,44 +1098,26 @@ class SplatfactoModel(Model):
 
 
                 mark_id=i
-                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-
-                # semantic_id_ind=(semantic_id==assigned_ids[mark_id]).reshape(-1)
-                # semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[mark_id]].reshape(-1,1)
-                # # translation= np.dot(R_c, deform_poses_trans) + T_c
-                # select_xyz=  np.array(xyz[semantic_id_ind])
-                # select_opacities=  np.array(opacities[semantic_id_ind])
-                # select_scales =  np.array(scales[semantic_id_ind])
-                # select_features_extra =  np.array(features_extra[semantic_id_ind])
-                # select_rotation =  np.array(rots[semantic_id_ind])
-                # select_feature_dc =  np.array(features_dc[semantic_id_ind])
-
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
 
 
                 
 
                 if add_simulation==True:
-
-                    # dt=0.8
-                    recenter_vector,rotation, translation,simulation_position=example_push(dt)
+                    recenter_vector,rotation, translation,simulation_position,adaptive_vector=example_push(dt)
                     raw_xyz= select_xyz
 
 
 
                     raw_xyz_edit=raw_xyz-recenter_vector
-                    # deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
-
                     forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
 
-                    forward_point=forward_point-simulation_position
-
+                    forward_point=forward_point+adaptive_vector
                     output_xyz_object=forward_point+recenter_vector
-
                     rotation_splat=rotation
 
                     rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
                     select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
-                    
 
                     select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
@@ -1139,10 +1131,7 @@ class SplatfactoModel(Model):
                     output_semantic_id.append(semantic_id_ind_sam)
                 elif add_grasp_object==True or move_with_gripper==True:
                     if move_with_gripper==True and add_grasp_object==False:
-                        offset_vector=np.array([0,-0.02,-0.02]) # this is due to the absolute value difference between the gripper and the object
-
                         mark_id=2  #6 follow the robotic arm 
-
 
                         raw_xyz= select_xyz
                         start_time_stamp=250
@@ -1155,18 +1144,14 @@ class SplatfactoModel(Model):
                         relative_trans=obtain_relative_transformation(final_transformations_list[mark_id],final_transformations_list_t_minus1[mark_id])
 
                         rotation_rela=relative_trans[:3,:3]
-                        # rotation_rela=np.eye(3)
 
                         translation_rela=relative_trans[:3,3]        
-                        # deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
 
                         forward_point=  np.array(raw_xyz @ rotation_rela.T+ translation_rela )
 
                         select_xyz=forward_point
 
                         rotation_splat=rotation_rela
-                
-                        # select_xyz=  np.array(select_xyz + translation)
 
                         rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
                         select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
@@ -1174,8 +1159,7 @@ class SplatfactoModel(Model):
 
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-
-
+                        
                         output_xyz.append(select_xyz)
                         output_opacities.append(select_opacities)
                         output_scales.append(select_scales)
@@ -1185,7 +1169,7 @@ class SplatfactoModel(Model):
                         output_semantic_id.append(semantic_id_ind_sam)
                     elif  move_with_gripper==False and add_grasp_object==True:
 
-                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim=example_push(dt)
+                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
                         # beyond the simulation time is the same as the simulation time
                         if time_diff>10:
@@ -1196,18 +1180,9 @@ class SplatfactoModel(Model):
 
 
                         raw_xyz_edit=raw_xyz-recenter_vector
-                        # deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
-
                         forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
-
-                        # forward_point=forward_point-simulation_position
-
                         output_xyz_object=forward_point+recenter_vector
-
                         rotation_splat=rotation
-                
-                        # select_xyz=  np.array(select_xyz + translation)
-
                         rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
                         select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
                         
@@ -1222,32 +1197,22 @@ class SplatfactoModel(Model):
                         output_features_dc.append(select_feature_dc)
                         output_semantic_id.append(semantic_id_ind_sam)
                     else:
-                        # offset_vector=np.array([0,-0.02,-0.02]) # this is due to the absolute value difference between the gripper and the object
-                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim=example_push(dt)
+                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
                         # beyond the simulation time is the same as the simulation time
                         if time_diff>10:
                             time_diff=10
                         rotation, translation=interact_with_gripper(add_grasp_control,time_diff)
+
                         raw_xyz= select_xyz
-
-
-
                         raw_xyz_edit=raw_xyz-recenter_vector
-
-
                         forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
-
-
-
                         output_xyz_object=forward_point+recenter_vector
 
                         mark_id=4
                         mark_id_offset=3
-
                         raw_xyz= select_xyz
                         start_time_stamp=250
-
 
                         rotation_rela,translation_rela,offset_vector,offset_rotation= get_object_tracjetory_from_simulation(mark_id,mark_id_offset,start_time_stamp,time_stamp,final_transformations_list,
                                           movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
@@ -1291,14 +1256,11 @@ class SplatfactoModel(Model):
                 mark_id=5  #6-1
                 # apply deformation 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-                
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
-                # else:
+
                 rotation=final_transformations_list[mark_id][:3,:3]
                 translation=final_transformations_list[mark_id][:3,3]
 
@@ -1332,10 +1294,9 @@ class SplatfactoModel(Model):
 
 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
                 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1373,14 +1334,11 @@ class SplatfactoModel(Model):
                 mark_id=8
                 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-                
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
-                # else:
                 rotation=final_transformations_list[mark_id][:3,:3]
                 translation=final_transformations_list[mark_id][:3,3]
 
@@ -1417,10 +1375,8 @@ class SplatfactoModel(Model):
                 mark_id=9
 
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
                 
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1458,10 +1414,8 @@ class SplatfactoModel(Model):
                 # right up finger of gripper
                 mark_id=10
 
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-                
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
 
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
@@ -1498,13 +1452,7 @@ class SplatfactoModel(Model):
                 # robotic arm kinematic
 
                 mark_id=i-1
-                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc)
-
-
-                semantic_id_ind=(semantic_id==assigned_ids[i]).reshape(-1)
-                semantic_id_ind_sam=semantic_id[semantic_id==assigned_ids[i]].reshape(-1,1)
-
-
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
                 rotation_inv=inverse_transformation[mark_id][:3,:3]
                 translation_inv=inverse_transformation[mark_id][:3,3]
 
@@ -1611,6 +1559,8 @@ class SplatfactoModel(Model):
                                                                                                     add_gripper=dynamic_info['add_gripper'],
                                                                                                     move_with_gripper=dynamic_info['move_with_gripper'],
                                                                                                     add_grasp_object=dynamic_info['add_grasp_object'],
+                                                                                                    engine_ids=dynamic_info['engine_ids'],
+                                                                                                    relationship_config=dynamic_info['relationship_config'],
                                                                                                     )
 
 
@@ -1681,12 +1631,6 @@ class SplatfactoModel(Model):
             opacities = torch.sigmoid(opacities_crop)
         else:
             raise ValueError("Unknown rasterize_mode: %s", self.config.rasterize_mode)
-
-
-
-
-        # Important to allow xys grads to populate properly
-
 
         if self.config.sh_degree > 0:
             viewdirs = means_crop.detach() - camera.camera_to_worlds.detach()[..., :3, 3]  # (N, 3)

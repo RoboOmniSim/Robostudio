@@ -1,0 +1,10 @@
+categories:
+  robotic arm: kinematic 
+  robotic gripper: gripper 
+  rigid object: newton euler 
+  soft object: FEM 
+  plastic object: MPM 
+  fluid object: SPH 
+  articulated object: articulated 
+  None : None
+

@@ -1,0 +1,70 @@
+experiment_type: grasp_object
+
+center_vector: [0.206349, 0.1249724, -0.70869258]  # with base grasp_object static fixed
+# center_vector_gt: [0.20764898, 0.15431145, -0.73875328]  # with base grasp_object dynamic
+
+scale_factor: [1.2615, 1.35, 1.22]  # x, y, z
+
+simulation_timestamp: 0
+add_simulation: False
+add_gripper: True
+start_time: 0
+end_time: 3.24
+end_time_collision: 0.5
+flip_x_coordinate: True
+add_grasp_control: True
+add_grasp_object: True
+max_gripper_degree: -0.8525
+add_trajectory: False
+
+render_camera_index: 262
+
+grasp_inter_time: 10
+
+push_time_list_start: 123
+push_time_list_end: 132
+
+grasp_time_list_start: 240  # grasp time list for gripper simulation stage 1, this is stage gripper close and move with object
+grasp_time_list_end: 250  # grasp time list for gripper simulation stage 1, this is stage gripper close and move with object
+
+grasp_time_list_stage_2_start: 251  # grasp time list for gripper simulation stage 2, this is stage gripper grasp success and move with object
+grasp_time_list_stage_2_end: 260  # grasp time list for gripper simulation stage 2, this is stage gripper grasp success and move with object
+
+grasp_time_list_stage_3_start: 261  # grasp time list for gripper simulation stage 3, this is stage gripper release object
+grasp_time_list_stage_3_end: 270  # grasp time list for gripper simulation stage 3, this is stage gripper release object
+
+time_list_start: 250  # novel_pose start time
+time_list_end: 650  # novel_pose end time
+
+novel_time: False
+novel_fps_rate: 6
+
+
+
+
+# exporter utils
+
+expand_bbox: False
+use_gripper: True 
+contain_object: True
+
+
+
+
+assigned_ids : [0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13] # with gripper
+
+semantic_category :
+  - None
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic gripper
+  - rigid object
+  - None
+  - robotic gripper
+  - robotic gripper
+  - robotic gripper
+  - robotic gripper

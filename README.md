@@ -28,6 +28,10 @@
   <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/107318439/0d1cbe74-a2a3-4a94-af78-315b8a44ccb1">
 </div>
 
+
+
+
+
 # About
 
 _It’s as simple as plug and play with robostudio!_
@@ -94,6 +98,7 @@ static dataset (Gaussian splatting)
 
 find the dataset you want to follow:(grasp,zero_pose,novelpose,grasp_object,push_bag)
 
+--data is path of dataset
 ```bash
 ns-train  splatfacto --data 
 ```
@@ -148,7 +153,7 @@ ns-export gaussian-splat-mesh
         --load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt
         --export_part=False
         --use_gripper=True
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 ```
 
 
@@ -183,7 +188,7 @@ ns-export gaussian-splat-deformmesh
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
         --time_stamp=
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 ```
 
 
@@ -197,7 +202,7 @@ ns-render  dynamic_dataset
         --output_file=
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 
 ```
 
@@ -267,8 +272,9 @@ add omnisim data and file here
 
 
 
- --trajectory_file the trajectory from issac only
+ --trajectory_file the trajectory from issac2sim only
 
+This export the issac trajectory for certain time-stamp
 ```bash
 ns-export gaussian-splat-deformmesh
 
@@ -280,7 +286,7 @@ ns-export gaussian-splat-deformmesh
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
         --time_stamp=
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 ```
 
 
@@ -294,7 +300,7 @@ ns-render  dynamic_dataset
         --output_file=
         --static_path=
         --trajectory_file=./dataset/issac2sim/trajectory/dof_positions.txt
-        --meta_sim_path=./Robostudio/dataset/config_info/push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 
 ```
 
@@ -319,7 +325,16 @@ and will add more data shortly
   <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/c5354df5-774d-4bdd-a5e5-7f3776fc1740">
 </div>
 
+### Backward optimized result
+<div align="center">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/25d96e79-6ae0-4f99-875f-20fae500444b">
+</div>
 
+#### Keep optimize backward and make it align with issacsim through omnisim
+
+
+
+## 5: Explanation of Config file and how to connect it with omnisim
 <!-- 
 
 

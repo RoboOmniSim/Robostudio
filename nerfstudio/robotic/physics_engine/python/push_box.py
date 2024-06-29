@@ -6,17 +6,7 @@ import numpy as np
 import trimesh
 import open3d as o3d
 
-
-
-
-
-
-
-
 from nerfstudio.robotic.physics_engine.python.collision_detection import collision_detection
-
-
-
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 
 
@@ -59,20 +49,6 @@ def compute_linear_velocity(angular_velocity, position_vector):
 
 def leverage_simulation(mesh,center_of_mass,fulcrum,linear_velocity,angular_velocity,dt):
 
-    # the start center is the center of obj bbox
-
-
-
-
-    # the end center is the center when object is laying on the ground (ie,the bottom of orignial bbox + the center y axis)
-
-    # center_of_mass = np.array([0.0, 0.0, 0.0])  # Initial center of mass
-    # fulcrum = np.array([0.5, 0.5, 0.0])  # Fulcrum position
-    # linear_velocity = np.array([1.0, 0.0, 0.0])  # Linear velocity
-    # angular_velocity = np.array([0.0, 0.0, 1.0])  # Angular velocity (rotation around z-axis)
-      # Time step
-
-    # Compute global transformation
     new_rotation_matrix, translation_vector = compute_global_transformation(center_of_mass, fulcrum, linear_velocity, angular_velocity, dt)
 
     return new_rotation_matrix, translation_vector
@@ -81,10 +57,6 @@ def leverage_simulation(mesh,center_of_mass,fulcrum,linear_velocity,angular_velo
 
 
 def compute_angular_velocity(xyz_0,xyz_optimized,delta_t):
-
-
-
-
 
     # angular velocity very time consuming so replace it in future 
 
@@ -142,6 +114,12 @@ def compute_global_transformation(center_of_mass, fulcrum, linear_velocity, angu
     
     # Compute new orientation
     new_rotation_matrix = update_orientation(initial_rotation_matrix, angular_velocity, dt)
+
+
+    # add support force 
+
+
+
     
     # Calculate the translation vector from fulcrum to the new center of mass
     translation_vector = new_center_of_mass - fulcrum
@@ -175,37 +153,155 @@ def find_lower_plane_center(corners):
     
     return lower_plane_center
 
+def find_object_center(corners):
+    """
+    Find the center of the object (centroid of the bounding box).
+    
+    :param corners: List of 8 corners of the bounding box. Each corner is a tuple (x, y, z).
+    :return: Tuple representing the center of the object (x, y, z).
+    """
+    # Calculate the center of the object (mean of all corners)
+    object_center = np.mean(corners, axis=0)
+    
+    return object_center
+
+
+
+
+def simulate_support_force(mass, gravity=9.81, Rot_vec=np.zeros(3)):
+    """
+    Simulates the support force of the ground on an object.
+
+    Parameters:
+    mass (float): Mass of the object in kilograms.
+    gravity (float): Acceleration due to gravity in m/s^2. Default is 9.81.
+    R (numpy.ndarray): 3x3 rotation matrix. Default is the identity matrix.
+
+    Returns:
+    numpy.ndarray: The support force vector.
+    """
+    # Define the gravity force vector
+    F_gravity = np.array([-mass * gravity, 0, -mass * gravity])
+    F_gravity_rotated=np.zeros(3)
+    # Rotate the gravity force vector using the rotation matrix R
+    F_gravity_rotated[2] = F_gravity[2]*np.cos(np.deg2rad(Rot_vec[0]))
+    F_gravity_rotated[0] = F_gravity[2]*np.sin(np.deg2rad(Rot_vec[0]))
+
+    
+
+    # The support force is equal in magnitude but opposite in direction to the gravity force and since center of mass and fulcrum are the changed it can be decomposed as the vector.
+    F_support = F_gravity_rotated-F_gravity
+        
+    return F_support
+
+def compute_change_in_position(mass, force, delta_time, initial_velocity=np.zeros(3), initial_position=np.zeros(3)):
+    """
+    Computes the change in position of an object based on mass, force vector, and change of time.
+
+    Parameters:
+    mass (float): Mass of the object in kilograms.
+    force (numpy.ndarray): Force vector acting on the object in newtons.
+    delta_time (float): Change in time in seconds.
+    initial_velocity (numpy.ndarray): Initial velocity vector of the object in m/s. Default is zero.
+    initial_position (numpy.ndarray): Initial position vector of the object in meters. Default is zero.
+
+    Returns:
+    numpy.ndarray: The new position vector after the given time interval.
+    """
+    # Compute the acceleration vector
+    acceleration = force / mass
+    
+    # Compute the change in velocity
+    delta_velocity = acceleration * delta_time
+    
+    # Compute the change in position
+    delta_position = initial_velocity * delta_time + 0.5 * acceleration * delta_time**2
+    
+    # Compute the new position
+
+    return delta_position
+
+
+
+
+
+def interpolate_position_z(angle, mid_position, max_position=-0.01):
+    """
+    Interpolates a position value based on the input angle, mid_position, and max_position.
+    
+    Parameters:
+    angle (float): The input angle in degrees, ranging from 0 to 90.
+    mid_position (float): The position value at 45 degrees.
+    max_position (float): The maximum position value at 90 degrees (default is 0.007).
+    
+    Returns:
+    float: The interpolated position value.
+    """
+    
+    if angle <= 45:
+        # Normalize the angle to the range [0, 1]
+        normalized_angle = angle / 45.0
+        # Apply sine-based interpolation from [0, 1] to [0, mid_position]
+        interpolated_value = mid_position * np.sin(np.pi / 2 * normalized_angle)
+    else:
+        # Normalize the angle to the range [0, 1]
+        normalized_angle = (angle - 45) / 45.0
+        # Apply sine-based interpolation from [0, 1] to [mid_position, max_position]
+        interpolated_value = mid_position + (max_position - mid_position) * np.sin(np.pi / 2 * normalized_angle)
+    
+    return interpolated_value
+
+
+def interpolate_position_x(angle, mid_position, max_position=0.035):
+    """
+    Interpolates a position value based on the input angle, mid_position, and max_position.
+    
+    Parameters:
+    angle (float): The input angle in degrees, ranging from 0 to 90.
+    mid_position (float): The position value at 45 degrees.
+    max_position (float): The maximum position value at 90 degrees (default is 0.007).
+    
+    Returns:
+    float: The interpolated position value.
+    """
+    
+    if angle <= 45:
+        # Normalize the angle to the range [0, 1]
+
+        # Apply sine-based interpolation from [0, 1] to [0, mid_position]
+        interpolated_value = mid_position + abs(max_position - mid_position) * np.sin(np.pi / 2 * angle)
+    else:
+        # Normalize the angle to the range [0, 1]
+        normalized_angle = (angle - 45) / 45.0
+        # Apply sine-based interpolation from [0, 1] to [mid_position, max_position]
+    # normalized_angle = angle 
+        interpolated_value = mid_position + abs(max_position - mid_position) * np.sin(np.pi / 2 * normalized_angle)
+    
+    return interpolated_value
+
 
 
 def example_push(dt):
        # Box properties
-    mass = 10  # mass of the box
+    mass = 10  # mass of the box in grams
     # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
     center_of_mass=np.array([0,0,0])
-    # for push case:
-    # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
-    object_mesh_path='./Robostudio/dataset/push_box/part/object/box_convex.obj'  # id 8 
-    # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
 
-    # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
-    # object_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/box_convex.obj'
-    # ground_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/table_convex.obj'
+    from pathlib import Path
+    object_mesh_path=Path('dataset/push_box/part/object/box_convex.obj') # id 8 
 
     mesh_object = trimesh.load(object_mesh_path)
-    # mesh_ground = trimesh.load(ground_mesh_path)
-    # gripper_mesh = trimesh.load(gripper_mesh_path)
+
 
     bb=mesh_object.bounding_box_oriented
 
     corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
 
-    recenter_vector=find_lower_plane_center(corners)
 
-    
+    recenter_vector=find_object_center(corners)
 
-    # mesh_object.apply_translation(-recenter_vector)
+    mesh_object.apply_translation(-recenter_vector)
 
-    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_recenter.obj')
 
     dimensions=bb.extents
 
@@ -213,15 +309,17 @@ def example_push(dt):
     center_of_mass=bb_recentered.centroid
     # Compute the moment of inertia
     moment_of_inertia = compute_moment_of_inertia(mass, dimensions)
-    force=np.array([0.1,0,0])
+    force=np.array([0.20,0,0])
 
-
-    simulation_position=np.array([0.0, 0.0, 0.013])
+    # raw
+    # simulation_position=np.array([0.0, 0.0, 0.013])
+    simulation_position=np.array([0.0, 0.0, 0.013])*0.4
     # Given torque applied (for example purposes)
     force_position = center_of_mass+ simulation_position # torque vector
+    # force_position = center_of_mass # torque vector
     torque=compute_torque(force, force_position)  # torque vector
     # Time step for integration
-
+    dt=dt+0.5
 
     # Compute angular acceleration
     angular_acceleration = compute_angular_acceleration(torque, moment_of_inertia)
@@ -230,114 +328,48 @@ def example_push(dt):
     angular_velocity = integrate_angular_acceleration(angular_acceleration, dt)
 
     fulfrum_position=np.array([0,0,0]) # the position of the fulcrum
-    # force_position=np.array([1,0,0])
     
 
     # Position vector of the point where you want to compute the linear velocity
     position_vector = force_position- fulfrum_position
 
     linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
-    # this should be pre_timestamp 4*4 transformation matrix that perform the 
 
 
 
-    # experiment_type='push_bag' # novelpose or push_bag
-    # # gripper also need to contact with object to determine the start time
-
-    # # experiment_type='novelpose' # novelpose or push_bag
-    # experiment_type='push_bag' # novelpose or push_bag
-
-
-    # if experiment_type=='novelpose':
-
-    #         output_file = "/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt" # novel posedata
-    #         static_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply' # for novelpose
-    # elif experiment_type=='push_bag':
-            
-    #         output_file = "/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" # push bbox data
-    #         static_path= '/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply'
-    # elif experiment_type=='grasp':  # grasp data for the gripper only 
-    #         output_file=None
-    #         static_path=None
-    # elif experiment_type=='grasp_object':  # grasp data for the gripper and object
-    #         output_file="/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt"
-    #         static_path="/home/lou/Downloads/gripper_movement/gripper_part_asset/splat.ply"
-    # else:
-    #         print('experiment type not found')
-    #         raise ValueError('experiment type not found')
-
-    # movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type)
-
-    # time_stamp= np.linspace(0,850,850)
-    # gripper_move_list=[0]*len(time_stamp)
-    # for i in range(len(time_stamp)):
-    #     individual_transformations, final_transformations_list = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=i)
-    #     gripper_move_list[i]=final_transformations_list[5]
-    #     # apply transformation:
 
 
 
-    #     # test inverse
-
-    # inverse_transformation=inverse_affine_transformation(final_transformations_list_0)
-
-    # gripper_inverse=inverse_transformation[5]
-    # detection_signal=[False]*len(gripper_move_list)
-
-    # for i in range(len(detection_signal)):
-    #     # determine end time based on the 
-    #     detect=collision_detection(mesh_object,gripper_mesh,gripper_inverse,gripper_move_list[i])   
-    #     detection_signal[i]=detect
-
-    # start_moment=0
-
-    # end_moment=0
-    # i=0
-    
-    # for time in detection_signal:
-    #     if time==True:
-    #         start_moment=i
-    #     else:
-    #         i+=1
-
-    
-    # get the start and end center of the object
 
     new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
-    
+
+    # the value need to be optimized by the backward function
+    # raw
+    # adaptive_vector=np.array([0.0, 0.0, 0.0])
+  
+    rotation_vector=R.from_matrix(new_rotation_matrix).as_euler('yzx', degrees=True)
+
+    F_supported=simulate_support_force(mass, gravity=9.81, Rot_vec=rotation_vector)
+
+
+    adaptive_vector=compute_change_in_position(mass, F_supported, dt)/1000 # from kg to g
+    adaptive_vector[0]=interpolate_position_x(rotation_vector[0], adaptive_vector[0])
+    adaptive_vector[2]=interpolate_position_z(rotation_vector[0], adaptive_vector[2])
     trans=concat_transformation(new_rotation_matrix, translation_vector)
 
 
 
-    # mesh_object.apply_transform(trans)
 
     eye_rotate=np.eye(3)
 
     back=concat_transformation(eye_rotate, -simulation_position)
-    # mesh_object.apply_transform(back)
 
     recenter_back_vector=recenter_vector
 
-    # mesh_object.apply_translation(recenter_back_vector)
-    # mesh_object.apply_translation(translation_vector)
-
-    # save mesh
-    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_dt_10_t_05.obj')
-    # when object center reach the end position is the end time
-    # end_time
 
 
+    return recenter_vector,new_rotation_matrix, translation_vector,simulation_position,adaptive_vector
 
-    # only deform object from start time to end time
-
-    return recenter_vector,new_rotation_matrix, translation_vector,simulation_position
-# add_collision here hhh 
-
-
-def add_simulation_control(mesh_object,center_of_mass,fulcrum,linear_velocity,angular_velocity,dt):
-
-
-    return 0
 
 
 
@@ -365,12 +397,6 @@ def example_push_backward(dt):
 
     recenter_vector=find_lower_plane_center(corners)
 
-    
-
-    # mesh_object.apply_translation(-recenter_vector)
-
-    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_recenter.obj')
-
     dimensions=bb.extents
 
     bb_recentered=mesh_object.bounding_box_oriented
@@ -401,71 +427,7 @@ def example_push_backward(dt):
     position_vector = force_position- fulfrum_position
 
     linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
-    # this should be pre_timestamp 4*4 transformation matrix that perform the 
 
-
-
-    # experiment_type='push_bag' # novelpose or push_bag
-    # # gripper also need to contact with object to determine the start time
-
-    # # experiment_type='novelpose' # novelpose or push_bag
-    # experiment_type='push_bag' # novelpose or push_bag
-
-
-    # if experiment_type=='novelpose':
-
-    #         output_file = "/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt" # novel posedata
-    #         static_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply' # for novelpose
-    # elif experiment_type=='push_bag':
-            
-    #         output_file = "/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" # push bbox data
-    #         static_path= '/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply'
-    # elif experiment_type=='grasp':  # grasp data for the gripper only 
-    #         output_file=None
-    #         static_path=None
-    # elif experiment_type=='grasp_object':  # grasp data for the gripper and object
-    #         output_file="/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt"
-    #         static_path="/home/lou/Downloads/gripper_movement/gripper_part_asset/splat.ply"
-    # else:
-    #         print('experiment type not found')
-    #         raise ValueError('experiment type not found')
-
-    # movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type)
-
-    # time_stamp= np.linspace(0,850,850)
-    # gripper_move_list=[0]*len(time_stamp)
-    # for i in range(len(time_stamp)):
-    #     individual_transformations, final_transformations_list = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=i)
-    #     gripper_move_list[i]=final_transformations_list[5]
-    #     # apply transformation:
-
-
-
-    #     # test inverse
-
-    # inverse_transformation=inverse_affine_transformation(final_transformations_list_0)
-
-    # gripper_inverse=inverse_transformation[5]
-    # detection_signal=[False]*len(gripper_move_list)
-
-    # for i in range(len(detection_signal)):
-    #     # determine end time based on the 
-    #     detect=collision_detection(mesh_object,gripper_mesh,gripper_inverse,gripper_move_list[i])   
-    #     detection_signal[i]=detect
-
-    # start_moment=0
-
-    # end_moment=0
-    # i=0
-    
-    # for time in detection_signal:
-    #     if time==True:
-    #         start_moment=i
-    #     else:
-    #         i+=1
-
-    
-    # get the start and end center of the object
 
     new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
     
@@ -480,24 +442,10 @@ def example_push_backward(dt):
 
 
     pts_optimized,velocity,optimized_pose=backward_rigid(xyz,trans,back,uv,depth,projection_matrix,view_mat,dt)
-    # mesh_object.apply_transform(trans)
 
-
-    # mesh_object.apply_transform(back)
 
     recenter_back_vector=recenter_vector
 
-    # mesh_object.apply_translation(recenter_back_vector)
-    # mesh_object.apply_translation(translation_vector)
-
-    # save mesh
-    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_dt_10_t_05.obj')
-    # when object center reach the end position is the end time
-    # end_time
-
-
-
-    # only deform object from start time to end time
 
     return recenter_vector,new_rotation_matrix, translation_vector,simulation_position
 
@@ -569,71 +517,7 @@ if __name__ == "__main__":
     position_vector = force_position- fulfrum_position
 
     linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
-    # this should be pre_timestamp 4*4 transformation matrix that perform the 
 
-
-
-    # experiment_type='push_bag' # novelpose or push_bag
-    # # gripper also need to contact with object to determine the start time
-
-    # # experiment_type='novelpose' # novelpose or push_bag
-    # experiment_type='push_bag' # novelpose or push_bag
-
-
-    # if experiment_type=='novelpose':
-
-    #         output_file = "/home/lou/gs/nerfstudio/transformation_novelpose/joint_states_data.txt" # novel posedata
-    #         static_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/novel_pose_dynamic/splat.ply' # for novelpose
-    # elif experiment_type=='push_bag':
-            
-    #         output_file = "/home/lou/gs/nerfstudio/transformation_group1/joint_states_data_push.txt" # push bbox data
-    #         static_path= '/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply'
-    # elif experiment_type=='grasp':  # grasp data for the gripper only 
-    #         output_file=None
-    #         static_path=None
-    # elif experiment_type=='grasp_object':  # grasp data for the gripper and object
-    #         output_file="/home/lou/gs/nerfstudio/transformation_0416_object_grasp/joint_states_data_0416.txt"
-    #         static_path="/home/lou/Downloads/gripper_movement/gripper_part_asset/splat.ply"
-    # else:
-    #         print('experiment type not found')
-    #         raise ValueError('experiment type not found')
-
-    # movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt=load_uniform_kinematic(output_file,experiment_type)
-
-    # time_stamp= np.linspace(0,850,850)
-    # gripper_move_list=[0]*len(time_stamp)
-    # for i in range(len(time_stamp)):
-    #     individual_transformations, final_transformations_list = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=i)
-    #     gripper_move_list[i]=final_transformations_list[5]
-    #     # apply transformation:
-
-
-
-    #     # test inverse
-
-    # inverse_transformation=inverse_affine_transformation(final_transformations_list_0)
-
-    # gripper_inverse=inverse_transformation[5]
-    # detection_signal=[False]*len(gripper_move_list)
-
-    # for i in range(len(detection_signal)):
-    #     # determine end time based on the 
-    #     detect=collision_detection(mesh_object,gripper_mesh,gripper_inverse,gripper_move_list[i])   
-    #     detection_signal[i]=detect
-
-    # start_moment=0
-
-    # end_moment=0
-    # i=0
-    
-    # for time in detection_signal:
-    #     if time==True:
-    #         start_moment=i
-    #     else:
-    #         i+=1
-
-    
-    # get the start and end center of the object
 
     new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
     
@@ -653,9 +537,3 @@ if __name__ == "__main__":
 
     # save mesh
     mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_dt_10_t_05.obj')
-    # when object center reach the end position is the end time
-    # end_time
-
-
-
-    # only deform object from start time to end time

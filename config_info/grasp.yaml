@@ -1,0 +1,59 @@
+experiment_type: grasp
+
+
+center_vector: [-0.135, 0.1125, -0.78]  # with base grasp only case
+
+scale_factor: [1.1, 1.15, 1.18]  # x, y, z
+
+simulation_timestamp: 0
+add_simulation: False
+add_gripper: True
+start_time: 0
+end_time: 3.24
+end_time_collision: 0.5
+flip_x_coordinate: False
+add_grasp_control: True
+add_grasp_object: False
+max_gripper_degree: -0.8525
+add_trajectory: False
+
+render_camera_index: 100
+
+grasp_inter_time: 40
+
+grasp_time_list_start: 0  # start time for grasp
+grasp_time_list_end: 40  # end time for grasp
+
+time_list_start: 0  # start time for grasp
+time_list_end: 40  # end time for grasp
+
+novel_time: False
+novel_fps_rate: 6
+
+
+
+# exporter utils
+
+expand_bbox: False
+use_gripper: True 
+contain_object: False
+
+
+
+assigned_ids : [0,1, 2, 3, 4,5,6,7,8,9,10,11,12,13] # with gripper
+
+semantic_category :
+  - None
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic gripper
+  - rigid object
+  - None
+  - robotic gripper
+  - robotic gripper
+  - robotic gripper
+  - robotic gripper

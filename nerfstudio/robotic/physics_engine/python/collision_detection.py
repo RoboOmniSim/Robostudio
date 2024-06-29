@@ -39,11 +39,3 @@ def collision_detection(mesh1,mesh2,inverse,transform1,transform2):
 
     # Visualize the meshes
     return collision
-
-
-
-# find stop position by collision detection
-
-
-
-# input two meshs, compute the collision stop point in the beginning and then set the stop point as the end of the path planning

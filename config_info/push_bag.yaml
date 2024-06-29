@@ -1,0 +1,80 @@
+
+
+experiment_type : push_bag
+
+center_vector: [-0.261, 0.138, -0.71] # with base group1_bbox_fix push case
+
+scale_factor: [1.290, 1.167, 1.22] # x,y,z
+
+simulation_timestamp: 0.01
+add_simulation: True
+add_gripper: False
+start_time: 0
+end_time_collision: 0.5
+end_time: 1.825
+flip_x_coordinate: False
+add_grasp_control: False
+add_grasp_object: False
+max_gripper_degree: -0.8525
+add_trajectory: False
+
+render_camera_index: 255  # 235 245 253
+
+# max_gripper_degree: -0.8525 # close
+
+grasp_inter_time: 10
+
+push_time_list_start: 123
+
+push_time_list_end: 129
+
+grasp_time_list_start: 240
+#""grasp time list for  gripper simulation stage 1, this is stage gripper close and move with object"""
+grasp_time_list_end: 250
+#""grasp time list for  gripper simulation stage 1, this is stage gripper close and move with object"""
+
+grasp_time_list_stage_2_start: 251
+#""grasp time list for  gripper simulation stage 2, this is stage gripper grasp success and move with object"""
+grasp_time_list_stage_2_end: 260
+#""grasp time list for  gripper simulation stage 2, this is stage gripper grasp success and move with object"""
+
+grasp_time_list_stage_3_start: 261
+#""grasp time list for  gripper simulation stage 3, this is stage gripper release object"""
+grasp_time_list_stage_3_end: 270
+#""grasp time list for  gripper simulation stage 3, this is stage gripper release object"""
+
+time_list_start: 100
+#""time list for rendering"""
+time_list_end: 160
+
+
+
+novel_time: False
+
+
+# exporter utils
+
+expand_bbox: False
+use_gripper: False 
+contain_object: True
+
+# urdf utils 
+arm_model : default # default is cr5
+gripper_model : default
+
+
+
+assigned_ids : [0,1, 2, 3, 4,5,6,7,8,9] # with gripper
+
+semantic_category :
+  - None
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic arm
+  - robotic gripper
+  - rigid object
+  - None
+
