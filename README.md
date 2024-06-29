@@ -327,11 +327,14 @@ and will add more data shortly
 
 ### Backward optimized result
 <div align="center">
-  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/7c29a40d-5111-427b-93c1-a3ecb57d7983">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/25d96e79-6ae0-4f99-875f-20fae500444b">
 </div>
 
 #### Keep optimize backward and make it align with issacsim through omnisim
 
+
+
+## 5: Explanation of Config file and how to connect it with omnisim
 <!-- 
 
 
