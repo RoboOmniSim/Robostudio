@@ -140,7 +140,7 @@ class Roboticconfig(PrintableConfig):
 
     """the semantic id for group tracing and simulation"""
 
-    semantic_category: Optional[list] = ["kinematic","gripper","newton_euler","FEM","MPM","SPH","articulated"]
+    semantic_category: Optional[np.ndarray] = np.zeros(7)
     """assign the semantic category for each group"""
 
 

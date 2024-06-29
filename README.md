@@ -149,7 +149,7 @@ ns-export gaussian-splat-mesh
         --load_bbox_info=./dataset/issac2sim/part/bbox_info/bbox_list.txt
         --export_part=False
         --use_gripper=True
-        --meta_sim_path=./push_bag.yaml
+        --meta_sim_path=./config_info/push_bag.yaml
 ```
 
 
