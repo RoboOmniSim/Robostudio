@@ -28,6 +28,10 @@
   <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/107318439/0d1cbe74-a2a3-4a94-af78-315b8a44ccb1">
 </div>
 
+
+
+
+
 # About
 
 _It’s as simple as plug and play with robostudio!_
@@ -321,6 +325,12 @@ and will add more data shortly
   <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/c5354df5-774d-4bdd-a5e5-7f3776fc1740">
 </div>
 
+### Backward optimized result
+<div align="center">
+  <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/7c29a40d-5111-427b-93c1-a3ecb57d7983">
+</div>
+
+#### Keep optimize backward and make it align with issacsim through omnisim
 
 <!-- 
 
