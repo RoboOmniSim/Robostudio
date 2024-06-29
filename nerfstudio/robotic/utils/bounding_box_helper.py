@@ -142,7 +142,7 @@ def process_robot_gripper_object_bbox(bbox_list,bboxes,arm_model,gripper_model):
         return bboxes
     
 
-def expand_bbox(bboxes):
+def expand_bbox_method(bboxes):
     """
     Expand the bounding box by hand if needed 
     """
