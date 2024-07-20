@@ -1,6 +1,6 @@
 <div align="center"><h2>RoboStudio: A Physics Consistent World Model for Robotic Arm with Hybrid Representation</h2></div>
 
-
+ 
 <p align="center">
     <a href='https://open-air-sun.github.io/mars/static/data/MARS-poster.pdf'>
         <img src='https://img.shields.io/badge/docs-passing-pink'/>
