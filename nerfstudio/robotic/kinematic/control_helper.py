@@ -224,6 +224,65 @@ def reflect_x_axis_only(T):
     T_reflected = R_x@ T @ R_x
     return T_reflected
 
+def reflect_y_axis_only(T):
+    """
+    Reflect the transformation matrix along the x-axis.
+
+    Parameters:
+    T (numpy.ndarray): The original transformation matrix 4x4
+
+    Returns:
+    numpy.ndarray: The reflected transformation matrix 4x4
+    """
+    R_x = np.array([
+        [1, 0, 0, 0],
+        [0, 0, 1, 0],
+        [0, -1, 0, 0],
+        [0, 0, 0, 1]
+    ])
+
+    R_y = np.array([
+        [0, 0, -1, 0],
+        [0, 1, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 1]
+    ])
+
+
+
+    T_reflected = R_y @ T @ R_y
+    return T_reflected
+
+def reflect_z_axis_only(T):
+    """
+    Reflect the transformation matrix along the x-axis.
+
+    Parameters:
+    T (numpy.ndarray): The original transformation matrix 4x4
+
+    Returns:
+    numpy.ndarray: The reflected transformation matrix 4x4
+    """
+    R_x = np.array([
+        [1, 0, 0, 0],
+        [0, -1, 0, 0],
+        [0, 0, 0, 1],
+        [0, 0, 0, 1]
+    ])
+
+    R_y = np.array([
+        [0, 0, -1, 0],
+        [0, 1, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 1]
+    ])
+
+
+
+    T_reflected = R_y @ T @ R_y
+    return T_reflected
+
+
 def create_transformation_matrix_mdh_gripper_reflect_x_coordinate(theta, a, alpha, d):
 
     """
