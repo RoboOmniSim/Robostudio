@@ -1152,7 +1152,7 @@ class dynamicDatasetRender(RoboBaseRender):
                 traj_mode=edit_trajectory(self.trajectory_file,start_time,link_edit=link_edit_info)
                 movement_angle_state=traj_mode
         if novel_time==True:
-            interpolated_traj=interpolate_trajectory(time_list,final_transformations_list_0)
+            interpolated_traj=interpolate_trajectory_robotic_arm(self.trajectory_file,novel_fps_rate)
             movement_angle_state=interpolated_traj
 
         
@@ -1256,7 +1256,14 @@ class dynamicDatasetRender(RoboBaseRender):
                 if dataparser_outputs is None:
                     dataparser_outputs = datamanager.dataparser.get_dataparser_outputs(split=datamanager.test_split)
 
+            # reset width and height for no-distortion
+            zeros_vector_width=torch.zeros_like(dataset.cameras.width)
+            zeros_vector_width=zeros_vector_width+1920
+            zeros_vector_height=torch.zeros_like(dataset.cameras.height)
+            zeros_vector_height=zeros_vector_height+1080
 
+            dataset.cameras.width=zeros_vector_width
+            dataset.cameras.height=zeros_vector_height
             # edit camera_info index binding here 
             dataloader = FixedIndicesEvalDataloader(
                 input_dataset=dataset,

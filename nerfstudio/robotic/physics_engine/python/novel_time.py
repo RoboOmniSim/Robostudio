@@ -139,7 +139,61 @@ def extrapolate():
     return 0
 
 
+# linear interpolation of the joint angle
+def linear_interpolation_angle(start_angles, end_angles, num_points):
+    """
+    Perform linear interpolation between two sets of joint angles for a 6-DOF robot.
+
+    Args:
+    start_angles (np.array): Starting joint angles, a 1x6 numpy array.
+    end_angles (np.array): Ending joint angles, a 1x6 numpy array.
+    num_points (int): Number of interpolation points.
+
+    Returns:
+    np.array: Interpolated joint angles, a num_points x 6 numpy array.
+    """
+    # Create an array of interpolation factors
+    t = np.linspace(0, 1, num_points)
+    
+    # Interpolate each joint angle
+    interpolated_angles = np.outer(t, end_angles - start_angles) + start_angles
+    
+    return interpolated_angles
 
 
+from scipy.spatial.transform import Rotation as R
+
+def linear_interpolation_body(x0, x1, t0, t1, t):
+    return x0 + (t - t0) / (t1 - t0) * (x1 - x0)
+
+def slerp(q0, q1, t0, t1, t):
+    alpha = (t - t0) / (t1 - t0)
+    return R.slerp(alpha, R.from_quat([q0, q1]))
+
+
+def interpolate_body(x0, x1, v0, v1, q0, q1, omega0, omega1, t0, t1, t):
+    x_t = linear_interpolation_body(x0, x1, t0, t1, t)
+    v_t = linear_interpolation_body(v0, v1, t0, t1, t)
+    q_t = slerp(q0, q1, t0, t1, t).as_quat()
+    omega_t = linear_interpolation_body(omega0, omega1, t0, t1, t)
+    
+
+    # example uses
+    # # Given states at t0 and t1
+    # t0, t1 = 0, 1
+    # x0, x1 = np.array([0, 0, 0]), np.array([1, 1, 1])
+    # v0, v1 = np.array([0, 0, 0]), np.array([1, 1, 1])
+    # q0, q1 = [1, 0, 0, 0], [0, 1, 0, 0]  # Example quaternions
+    # omega0, omega1 = np.array([0, 0, 0]), np.array([1, 1, 1])
+
+    # # Interpolated state at time t
+    # t = 0.5
+    # x_t = linear_interpolation_body(x0, x1, t0, t1, t)
+    # v_t = linear_interpolation_body(v0, v1, t0, t1, t)
+    # q_t = slerp(q0, q1, t0, t1, t).as_quat()
+    # omega_t = linear_interpolation_body(omega0, omega1, t0, t1, t)
+    # def linear_interpolation_rigid_object
+
+    return x_t, v_t, q_t, omega_t
 
 

@@ -279,7 +279,85 @@ def interpolate_position_x(angle, mid_position, max_position=0.035):
     
     return interpolated_value
 
+def example_push_raw(dt):
+       # Box properties
+    mass = 10  # mass of the box
+    # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
+    center_of_mass=np.array([0,0,0])
+    # for push case:
+    from pathlib import Path
+    object_mesh_path=Path('dataset/push_box/part/object/box_convex.obj') # id 8 
 
+    mesh_object = trimesh.load(object_mesh_path)
+
+
+    bb=mesh_object.bounding_box_oriented
+
+    corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
+
+    recenter_vector=find_lower_plane_center(corners)
+
+    
+
+    # mesh_object.apply_translation(-recenter_vector)
+
+
+    dimensions=bb.extents
+
+    bb_recentered=mesh_object.bounding_box_oriented
+    center_of_mass=bb_recentered.centroid
+    # Compute the moment of inertia
+    moment_of_inertia = compute_moment_of_inertia(mass, dimensions)
+    force=np.array([0.1,0,0])
+
+
+    simulation_position=np.array([0.0, 0.0, 0.013])
+    # Given torque applied (for example purposes)
+    force_position = center_of_mass+ simulation_position # torque vector
+    torque=compute_torque(force, force_position)  # torque vector
+    # Time step for integration
+
+
+    # Compute angular acceleration
+    angular_acceleration = compute_angular_acceleration(torque, moment_of_inertia)
+
+    # Integrate angular acceleration to get angular velocity
+    angular_velocity = integrate_angular_acceleration(angular_acceleration, dt)
+
+    fulfrum_position=np.array([0,0,0]) # the position of the fulcrum
+    # force_position=np.array([1,0,0])
+    
+
+    # Position vector of the point where you want to compute the linear velocity
+    position_vector = force_position- fulfrum_position
+
+    linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
+    # this should be pre_timestamp 4*4 transformation matrix that perform the 
+
+    # get the start and end center of the object
+
+    new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
+    
+    trans=concat_transformation(new_rotation_matrix, translation_vector)
+
+
+
+    # mesh_object.apply_transform(trans)
+
+    eye_rotate=np.eye(3)
+
+    back=concat_transformation(eye_rotate, -simulation_position)
+    # mesh_object.apply_transform(back)
+
+    recenter_back_vector=recenter_vector
+
+    # mesh_object.apply_translation(recenter_back_vector)
+    # mesh_object.apply_translation(translation_vector)
+
+    # save mesh
+    # mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_dt_10_t_05.obj')
+
+    return recenter_vector,new_rotation_matrix, translation_vector,simulation_position
 
 def example_push(dt):
        # Box properties
