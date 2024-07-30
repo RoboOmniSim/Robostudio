@@ -288,7 +288,7 @@ def main():
 
     # test this scale factor 
     scale_factor_base=extent_base/args.base_gt
-
+    scale_factor=scale_factor_base
     # Get the coordinates of the lower plane center
     center_vector_compute = bounding_box_corners.mean(axis=0)
     center_vector_compute[2] = bounding_box_corners[0][2]
@@ -301,6 +301,18 @@ def main():
     Urdfinfo.setup_params(args.kinematic_info_path)
 
     a,alpha,d,joint_angles_degrees=Urdfinfo.a,Urdfinfo.alpha,Urdfinfo.d,Urdfinfo.joint_angles_degrees
+
+
+    scale_a=np.array([1,1,1,1,1,1])/scale_factor[2]  # s1 is z axis for a1, s2 is z axis for a2=0, s3 is z axis for a3,  s4 is z axis for a4
+    scale_d=np.array([1,1,1,1,1,1])/scale_factor[2] #  s1 is x axis for d1 ,s4 and s6  is y axis 
+
+
+
+    scale_d[3]=1/scale_factor[1]
+    scale_d[5]=1/scale_factor[1]
+
+    a=a*scale_a
+    d=d*scale_d
     initial_position=np.zeros_like(joint_angles_degrees)
     # apply center_vector_compute to all points
     for i in range(args.num_links):

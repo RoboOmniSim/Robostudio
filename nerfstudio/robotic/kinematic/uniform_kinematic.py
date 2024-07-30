@@ -148,7 +148,7 @@ def load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=np
 
 
 # version 2
-def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass=np.zeros((3,1)),center_vector_pass=np.zeros((3,1)),add_gripper=False,flip_x_coordinate=False):
+def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass=np.zeros((3,1)),center_vector_pass=np.zeros((3,1)),add_gripper=False,flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,gripper_model="default",,arm_model="default"):
         movement_angle_state = read_txt_file(output_file_path) # radians
 
         name=experiment_type
@@ -287,6 +287,91 @@ def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass
 
 # Function to calculate all transformation matrices and the final matrix
 def calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0,add_gripper=False,flip_x_coordinate=False):
+    """
+    calulate transformation matrices based dh parameters
+
+    Args:
+    i: timestamp
+    joint_angles_degrees: list of joint angles in degrees
+    a: list of a parameters
+    alpha: list of alpha parameters
+    d: list of d parameters
+
+    
+    
+    
+    """
+    state_i = movement_angle_state[i]['Time']
+    state_name=movement_angle_state[i]['Joint Names']
+    state_position=movement_angle_state[i]['Joint Positions']
+
+
+    joint_angles_radians_raw = joint_angles_degrees
+    joint_angle_deform= np.array(state_position)
+    joint_angle_deform=np.round(joint_angle_deform, 3)
+
+
+
+    joint_angles_radians=joint_angles_radians_raw+joint_angle_deform
+
+
+    transformations = []
+
+    j=0
+    gripper_index_list=[7,9]
+    
+    for theta, a_i, alpha_i, d_i in zip(joint_angles_radians, a, alpha, d):
+        
+
+        # apply edit gripper mdh for the control left down gripper and right down gripper
+        if j==9:
+            T_temp=create_transformation_matrix_mdh_gripper(theta, a_i, alpha_i, d_i)
+        
+        elif j==7:
+            T_temp=create_transformation_matrix_mdh_gripper(theta, a_i, alpha_i, d_i)
+        else:
+            T_temp=create_transformation_matrix_mdh(theta, a_i, alpha_i, d_i)
+
+        # gripper has different base coordinate so need new flip coordinate
+        if flip_x_coordinate:
+            if j not in gripper_index_list:
+                T_temp=reflect_x_axis(T_temp) # for different base coordinate, the default base coordinate is - + - 
+            else:
+                # T_temp=create_transformation_matrix_mdh_gripper_reflect_x_coordinate(theta, a_i, alpha_i, d_i) # for different base coordinate, the default base coordinate is - + - since mdh gripper is different from mdh
+                T_temp=reflect_x_axis_only(T_temp)
+        # for gripper right 10,11, it is connect to 7 
+        transformations.append(T_temp)
+
+        j+=1
+    # Calculate the final transformation from the base to the end-effector
+    final_transformation = np.eye(4)
+    final_transformations_list=[[]]*len(joint_angles_radians)
+
+    p=0
+    if add_gripper:
+
+        
+        for transformation in transformations:
+            if p==9:
+                gripper_move= final_transformations_list[6]
+                final_transformation = np.dot(gripper_move, transformation)
+                final_transformations_list[p]=final_transformation
+            elif p==10:
+                gripper_right_move= final_transformations_list[9]
+                final_transformation = np.dot(gripper_right_move, transformation)
+                final_transformations_list[p]=final_transformation
+            else:
+                final_transformation = np.dot(final_transformation, transformation)
+                final_transformations_list[p]=final_transformation
+            p+=1
+    else:
+        for transformation in transformations:
+            final_transformation = np.dot(final_transformation, transformation)
+            final_transformations_list[p]=final_transformation
+            p+=1
+    return transformations, final_transformations_list
+
+def calculate_transformations_mdh_v2(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0,add_gripper=False,flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False):
     """
     calulate transformation matrices based dh parameters
 
