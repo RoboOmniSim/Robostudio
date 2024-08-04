@@ -87,7 +87,8 @@ class Urdfconfig(PrintableConfig):
     joint_angles_degrees : Optional[np.ndarray] = np.zeros(7)
     """assign the joint angles for each group"""
 
-
+    base_gt_scale : Optional[np.ndarray] = np.zeros(3)
+    """assign the base ground truth scale in meters"""
 
     def setup_params(self, meta_sim_path: Path):
         """
