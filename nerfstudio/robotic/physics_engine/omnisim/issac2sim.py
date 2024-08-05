@@ -53,7 +53,49 @@ def interpolate_trajectory_robotic_arm(trajectory_file, steps, joint_num=6, defa
     # resize the movement_angle_state to the same length as the timestamp of trajectory 
     traj = np.array(load_trajectory(trajectory_file)).flatten().reshape(-1, joint_num) # for six dof path
     adaptive_length = len(traj)
-    traj_mode  = [
+    traj_mode_zeros  = [
+                    {
+                        "Time": np.zeros(1),
+                        "Joint Names": default_joint_names,
+                        "Joint Positions":  np.zeros(11) # for 6dof plus 5 gripper joints
+                    }
+                    for _ in range(adaptive_length)
+                    ]
+    
+    positions=traj["Joint Positions"]
+    expand_length=adaptive_length*steps
+    interpolated_angles_list=[]
+    time_list=[]
+
+    for i in range(len(traj)):
+        
+
+        interpolated_angles=linear_interpolation_angle(positions[i], positions[i+1], steps)
+        interpolated_angles_list.append(interpolated_angles)
+        time_list.append(np.linspace(i, i+1, steps))
+    traj_mode_zeros["Time"]=time_list
+    traj_mode_zeros["Joint Positions"]=interpolated_angles_list
+
+    return traj_mode_zeros
+
+
+
+def interpolate_trajectory_robotic_arm_traj(trajectory_file, steps, traj_mode,joint_num=6, default_joint_names=['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6','gripper_main','gripper_left_down', 'gripper_left_up', 'gripper_right_down', 'gripper_right_up'],link_edit=np.zeros(13)):
+    """
+    Args:
+    trajectory_file (str): Path to the trajectory file.
+    steps (int): Number of steps to interpolate between each pair of joint angles.(for example 6 from 10 fps to 60 fps)
+    joint_num (int): Number of joints in the robotic arm.
+    default_joint_names (list): List of joint names.
+    
+    
+    """
+    
+    # resize the movement_angle_state to the same length as the timestamp of trajectory 
+    # traj = np.array(load_trajectory(trajectory_file)).flatten().reshape(-1, joint_num) # for six dof path
+    traj=traj_mode
+    adaptive_length = len(traj)
+    traj_mode_zeros  = [
                     {
                         "Time": np.zeros(1),
                         "Joint Names": default_joint_names,
@@ -73,8 +115,8 @@ def interpolate_trajectory_robotic_arm(trajectory_file, steps, joint_num=6, defa
         interpolated_angles=linear_interpolation_angle(positions[i], positions[i+1], steps)
         interpolated_angles_list.append(interpolated_angles)
         time_list.append(np.linspace(i, i+1, steps))
-    traj_mode["Time"]=time_list
-    traj_mode["Joint Positions"]=interpolated_angles_list
+    traj_mode_zeros["Time"]=time_list
+    traj_mode_zeros["Joint Positions"]=interpolated_angles_list
 
     return traj_mode
 

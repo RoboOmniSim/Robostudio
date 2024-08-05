@@ -1151,10 +1151,39 @@ class dynamicDatasetRender(RoboBaseRender):
         if add_trajectory:
                 traj_mode=edit_trajectory(self.trajectory_file,start_time,link_edit=link_edit_info)
                 movement_angle_state=traj_mode
-        if novel_time==True:
-            interpolated_traj=interpolate_trajectory_robotic_arm(self.trajectory_file,novel_fps_rate)
-            movement_angle_state=interpolated_traj
 
+        # edit and then interpolate 
+        if novel_time==True:
+            if add_trajectory:
+                interpolated_traj=interpolate_trajectory_robotic_arm_traj(self.trajectory_file,novel_fps_rate,traj_mode)
+                movement_angle_state=interpolated_traj
+
+                # process time_list
+                # interpolate the time_list by the fps rate
+                time_list=  time_list*novel_fps_rate
+                push_time_list=push_time_list*novel_fps_rate
+                grasp_time_list=grasp_time_list*novel_fps_rate
+                grasp_time_list_stage_2=grasp_time_list_stage_2*novel_fps_rate
+                grasp_time_list_stage_3=grasp_time_list_stage_3*novel_fps_rate
+
+                grasp_inter_time=grasp_inter_time*novel_fps_rate # this one may need some edit, such as replace time to interpolated non-integer value
+
+    
+            else:
+                interpolated_traj=interpolate_trajectory_robotic_arm(self.trajectory_file,novel_fps_rate)
+                movement_angle_state=interpolated_traj
+
+                # process time_list
+                # interpolate the time_list by the fps rate
+                time_list=  time_list*novel_fps_rate
+                push_time_list=push_time_list*novel_fps_rate
+                grasp_time_list=grasp_time_list*novel_fps_rate
+                grasp_time_list_stage_2=grasp_time_list_stage_2*novel_fps_rate
+                grasp_time_list_stage_3=grasp_time_list_stage_3*novel_fps_rate
+
+                grasp_inter_time=grasp_inter_time*novel_fps_rate # this one may need some edit, such as replace time to interpolated non-integer value
+
+    
         
         
         dynamic_information= {
@@ -1319,7 +1348,9 @@ class dynamicDatasetRender(RoboBaseRender):
                                         dynamic_information['move_with_gripper']=True
                                         dynamic_information['add_grasp_object']=True
                                         relative_time=dt_value
-                                    elif grasp_time_list_stage_2[9]<=time :
+
+                                    # fix this hard coded 9 to then end of stage
+                                    elif grasp_time_list_stage_2[-1]<=time :
                                         dynamic_information['add_grasp_control']=max_gripper_degree
                                         dynamic_information['move_with_gripper']=True
                                         dynamic_information['add_grasp_object']=True
