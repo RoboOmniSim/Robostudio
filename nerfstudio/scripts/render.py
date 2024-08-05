@@ -1167,8 +1167,6 @@ class dynamicDatasetRender(RoboBaseRender):
                 grasp_time_list_stage_3=grasp_time_list_stage_3*novel_fps_rate
 
                 grasp_inter_time=grasp_inter_time*novel_fps_rate # this one may need some edit, such as replace time to interpolated non-integer value
-            add
-    
             else:
                 interpolated_traj=interpolate_trajectory_robotic_arm(self.trajectory_file,novel_fps_rate)
                 movement_angle_state=interpolated_traj
