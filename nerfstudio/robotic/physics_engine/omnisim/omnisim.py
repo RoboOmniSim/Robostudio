@@ -5,6 +5,14 @@ import numpy as np
 import yaml
 from pathlib import Path
 
+from issac2sim import interpolate_trajectory_robotic_arm, interpolate_trajectory_robotic_arm_traj
+import open3d as o3d
+import torch
+import trimesh
+
+# the current grasp box case, I have a txt that save the robotic arm trajectory and the position of box
+
+# and the indicator of the grasp start, success,fail, release four stages, reletive to the render stage information
 
 
 def load_object_trajectory():
@@ -30,6 +38,19 @@ def load_robotic_trajectory():
     # robotic trajectory from omnisim.py
     pass
 
+def parsing_grasp_stage(grasp_stage_file: Path):    
+    """
+    args:
+        grasp_stage_file: Path to the grasp stage file
+    
+    returns:
+        int: Status code (0 for success)
+    
+    This function parses the grasp stage file and sets the stage attributes
+    
+    """
+
+    pass
 
 
 def setup_params(meta_sim_path: Path):
