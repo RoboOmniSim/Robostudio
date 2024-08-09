@@ -17,7 +17,7 @@ from nerfstudio.robotic.kinematic.gripper_utils import reflect_x_axis,reflect_y_
 from nerfstudio.robotic.kinematic.control_helper import *
 
 from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
-
+from nerfstudio.robotic.config.raw_config import export_urdf_to_omnisim_config
 
 # run command: python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 7
 
@@ -93,7 +93,12 @@ def main():
     # Load the kinematic information
 
 
-    Urdfinfo=Urdfconfig()
+    # only produce urdf for viewer
+    # Urdfinfo=Urdfconfig()
+
+    # add parameters to Urdfinfo config file
+    # add necessary parameters to Urdfinfo for issac gym in omnisim
+    Urdfinfo=export_urdf_to_omnisim_config()
     Urdfinfo.setup_params(args.kinematic_info_path)
 
     use_kinematic=False
