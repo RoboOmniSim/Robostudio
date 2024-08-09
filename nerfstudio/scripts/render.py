@@ -1205,6 +1205,7 @@ class dynamicDatasetRender(RoboBaseRender):
         "add_grasp_object": False,
         "engine_ids": engine_ids,
         "relationship_config":relationship_config,
+        "grasp_inter_time":grasp_inter_time,
         }
 
 
