@@ -25,6 +25,8 @@ from nerfstudio.utils import colormaps
 from nerfstudio.utils.rich_utils import CONSOLE, status
 from nerfstudio.utils.scripts import run_command
 
+# this scripte aims to transform colmap result to json nerfstudio format
+
 if __name__ == "__main__":
     recon_path = Path("/home/lou/Downloads/sparse(1)/sparse/0")
     output_dir = Path("/home/lou/Downloads/grasp_object_colmap_modintrinsic")

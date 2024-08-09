@@ -24,6 +24,12 @@ def transformation_2_quaternion(transformation):
     return quaternion
 
 def extract_angles_from_transformation(T, a, alpha, d):
+    """
+    Trace of forward kinematic
+    
+    """
+
+
     theta = np.zeros(6)
     
     # Extract the end-effector position and orientation from T
@@ -134,9 +140,20 @@ def adapt_interpolation_value(transformation,objects, output_file,experiment_typ
 
 # extrapolation of the transformation matrix
 
-def extrapolate():
+def extrapolate(edited_trajectory,fps_rate=1):
+    """
+    This part aims to extrapolate the edited trajectroy
+    
+    input: edited_trajectory 
 
-    return 0
+    fps_rate: interpolate frame_rate compare to default fps 10
+
+    
+    """
+    start_angle=edited_trajectory[0]
+    end_angle=edited_trajectory[1]
+    interpolated_angles=linear_interpolation_angle(start_angle,end_angle,fps_rate)
+    return interpolated_angles
 
 
 # linear interpolation of the joint angle

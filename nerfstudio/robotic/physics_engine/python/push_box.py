@@ -360,6 +360,9 @@ def example_push_raw(dt):
     return recenter_vector,new_rotation_matrix, translation_vector,simulation_position
 
 def example_push(dt):
+    """
+    This is just a simple implementation of simulation, we will add the full implementation later with backward 
+    """
        # Box properties
     mass = 10  # mass of the box in grams
     # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
@@ -529,89 +532,89 @@ def example_push_backward(dt):
 
 
 
-# just for debug
+# # just for debug
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
     
-    # scale of contraction
-    scale_factor=1.0
+#     # scale of contraction
+#     scale_factor=1.0
     
-    # Box properties
-    mass = 10  # mass of the box
-    # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
-    center_of_mass=np.array([0,0,0])
-    # for push case:
-    # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
-    object_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/box_convex.obj'  # id 8 
-    # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
+#     # Box properties
+#     mass = 10  # mass of the box
+#     # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
+#     center_of_mass=np.array([0,0,0])
+#     # for push case:
+#     # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
+#     object_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/box_convex.obj'  # id 8 
+#     # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
 
-    # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
-    # object_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/box_convex.obj'
-    # ground_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/table_convex.obj'
+#     # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
+#     # object_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/box_convex.obj'
+#     # ground_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/table_convex.obj'
 
-    mesh_object = trimesh.load(object_mesh_path)
-    # mesh_ground = trimesh.load(ground_mesh_path)
-    # gripper_mesh = trimesh.load(gripper_mesh_path)
+#     mesh_object = trimesh.load(object_mesh_path)
+#     # mesh_ground = trimesh.load(ground_mesh_path)
+#     # gripper_mesh = trimesh.load(gripper_mesh_path)
 
-    bb=mesh_object.bounding_box_oriented
+#     bb=mesh_object.bounding_box_oriented
 
-    corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
+#     corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
 
-    recenter_vector=find_lower_plane_center(corners)
+#     recenter_vector=find_lower_plane_center(corners)
 
-    mesh_object.apply_translation(-recenter_vector)
+#     mesh_object.apply_translation(-recenter_vector)
 
-    mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_recenter.obj')
+#     mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_recenter.obj')
 
-    dimensions=bb.extents
+#     dimensions=bb.extents
 
-    bb_recentered=mesh_object.bounding_box_oriented
-    center_of_mass=bb_recentered.centroid
-    # Compute the moment of inertia
-    moment_of_inertia = compute_moment_of_inertia(mass, dimensions)
-    force=np.array([0.1,0,0])
+#     bb_recentered=mesh_object.bounding_box_oriented
+#     center_of_mass=bb_recentered.centroid
+#     # Compute the moment of inertia
+#     moment_of_inertia = compute_moment_of_inertia(mass, dimensions)
+#     force=np.array([0.1,0,0])
 
-    # replace by the final pose of gripper and its intersection with the object
-    simulation_position=np.array([0.0, 0.0, 0.025])
-    # Given torque applied (for example purposes)
-    force_position = center_of_mass+ simulation_position # torque vector
-    torque=compute_torque(force, force_position)  # torque vector
-    # Time step for integration
-    dt = 0.8  # time step 0-1
+#     # replace by the final pose of gripper and its intersection with the object
+#     simulation_position=np.array([0.0, 0.0, 0.025])
+#     # Given torque applied (for example purposes)
+#     force_position = center_of_mass+ simulation_position # torque vector
+#     torque=compute_torque(force, force_position)  # torque vector
+#     # Time step for integration
+#     dt = 0.8  # time step 0-1
 
-    # Compute angular acceleration
-    angular_acceleration = compute_angular_acceleration(torque, moment_of_inertia)
+#     # Compute angular acceleration
+#     angular_acceleration = compute_angular_acceleration(torque, moment_of_inertia)
 
-    # Integrate angular acceleration to get angular velocity
-    angular_velocity = integrate_angular_acceleration(angular_acceleration, dt)
+#     # Integrate angular acceleration to get angular velocity
+#     angular_velocity = integrate_angular_acceleration(angular_acceleration, dt)
 
-    fulfrum_position=np.array([0,0,0]) # the position of the fulcrum
-    # fulfrum_position=recenter_vector # the position of the fulcrum
-    # force_position=np.array([1,0,0])
+#     fulfrum_position=np.array([0,0,0]) # the position of the fulcrum
+#     # fulfrum_position=recenter_vector # the position of the fulcrum
+#     # force_position=np.array([1,0,0])
     
 
-    # Position vector of the point where you want to compute the linear velocity
-    position_vector = force_position- fulfrum_position
+#     # Position vector of the point where you want to compute the linear velocity
+#     position_vector = force_position- fulfrum_position
 
-    linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
+#     linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
 
 
-    new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
+#     new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
     
-    trans=concat_transformation(new_rotation_matrix, translation_vector)
+#     trans=concat_transformation(new_rotation_matrix, translation_vector)
 
-    mesh_object.apply_transform(trans)
+#     mesh_object.apply_transform(trans)
 
-    eye_rotate=np.eye(3)
+#     eye_rotate=np.eye(3)
 
-    back=concat_transformation(eye_rotate, -simulation_position)
-    mesh_object.apply_transform(back)
+#     back=concat_transformation(eye_rotate, -simulation_position)
+#     mesh_object.apply_transform(back)
 
-    recenter_back_vector=recenter_vector
+#     recenter_back_vector=recenter_vector
 
-    mesh_object.apply_translation(recenter_back_vector)
-    # mesh_object.apply_translation(translation_vector)
+#     mesh_object.apply_translation(recenter_back_vector)
+#     # mesh_object.apply_translation(translation_vector)
 
-    # save mesh
-    mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_dt_10_t_05.obj')
+#     # save mesh
+#     mesh_object.export('/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/mesh_object_dt_10_t_05.obj')

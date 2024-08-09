@@ -841,7 +841,8 @@ class ExportGaussianSplat_mesh(RoboExporter):
 class ExportGaussianSplat_mesh_deform(RoboExporter):
 
     """
-    Export 3D Gaussian Splatting model based on sugar,gcno and part based semantic mapping to a .ply
+    Export 3D Gaussian Splatting model with part based semantic mapping to a .ply
+    this can export the moving with certain timestamp and novel view
     """
 
     def main(self) -> None:
