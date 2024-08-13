@@ -39,7 +39,7 @@ _It’s as simple as plug and play with robostudio!_
 
 # Quickstart
 
-TODO: replace the gaussian training and render process with omnisim config stucture
+<!-- TODO: replace the gaussian training and render process with omnisim config stucture -->
 
 <!-- TODO(Yiran): Maybe code from nerfstudio should remove, user can download themselves? -->
 
@@ -69,6 +69,7 @@ For CUDA 11.8:
 ```bash
 pip install torch==2.1.2+cu118 torchvision==0.16.2+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
 
+
 conda install -c "nvidia/label/cuda-11.8.0" cuda-toolkit
 pip install ninja git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
 ```
@@ -90,6 +91,10 @@ pip install setuptools==69.5.1
 pip install -e .
 ```
 
+#### If you want to use our full robotic engine, please install pypose 
+```bash
+pip install pypose
+```
 
 ## 2.Build up Dynamic physical consistent Gaussian Splatting asset 
 
@@ -181,7 +186,6 @@ export deform for single timestamp
 ns-export gaussian-splat-deformmesh
 
         --load-config=
-        
         --output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic
         --experiment_type=push_bag
         --output_file=
@@ -223,25 +227,57 @@ ns-render  dynamic_dataset
 obtain urdf from video
 
 ### we use zero-pose data to export urdf
-2dgs obtain robotic arm mesh 
 
-convert dataset from nerfstudio to 2dgs
+
+#### convert dataset from nerfstudio to 2dgs
 
 ```bash
 python nerfstudio/robotic/export_util/2dgs_utils/nerfstudioconvert2dgs.py -s "your data" --skip_matching
 ```
 
-Train 2dgs and obtain mesh
+#### Train 2dgs and obtain mesh
+You can follow the instruction from https://github.com/hugoycj/2.5d-gaussian-splatting
+We will merge this part to our wheels after the PR of nerfstudio with 2dgs merged 
 
 
-get part based on either base and scale or manual bounding box(recommend manual bounding box)
+
+#### get part 
+
+First method: You can obtain part by base and scale 
+Second method: manual bounding box(recommend manual bounding box for complex scenes and high accuracy)
+Third method: Use SAM reprojected Gaussian or SegAnyGAussians( https://github.com/Jumpat/SegAnyGAussians)
+
+#### load part to URDF
+
+We first need to remap part to origin in our uniform coordinate defination
+
+```bash
+python nerfstudio\robotic\export_util\urdf_utils\urdf.py 
+--part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 7
+```
+
+You can edit the prefered optimization method in kinematic_info.yaml config file 
+
+##### Tricks for optimize URDF
+Since there are Gap between design and real world robot, you may need to manual edit some part of DH parameter for best result
+The step should be optimize a and d based on real world scale, then fix alpha based on different rotation axis representation
+Last step is to fix the base axis of reconstructed scenes and the part orientation
+
+#### load the part mesh to urdf
+load part recentered mesh, scale, axis, initial pose and object mesh information to omnisim
+
+You can load the part mesh path to urdf with both collision mesh and visual mesh
+Our model contain pre-point color for visual mesh, and you can decide to whether use it or no
+
+#### setup object and robotic arm hyper parameter from LLM
+
+The hyper parameter of object and robotic arm can be obtained by LLM 
+You can email me for exact prompt
 
 
 
-infer parameter from LLM 
 
 
-load part reconstructed mesh, scale, axis, initial pose and object mesh information to omnisim
 
 
 
@@ -249,12 +285,15 @@ load part reconstructed mesh, scale, axis, initial pose and object mesh informat
 
 ## use omnisim-issac backend to implement policy 
 
-export to urdf and fix collision group based on omnisim
+Use pre-build or custom urdf and fix collision group based on omnisim
+```bash
+python sim\metasim\real2isaac\real2isaac_grasp_v4.py
+```
+This is example of our pre-designed grasping policy 
 
 ### video2policy2real
 export policy to real world in format of gripper pose
 
-add omnisim data and file here
 
 
 
@@ -262,7 +301,6 @@ add omnisim data and file here
 ### video2policy2render
 export policy to Gaussian Scenes in format of trajectory
 
-add omnisim data and file here 
 
 ### render result 
 <div align="center">
@@ -279,7 +317,6 @@ This export the issac trajectory for certain time-stamp
 ns-export gaussian-splat-deformmesh
 
         --load-config=
-        
         --output-dir=exports/splat/no_downscale/group1_bbox_fix/correct_kinematic
         --experiment_type=issac2sim
         --output_file=
@@ -307,11 +344,9 @@ ns-render  dynamic_dataset
 ## 4. Dataset 
 
 
-We will upload four set of data 
+You can find data in this drive link: https://drive.google.com/file/d/1aJLMQjY0BOL-Wny6bXzNHq8unOr3mmjL/view?usp=drive_link
 
-
-and will add more data shortly
-
+For dataset of URDF production, you can email me and ask for request
 
 ## Function of Gaussian Based robotic arm
 
@@ -389,3 +424,13 @@ TODO
 <a href="https://github.com/RoboOmniSim/Robostudio/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=RoboOmniSim/Robostudio" />
 </a>
+
+
+# Acknowledgement
+We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu, Yuantao Chen, Zhide Zhong, and Baijun Ye
+This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu and Professor Yaqin Zhang.
+
+
+# Future Work
+We will release Full Backward engine, End-to-end semantic tools, Motion-retargeting, 4D interactable viewer and More supported Simulation 
+like articulated object, soft body and etc...
