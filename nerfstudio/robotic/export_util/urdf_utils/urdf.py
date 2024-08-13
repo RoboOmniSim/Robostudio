@@ -70,11 +70,16 @@ def main():
     center_move_list=computer_center_move(original_bbox_nonori_list,num_linkes)
     
 
+    Urdfinfo=export_urdf_to_omnisim_config()
+    Urdfinfo.setup_params(args.kinematic_info_path)
+
+    use_kinematic=Urdfinfo.use_kinematic
+    use_recenter=Urdfinfo.use_recenter
+    use_backward=Urdfinfo.use_backward
 
 
 
-
-    points_list,face_list,color_list,normals_list,file_name_list,bbox_save_list=convert_obj_to_ply(args.part_path,args.num_links)
+    points_list,face_list,color_list,normals_list,file_name_list,bbox_save_list,move_to_center_matrix=convert_obj_to_ply(args.part_path,args.num_links,Urdfinfo)
     # Load the part mesh
     bounding_box_corners = bbox_save_list[0]
     
@@ -98,12 +103,7 @@ def main():
 
     # add parameters to Urdfinfo config file
     # add necessary parameters to Urdfinfo for issac gym in omnisim
-    Urdfinfo=export_urdf_to_omnisim_config()
-    Urdfinfo.setup_params(args.kinematic_info_path)
 
-    use_kinematic=Urdfinfo.use_kinematic
-    use_recenter=Urdfinfo.use_recenter
-    use_backward=Urdfinfo.use_backward
     if use_kinematic:
         a,alpha,d,joint_angles_degrees=Urdfinfo.a,Urdfinfo.alpha,Urdfinfo.d,Urdfinfo.joint_angles_degrees
         scale_factor_base=extent_base/np.array(Urdfinfo.base_gt_scale,dtype=np.float32)
@@ -352,8 +352,6 @@ def main():
             points_list[i] = recenter_basedon_kinematic(points_list[i], center_matrix)
         save_obj(points_list,face_list,color_list,normals_list,args.save_path,args.num_links,file_name_list)
     else:
-        for i in range(args.num_links):
-            points_list[i] = recenter_basedon_kinematic(points_list[i], center_matrix)
         save_obj(points_list,face_list,color_list,normals_list,args.save_path,args.num_links,file_name_list)
 
 if __name__=="__main__":

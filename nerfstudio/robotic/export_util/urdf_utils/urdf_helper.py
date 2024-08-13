@@ -101,13 +101,14 @@ def remap_basedon_kinematic(vertices, recenter_matrix):
 
 
 
-def convert_obj_to_ply(path,num_linkes):
+def convert_obj_to_ply(path,num_linkes,Urdfinfo):
 
     points_list=[[]]*num_linkes
     file_name_list=[[]]*num_linkes
     face_list=[[]]*num_linkes
     color_list=[[]]*num_linkes
     normals_list=[[]]*num_linkes
+    move_to_center_matrix=[[]]*num_linkes
     bbox_save_list=[]
      # vertices, faces
     path_list=os.listdir(path)
@@ -140,19 +141,26 @@ def convert_obj_to_ply(path,num_linkes):
             tri_mesh = trimesh.Trimesh(np.asarray(vertices), np.asarray(face),
                                     vertex_normals=np.asarray(normals))
             
+            matrix=tri_mesh.apply_obb() 
             
             bbox = tri_mesh.bounding_box.bounds
             bbox_save_list.append(bbox)
-
-            points_list[index]=vertices
+            
+            if Urdfinfo.use_recenter:
+                points_list[index]=tri_mesh.vertices
+            elif Urdfinfo.use_recenter == False and Urdfinfo.use_kinematic==False and Urdfinfo.use_backward== False:
+                points_list[index]=tri_mesh.vertices
+            else:
+                points_list[index]=vertices
+            
             face_list[index]=face
             color_list[index]=color
             normals_list[index]=normals
 
-            
+            move_to_center_matrix[index]=matrix
             file_name_list[index]=file
             index+=1
-    return points_list,face_list,color_list,normals_list,file_name_list,bbox_save_list
+    return points_list,face_list,color_list,normals_list,file_name_list,bbox_save_list,move_to_center_matrix
 
 
 def convert_obj_to_ply_scene(path):
