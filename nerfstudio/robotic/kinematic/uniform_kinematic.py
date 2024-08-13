@@ -148,7 +148,11 @@ def load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=np
 
 
 # version 2
-def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass=np.zeros((3,1)),center_vector_pass=np.zeros((3,1)),add_gripper=False,flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,gripper_model="default",arm_model="default"):
+def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass=np.zeros((3,1)),center_vector_pass=np.zeros((3,1)),
+                              add_gripper=False,flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,
+                              a=0,d=0,alpha=0,joint_angles_degrees=0,
+                              joint_angles_degrees_gripper=0,a_gripper=0,d_gripper=0,alpha_gripper=0,
+                              gripper_model="default",arm_model="default"):
         movement_angle_state = read_txt_file(output_file_path) # radians
 
         name=experiment_type

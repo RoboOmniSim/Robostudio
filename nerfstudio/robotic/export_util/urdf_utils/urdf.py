@@ -12,14 +12,14 @@ import argparse
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.export_util.urdf_utils.urdf_config import *
 
-from nerfstudio.robotic.kinematic.gripper_utils import reflect_x_axis,reflect_y_axis,reflect_z_axis
+# from nerfstudio.robotic.kinematic.gripper_utils import reflect_x_axis,reflect_y_axis,reflect_z_axis
 
 from nerfstudio.robotic.kinematic.control_helper import *
 
 from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
 from nerfstudio.robotic.config.raw_config import export_urdf_to_omnisim_config
 
-# run command: python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 7
+# run command: python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 8 --original_path dataset/roboarm2/roboarm2/urdf/2dgs/original_link
 
 
 def main():
@@ -45,7 +45,7 @@ def main():
     # load gt urdf
     original_scene_list,original_file_name_list=convert_obj_to_ply_scene(args.original_path)
 
-    num_linkes=7
+    num_linkes=args.num_links
 
     gs_bbox_list=[]
     original_bbox_list=[]
@@ -101,9 +101,9 @@ def main():
     Urdfinfo=export_urdf_to_omnisim_config()
     Urdfinfo.setup_params(args.kinematic_info_path)
 
-    use_kinematic=False
-    use_recenter=True
-    use_backward=False
+    use_kinematic=Urdfinfo.use_kinematic
+    use_recenter=Urdfinfo.use_recenter
+    use_backward=Urdfinfo.use_backward
     if use_kinematic:
         a,alpha,d,joint_angles_degrees=Urdfinfo.a,Urdfinfo.alpha,Urdfinfo.d,Urdfinfo.joint_angles_degrees
         scale_factor_base=extent_base/np.array(Urdfinfo.base_gt_scale,dtype=np.float32)
@@ -268,6 +268,8 @@ def main():
                     new_center_list[i][0]=0
                     new_center_list[i][1]=0 # by scale computation, write automatic in future 
                     new_center_list[i][2]=0-0.495
+                else:
+                    new_center_list[i]=raw
 
             # new_center_list[i]=raw
 
