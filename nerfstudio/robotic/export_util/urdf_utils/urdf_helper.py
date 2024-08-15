@@ -225,7 +225,7 @@ def compute_center(bbox,num_linkes):
 
     return center_list
 
-def computer_center_move(bbox,num_linkes):
+def compute_center_move(bbox,num_linkes):
     center_move_list=[[]]*num_linkes
 
     for i in range(num_linkes):

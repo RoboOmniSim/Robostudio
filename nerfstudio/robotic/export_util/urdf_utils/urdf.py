@@ -19,7 +19,7 @@ from nerfstudio.robotic.kinematic.control_helper import *
 from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
 from nerfstudio.robotic.config.raw_config import export_urdf_to_omnisim_config
 
-# run command: python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 8 --original_path dataset/roboarm2/roboarm2/urdf/2dgs/original_link
+# run command: python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./config_info/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 8 --original_path dataset/roboarm2/roboarm2/urdf/2dgs/original_link
 
 
 def main():
@@ -67,7 +67,7 @@ def main():
 
     # after have the new_center_list, we can use it to generate the new mesh
     
-    center_move_list=computer_center_move(original_bbox_nonori_list,num_linkes)
+    center_move_list=compute_center_move(original_bbox_nonori_list,num_linkes)
     
 
     Urdfinfo=export_urdf_to_omnisim_config()
