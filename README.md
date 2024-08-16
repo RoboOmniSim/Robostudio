@@ -128,7 +128,7 @@ get bounding box list based on base and scale
 python nerfstudio/robotic/export_util/export_bbox_withgripper.py --load_path 
 ```
 
-# we use push box case as an exmaple
+# we use push box case as an exmaple (For full command, you can refer to launch.json)
 
 export part gaussian splatting and semantic ply
 
@@ -252,14 +252,14 @@ Third method: Use SAM reprojected Gaussian or SegAnyGAussians( https://github.co
 We first need to remap part to origin in our uniform coordinate defination
 
 ```bash
-python nerfstudio\robotic\export_util\urdf_utils\urdf.py 
---part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 7
+python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./config_info/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 8 --original_path dataset/roboarm2/roboarm2/urdf/2dgs/original_link
+
 ```
 
 You can edit the prefered optimization method in kinematic_info.yaml config file 
 
 ##### Tricks for optimize URDF
-Since there are Gap between design and real world robot, you may need to manual edit some part of DH parameter for best result
+Since there are Gap between design and real world robot, due to the error in installation and reconstruction, you may need to manual edit some part of DH parameter for best result, we estimate this takes you 10 mins.
 The step should be optimize a and d based on real world scale, then fix alpha based on different rotation axis representation
 Last step is to fix the base axis of reconstructed scenes and the part orientation
 
@@ -370,17 +370,16 @@ For dataset of URDF production, you can email me and ask for request
 
 
 ## 5: Explanation of Config file and how to connect it with omnisim
-<!-- 
+
+The config file are designed for each experiment
+For the meaning of command, you can refer to the documentation of Roboconfig
+
+You can follow our instruction and edit the config file for new Dataset 
 
 
-### Tensorboard / WandB / Viewer
+YOU can use export_urdf_to_omnisim_config to generate urdf and simulation from Robostudio to Omnisim
 
-We support four different methods to track training progress, using the viewer[tensorboard](https://www.tensorflow.org/tensorboard), [Weights and Biases](https://wandb.ai/site), and ,[Comet](https://comet.com/?utm_source=nerf&utm_medium=referral&utm_content=github). You can specify which visualizer to use by appending `--vis {viewer, tensorboard, wandb, comet viewer+wandb, viewer+tensorboard, viewer+comet}` to the training command. Simultaneously utilizing the viewer alongside wandb or tensorboard may cause stuttering issues during evaluation steps. The viewer only works for methods that are fast (ie. nerfacto, instant-ngp), for slower methods like NeRF, use the other loggers.
-
-# Learn More -->
-
-And that's it for getting started with the basics of Robostudio.
-
+You can use omni2gs_config to load the policy result from Omnisim to Gaussian Splatting
 
 
 
@@ -427,10 +426,29 @@ TODO
 
 
 # Acknowledgement
-We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu, Yuantao Chen, Zhide Zhong, and Baijun Ye
+We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu, Yuantao Chen, Zhide Zhong, and Baijun Ye.
 This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu and Professor Yaqin Zhang.
 
 
 # Future Work
-We will release Full Backward engine, End-to-end semantic tools, Motion-retargeting, 4D interactable viewer and More supported Simulation 
-like articulated object, soft body and etc...
+## Full Backward engine
+We design a backward engine respect to kinematic and dynamic and we test it on the optimization of mass of object. But we find that our experiment is unfair and the kinematic of robotic arm is not good enough by backward. We will keep working on this and release it in future.
+
+## End-to-end semantic tools
+Release before 2025.1.1 due to potential progress in Gaussian based semantic labeling
+
+## Motion-retargeting
+We find the the editing functionality of our work can be used for motion retargeting 
+We will release this part by 2024.12.01
+
+## 4D interactable viewer 
+Current 4D Gaussian Viewer cannot perform our full functionality, so we are designing a custom viewer and make it compatible with OmniSim.
+
+## 6 DOF tracking
+In traditional Reinforcement Learning pipeline, we use pixel level object tracking.
+However, recent work like foundationpose reveal the possibility of video based object 6 DOF tracking
+Our Gaussian-Pixel-Mesh binding can help to build up consistency between 6 DOF tracking. policy and rendering.
+
+## More supported Simulation like articulated object, soft body and etc...
+
+
