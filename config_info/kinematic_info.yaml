@@ -1,0 +1,33 @@
+
+experiment_type : roboarm
+
+gripper_model : single
+
+arm_model: cr3
+
+a: [0, 0, -0.274, -0.23, 0, 0] 
+
+alpha: [0, 1.57, 0.07, 0, 1.57, -1.57]
+
+d : [0.1348, 0, 0.025, 0.1283, 0.116, 0.105]
+
+
+joint_angles_degrees : [0, 0, 0, 0, 0, 0]
+
+
+add_gripper : False
+
+flip_x_coordinate: True
+
+flip_y_coordinate: True
+
+flip_z_coordinate: False
+
+use_kinematic: False
+
+use_recenter: True
+
+use_backward: False
+
+
+base_gt_scale: [0.13,0.13,0.034]

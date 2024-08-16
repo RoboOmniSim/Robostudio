@@ -12,7 +12,7 @@ import numpy as np
 
 if __name__=="__main__":
     # Load the mesh
-    mesh = o3d.io.read_triangle_mesh("/home/lou/Downloads/urdf_2dgs/recenter_2dgs/link_4.obj")
+    mesh = o3d.io.read_triangle_mesh("./dataset/roboarm2/urdf/2dgs/arm/link0.obj")
 
     # Compute the connected components
     triangle_clusters, cluster_n_triangles, cluster_area = mesh.cluster_connected_triangles()

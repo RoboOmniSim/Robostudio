@@ -207,3 +207,4 @@ tests/*
 
 dataset.zip
 dataset_0618.zip
+nerfstudio/robotic/physics_engine/fem_engine

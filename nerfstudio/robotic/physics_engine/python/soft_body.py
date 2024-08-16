@@ -3,3 +3,376 @@ import barycentric
 import numpy as np
 import torch
 import pypose
+
+
+"""
+Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
+
+NVIDIA CORPORATION and its licensors retain all intellectual property
+and proprietary rights in and to this software, related documentation
+and any modifications thereto. Any use, reproduction, disclosure or
+distribution of this software and related documentation without an express
+license agreement from NVIDIA CORPORATION is strictly prohibited.
+
+
+Soft Body
+---------
+Simple import of a URDF with a soft body link and rigid body press mechanism
+"""
+
+import math
+import random
+from isaacgym import gymapi
+from isaacgym import gymutil
+from isaacgym import gymtorch
+
+import torch
+
+import numpy as np
+
+import os
+
+# initialize gym
+gym = gymapi.acquire_gym()
+
+# parse arguments
+args = gymutil.parse_arguments(description="FEM Soft Body Example")
+if args.physics_engine != gymapi.SIM_FLEX:
+    print("*** Soft body example only supports FleX")
+    print("*** Run example with --flex flag")
+    quit()
+
+random.seed(7)
+
+# simulation parameters
+sim_params = gymapi.SimParams()
+sim_params.dt = 1.0 / 60.0
+sim_params.substeps = 6
+sim_params.flex.solver_type = 5
+sim_params.flex.num_outer_iterations = 4
+sim_params.flex.num_inner_iterations = 20
+sim_params.flex.relaxation = 0.8
+sim_params.flex.warm_start = 0.75
+sim_params.flex.shape_collision_margin = 0.1
+sim_params.gravity = gymapi.Vec3(0.0, 0.0, -9.8)
+
+# enable Von-Mises stress visualization
+sim_params.stress_visualization = True
+sim_params.stress_visualization_min = 0.0
+sim_params.stress_visualization_max = 1.e+5
+
+sim_params.use_gpu_pipeline = False
+if args.use_gpu_pipeline:
+    print("WARNING: Forcing CPU pipeline.")
+
+sim = gym.create_sim(args.compute_device_id, args.compute_device_id, args.physics_engine, sim_params)
+if sim is None:
+    print("*** Failed to create sim")
+    quit()
+
+# add ground plane
+plane_params = gymapi.PlaneParams()
+gym.add_ground(sim, plane_params)
+
+# create viewer
+viewer = gym.create_viewer(sim, gymapi.CameraProperties())
+if viewer is None:
+    print("*** Failed to create viewer")
+    quit()
+
+# load urdf for sphere asset used to create softbody
+asset_root = "../../assets"
+soft_asset_file = "urdf/optmesh_ball.urdf"
+
+plane_asset_file = "urdf/my_scene/ground.urdf"
+
+two_bodies = False
+if(two_bodies):
+    soft_asset_file_2 = "urdf/icosphere_2.urdf"
+
+soft_thickness = 0.1    # important to add some thickness to the soft body to avoid interpenetrations
+
+asset_options = gymapi.AssetOptions()
+asset_options.fix_base_link = True
+asset_options.thickness = soft_thickness
+asset_options.default_dof_drive_mode = gymapi.DOF_MODE_VEL
+
+print("Loading asset '%s' from '%s'" % (soft_asset_file, asset_root))
+soft_asset = gym.load_asset(sim, asset_root, soft_asset_file, asset_options)
+soft_asset_2 = gym.load_asset(sim, asset_root, soft_asset_file, asset_options)
+
+plane_asset = gym.load_asset(sim, asset_root, plane_asset_file, asset_options)
+
+# loaded asset
+loaded_assets = []
+loaded_assets.append(soft_asset)
+
+asset_soft_body_count = gym.get_asset_soft_body_count(soft_asset)
+print(asset_soft_body_count)
+asset_soft_materials = gym.get_asset_soft_materials(soft_asset)
+
+# Print asset soft material properties
+print('Soft Material Properties:')
+for i in range(asset_soft_body_count):
+    mat = asset_soft_materials[i]
+    print(f'(Body {i}) youngs: {mat.youngs} poissons: {mat.poissons} damping: {mat.damping}')
+
+# set up the env grid
+num_envs = 1
+spacing = 3.0
+env_lower = gymapi.Vec3(-spacing, 0.0, -spacing)
+env_upper = gymapi.Vec3(spacing, spacing, spacing)
+
+# cache some common handles for later useout
+envs = []
+soft_actors = []
+
+print("Creating %d environments" % num_envs)
+num_per_row = int(math.sqrt(num_envs))
+for i in range(num_envs):
+
+    # create env
+    env = gym.create_env(sim, env_lower, env_upper, num_per_row)
+    envs.append(env)
+
+    pose = gymapi.Transform()
+    pose.p = gymapi.Vec3(0.0, 1.0, 0.0)
+    pose_2 = gymapi.Transform()
+    pose_2.p = gymapi.Vec3(0.0, 4.0, 0.0)
+
+    # add soft body + rail actor
+    soft_actor = gym.create_actor(env, soft_asset, pose, "soft", i, 1)
+    soft_actors.append(soft_actor)
+
+    # initial_linear_velocity = gymapi.Vec3(0.0, 0.0, -100.0)  # Set the desired initial velocity in the z-direction
+    # gym.set_rigid_linear_velocity(env, soft_actor, initial_linear_velocity)
+
+    # # Perturb soft body particles to give it an initial velocity
+    # particle_state_tensor = gymtorch.wrap_tensor(gym.acquire_particle_state_tensor(sim))
+    # for j in range(particle_state_tensor.shape[0]):
+    #     # Convert Vec3 to NumPy array and then assign to the slice
+    #     velocity = np.array([-100.0, -100.0, -100.0], dtype=np.float32)
+    #     # print(particle_state_tensor[j, :].shape)
+    #     # print(type(particle_state_tensor[j, 9]))
+    #     particle_state_tensor[j, 5:8] = torch.from_numpy(velocity)
+    #     # print(particle_state_tensor[j, :])
+
+    # gym.refresh_particle_state_tensor(sim)
+
+    # gym.set_actor_dof_velocity_targets(env, soft_actor, [0.8])
+
+
+
+    if(two_bodies):
+        soft_actor_2 = gym.create_actor(env, soft_asset, pose_2, "soft", i, 1)
+        soft_actors.append(soft_actor_2)
+    
+
+    # set soft material within a range of default
+    actor_default_soft_materials = gym.get_actor_soft_materials(env, soft_actor)
+    actor_soft_materials = gym.get_actor_soft_materials(env, soft_actor)
+    for j in range(asset_soft_body_count):
+        print("i, j: " + str(i) + " " + str(j) + "\n")
+
+        actor_soft_materials[j].youngs = 100000
+        actor_soft_materials[j].poissons = 0.3
+        actor_soft_materials[j].damping = 1e-10
+
+        gym.set_actor_soft_materials(env, soft_actor, actor_soft_materials)
+
+    # add rigid body actor
+    # add box actor
+    pose = gymapi.Transform()
+    pose.p = gymapi.Vec3(0.0, 0.0, -0.7)
+    pose.r = gymapi.Quat(0, 0, 0, 1)
+    asset_box = gym.create_box(sim, 2, 3, 0.00001, asset_options)
+    box_handle = gym.create_actor(env, asset_box, pose, "actor1", i, 0)
+    soft_actors.append(box_handle)
+
+    # set restitution for box actor
+    shape_props = gym.get_actor_rigid_shape_properties(env, box_handle)
+    shape_props[0].restitution = 1
+    shape_props[0].compliance = 0.5
+    gym.set_actor_rigid_shape_properties(env, box_handle, shape_props)
+
+    # add plane actor
+    pose = gymapi.Transform()
+    pose.p = gymapi.Vec3(0.0, 0.0, 0.0)
+    plane_handle = gym.create_actor(env, plane_asset, pose, "plane_actor", i, 0)
+    soft_actor.append(plane_handle)
+
+    shape_props = gym.get_actor_rigid_shape_properties(env, plane_handle)
+    shape_props[0].restitution = 1
+    shape_props[0].compliance = 0.5
+    gym.set_actor_rigid_shape_properties(env, plane_handle, shape_props)
+
+
+    # enable pd-control on rail joint to allow
+    # control of the press using the GUI
+    gym.set_joint_target_position(env, gym.get_joint_handle(env, "soft", "rail"), 0.0)
+
+# Point camera at environments
+cam_pos = gymapi.Vec3(-4.0, 2.8, -1.2)
+cam_target = gymapi.Vec3(0.0, 1.4, 1.0)
+gym.viewer_camera_look_at(viewer, None, cam_pos, cam_target)
+
+# options
+flag_draw_contacts = False
+flag_compute_pressure = True
+
+frame = 0
+
+# # check velocity before starting simulation
+# particle_state_tensor = gymtorch.wrap_tensor(gym.acquire_particle_state_tensor(sim))
+# for j in range(particle_state_tensor.shape[0]):
+#     print(particle_state_tensor[j, :])
+#     velocity = np.array([-100.0, -100.0, -100.0], dtype=np.float32)
+#     particle_state_tensor[j, 5:8] = torch.from_numpy(velocity)
+# gym.refresh_particle_state_tensor(sim)
+
+
+# particle_state_tensor = gymtorch.wrap_tensor(gym.acquire_particle_state_tensor(sim))
+# for j in range(particle_state_tensor.shape[0]):
+#     print(particle_state_tensor[j, :])
+# gym.refresh_particle_state_tensor(sim)
+    
+
+while not gym.query_viewer_has_closed(viewer):
+
+
+    frame += 1
+
+    print(frame)
+
+        # particle_state_tensor = gymtorch.wrap_tensor(gym.acquire_particle_state_tensor(sim))
+        # for j in range(particle_state_tensor.shape[0]):
+        #     print(particle_state_tensor[j, :])
+        # gym.refresh_particle_state_tensor(sim)    
+
+    # step the physics
+    gym.simulate(sim)
+    gym.fetch_results(sim, True)
+
+    # if(frame == 2):
+    #     # check velocity before starting simulation
+    #     particle_state_tensor = gymtorch.wrap_tensor(gym.acquire_particle_state_tensor(sim))
+    #     for j in range(particle_state_tensor.shape[0]):
+    #         velocity = np.array([0.0, 0.0, 10.0], dtype=np.float32)
+    #         particle_state_tensor[j, 5:8] = torch.from_numpy(velocity)
+    #         print(particle_state_tensor[j, :])
+    #     gym.set_particle_state_tensor(sim, gymtorch.unwrap_tensor(particle_state_tensor))
+    #     gym.refresh_particle_state_tensor(sim)
+
+    # print particles 
+    particle_state_tensor = gymtorch.wrap_tensor(gym.acquire_particle_state_tensor(sim))
+    gym.refresh_particle_state_tensor(sim)
+
+    output_dir = "/home/panyk/Workspace/isaacgym/assets/output/mesh_hangingballontable_nerfacto_removelayer_200_higher/"
+    os.makedirs(output_dir, exist_ok = True)
+    filename = output_dir + "optmesh_ball_"+ str(frame) + ".tet"
+
+    file = open(filename, 'w')
+    # Write to tet output
+    file.write("# Tetrahedral mesh generated using\n\n")
+
+    vertice_num = 4465
+    file.write("# " + str(vertice_num) + " vertices\n")
+
+    for i in range(vertice_num):
+        particle_info = particle_state_tensor[i, :3]
+        particle_info[1] -= 1
+
+        # # swap y and z
+        # swap = particle_info[1]
+        # particle_info[2] = particle_info[1]
+        # particle_info[1] = swap
+        # print(particle_state_tensor[j, :])
+        particle_info_str = "v " + ' '.join(str(float(x)) for x in particle_info)
+        file.write(f"{particle_info_str}\n")
+
+    if (flag_draw_contacts):
+        gym.clear_lines(viewer)
+        for env in envs:
+            gym.draw_env_soft_contacts(viewer, env, gymapi.Vec3(0.7, 0.2, 0.15), 0.0005, True, True)
+
+    if (flag_compute_pressure):
+        # read tetrahedral and triangle data from simulation
+        (tet_indices, tet_stress) = gym.get_sim_tetrahedra(sim)
+        (tri_indices, tri_parents, tri_normals) = gym.get_sim_triangles(sim)
+
+
+        for env in envs:
+
+            # get range (start, count) for each soft actor (assumes one soft body)
+            tet_range = gym.get_actor_tetrahedra_range(env, 0, 0)
+            print("start: " + str(tet_range.start))
+            print("count: " + str(tet_range.count))
+            
+            tri_range = gym.get_actor_triangle_range(env, 0, 0)
+            # print("start: " + str(tri_range.start))
+            # print("count: " + str(tri_range.count))
+            # print(tri_range)
+
+            # particle state
+            # gym_tensor = gym.acquire_particle_state_tensor(sim)
+            # print(gym_tensor.shape)
+            # data = gym_tensor.data_ptr
+            # for i in range(324):
+            #     for j in range(11):
+            #         print(data[i, j])
+
+            # all_elements = []
+
+            file.write("\n")
+            file.write("# " + str(tet_range.count) + " tetrahedra\n")
+            for i in range(tet_range.start, tet_range.start + tet_range.count):
+                ti = tet_indices[4 * i:4 * i + 4]
+                tet_info_string = "t " + ' '.join(str(int(ti[x])) for x in range(4))
+                file.write(f"{tet_info_string}\n")
+                # all_elements.extend(ti)
+            
+            # print(sorted(list(set(all_elements))))
+
+            for i in range(tri_range.start, tri_range.start + tri_range.count):
+
+                # 'parent' tetrahedron of this triangle
+                parent = tri_parents[i]
+                parent_stress = tet_stress[parent]
+
+                # convert to numpy
+                stress = np.matrix([(parent_stress.x.x, parent_stress.y.x, parent_stress.z.x),
+                                    (parent_stress.x.y, parent_stress.y.y, parent_stress.z.y),
+                                    (parent_stress.x.z, parent_stress.y.z, parent_stress.z.z)])
+
+                normal = np.array((tri_normals[i].x, tri_normals[i].y, tri_normals[i].z))
+
+                # compute force density (since normal is normalized)
+                force = np.dot(stress, normal)
+
+    # update the viewer
+    gym.step_graphics(sim)
+    gym.draw_viewer(viewer, sim, False)
+
+    # Wait for dt to elapse in real time.
+    # This synchronizes the physics simulation with the rendering rate.
+    gym.sync_frame_time(sim)
+
+# # export usd sim env
+# usda_exporter = gym.create_usd_exporter()
+# gym.set_usd_export_root(usda_exporter, "./export")
+# success = gym.export_usd_sim(usda_exporter, sim, "scene", "")
+
+# export tets
+# (tets, stresses) = gym.get_sim_tetrahedra(sim)
+# print(tets)
+# tet_count = gym.get_sim_tetrahedra_count(sim)
+# print("count: " + str(tet_count))
+
+# export usd asset
+# usda_exporter = gym.create_usd_exporter()
+# print(type(loaded_assets[0]))
+# success = gym.export_usd_asset(usda_exporter, loaded_assets[0], "/home/panyk/Workspace/isaacgym/assets/exports/soft.usda")
+# print(success)
+
+gym.destroy_viewer(viewer)
+gym.destroy_sim(sim)

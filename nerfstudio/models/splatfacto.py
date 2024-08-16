@@ -979,7 +979,7 @@ class SplatfactoModel(Model):
     def get_deformation(self,time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
                         gripper_control=None,joint_angles_degrees_gripper=None, a_gripper=None, alpha_gripper=None, d_gripper=None,add_gripper=False,path=None,add_simulation=False,
                         add_grasp_object=False,add_grasp_object_simulation=0,add_grasp_object_duration=(0,0),add_trajectory=False,move_with_gripper=False,
-                        add_grasp_control=0,dt=0,
+                        add_grasp_control=0,dt=0,grasp_inter_time=10,
                         engine_ids=0,relationship_config=0,
                         flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,flip_x_coordinate_gripper=False,flip_y_coordinate_gripper=False,flip_z_coordinate_gripper=False):
         """Takes in physics setting, generates the deformation of the object, and computes the output of the model.
@@ -1066,6 +1066,10 @@ class SplatfactoModel(Model):
 
 
         # assign different physics simulation to different object based on its semantic category
+
+        # we have different strategy of rendering based on semantic category
+        # this is a beta version, we will update this to a more easy to read version 
+        
         for i in range(assigned_ids.shape[0]):  # iterate over all sam mask
 
             # engine_used=engine_inference[i]
@@ -1172,8 +1176,8 @@ class SplatfactoModel(Model):
                         recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
                         # beyond the simulation time is the same as the simulation time
-                        if time_diff>10:
-                            time_diff=10
+                        if time_diff>grasp_inter_time:
+                            time_diff=grasp_inter_time
                         rotation, translation=interact_with_gripper(add_grasp_control,time_diff)
                         raw_xyz= select_xyz
 
@@ -1200,8 +1204,8 @@ class SplatfactoModel(Model):
                         recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
                         # beyond the simulation time is the same as the simulation time
-                        if time_diff>10:
-                            time_diff=10
+                        if time_diff>grasp_inter_time:
+                            time_diff=grasp_inter_time
                         rotation, translation=interact_with_gripper(add_grasp_control,time_diff)
 
                         raw_xyz= select_xyz
@@ -1561,6 +1565,7 @@ class SplatfactoModel(Model):
                                                                                                     add_grasp_object=dynamic_info['add_grasp_object'],
                                                                                                     engine_ids=dynamic_info['engine_ids'],
                                                                                                     relationship_config=dynamic_info['relationship_config'],
+                                                                                                    grasp_inter_time=dynamic_info['grasp_inter_time'],
                                                                                                     )
 
 

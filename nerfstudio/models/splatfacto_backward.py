@@ -47,9 +47,27 @@ from nerfstudio.utils.rich_utils import CONSOLE
 
 
 
-# added feature 
-from nerfstudio.robotic.render_util.gaussian_fuse import *
 
+
+from nerfstudio.robotic.render_util.gaussian_fuse import *
+from nerfstudio.robotic.utils.mesh_gaussian import mesh_gaussian_binding
+from nerfstudio.robotic.utils.resamplemesh import *
+import open3d as o3d
+import trimesh
+from nerfstudio.robotic.render_util.graphic_utils import *
+from nerfstudio.robotic.kinematic.uniform_kinematic import *
+from nerfstudio.robotic.physics_engine.python.backward import *
+from nerfstudio.robotic.export_util.sam_util.mask_reproject import *
+from nerfstudio.robotic.icp_utils.custom_knn import knn, knn_pt2mesh, knn_mesh2pt
+# render helper functions
+
+from nerfstudio.robotic.render_util.render_helper_func import *
+
+# physics simulation
+from nerfstudio.robotic.physics_engine.python.push_box import *
+from nerfstudio.robotic.kinematic.gripper_utils import *
+from nerfstudio.robotic.physics_engine.python.grasp import *
+from nerfstudio.robotic.physics_engine.base import semantic_category_engine_config
 
 
 
@@ -971,47 +989,526 @@ class SplatfactobackwardModel(Model):
 
 
 
-    def get_deformation(self,time_stamp,transformation_package,assigned_ids,ns_transformations,scale):
+    
 
-        deform_poses=transformation_package[assigned_ids][time_stamp]
+
+    def get_deformation(self,time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
+                        gripper_control=None,joint_angles_degrees_gripper=None, a_gripper=None, alpha_gripper=None, d_gripper=None,add_gripper=False,path=None,add_simulation=False,
+                        add_grasp_object=False,add_grasp_object_simulation=0,add_grasp_object_duration=(0,0),add_trajectory=False,move_with_gripper=False,
+                        add_grasp_control=0,dt=0,
+                        engine_ids=0,relationship_config=0,
+                        flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,flip_x_coordinate_gripper=False,flip_y_coordinate_gripper=False,flip_z_coordinate_gripper=False):
+        """Takes in physics setting, generates the deformation of the object, and computes the output of the model.
+        Args:
+            Parameters:
+            timestamp: the time stamp of the simulation
+            movement_angle_state: the movement angle of the object
+            assigned_ids: the assigned ids of the object
+            final_transformations_list_0: the transformation of the object under static scenes
+            scale_factor: the scale factor of the object
+            a: the a parameter of the object
+            alpha: the alpha parameter of the object
+            d: the d parameter of the object
+            joint_angles_degrees: the joint angles of the object
+            center_vector_gt: the center vector of the object
+            gripper_control: the gripper control of the object
+            joint_angles_degrees_gripper: the joint angles of the gripper
+            a_gripper: the a parameter of the gripper
+            alpha_gripper: the alpha parameter of the gripper
+            d_gripper: the d parameter of the gripper
+
+            physics setting:
+            engine_ids: the set of id mapping with the semantic category, like mpm, kinematic,dynamic,friction,etc
+            relationship_config: the relationship configuration of the simulation
+            add_simulation: the flag of adding simulation
+            add_grasp_object: the flag of adding grasp object
+            add_grasp_object_simulation: the flag of adding grasp object simulation
+            add_grasp_object_duration: the duration of the grasp object
+            add_trajectory: the flag of adding trajectory
+            add_grasp_control: the flag of adding grasp control
+
+
+            Functional level:
+            add_gripper: the flag of adding gripper
+            path: the path of the object
+
+            dt: the time step of the simulation
+            flip_x_coordinate: the flag of flipping x coordinate
+            flip_y_coordinate: the flag of flipping y coordinate
+            flip_z_coordinate: the flag of flipping z coordinate
+            flip_x_coordinate_gripper: the flag of flipping x coordinate of the gripper
+            flip_y_coordinate_gripper: the flag of flipping y coordinate of the gripper
+            flip_z_coordinate_gripper: the flag of flipping z coordinate of the gripper
+
+        Returns:
+            output_xyz: the output xyz of the object
+            output_opacities: the output opacities of the object
+            output_scales : the output scales of the object
+            output_features_extra  : the output features extra of the object
+            output_rots : the output rots of the object
+            output_features_dc : the output features dc of the object
+            output_semantic_id : the output semantic id of the object
+        """
         
-        # path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat_operation_1.ply'
-        path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/splat.ply'
+        
         xyz, features_dc, features_extra, opacities, scales, rots,semantic_id=load_ply_sam(path, max_sh_degree=3)
 
-        # apply scale and transformation on poses
-        for i in range(assigned_ids):  # iterate over all sam mask(0-9)
+        # assign engine based on engine parameter
+        # engine_inference=semantic_category_engine_config(engine_ids,relationship_config)
+
+        if add_gripper==True:
+            individual_transformations, final_transformations_list=gripper_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
+                                                                               joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper,
+                                                                               i=time_stamp,flip_x_coordinate=flip_x_coordinate,add_grasp_control=add_grasp_control)
+        else:
+            individual_transformations, final_transformations_list = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=time_stamp)
+
+
+        inverse_transformation=inverse_affine_transformation(final_transformations_list_0)
+
+
+        output_xyz=[]
+        output_opacities=[]
+        output_scales=[]
+        output_features_extra=[]
+        output_rots=[]
+        output_features_dc=[]
+        output_semantic_id=[]
+        
+
+        # deform link 1 to 6 and gripper 7 will follow the link 6 also mask out the object(id=8)
+
+
+
+
+        # assign different physics simulation to different object based on its semantic category
+        for i in range(assigned_ids.shape[0]):  # iterate over all sam mask
+
+            # engine_used=engine_inference[i]
+
+            # since the assigned_ids and engine_inference are the same length
+            # engine used should map the equation to the right engine
+
+
+            if i ==0 or i==9:
+                
+                # background and base
+                
+                mark_id=i
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
+
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra)
+                output_rots.append(select_rotation)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
+            elif i==8:
+
+
+                # this is for object, we will add mulitple object simulation in the future version
+
+
+
+
+                mark_id=i
+                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
+
+
+                
+
+                if add_simulation==True:
+                    recenter_vector,rotation, translation,simulation_position,adaptive_vector=example_push(dt)
+                    raw_xyz= select_xyz
+
+
+
+                    raw_xyz_edit=raw_xyz-recenter_vector
+                    forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
+
+                    forward_point=forward_point+adaptive_vector
+                    output_xyz_object=forward_point+recenter_vector
+                    rotation_splat=rotation
+
+                    rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                    select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+
+                    select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                
+                    output_xyz.append(output_xyz_object)
+                    output_opacities.append(select_opacities)
+                    output_scales.append(select_scales)
+                    output_features_extra.append(select_features_extra_deform)
+                    output_rots.append(select_rotation_deform)
+                    output_features_dc.append(select_feature_dc)
+                    output_semantic_id.append(semantic_id_ind_sam)
+                elif add_grasp_object==True or move_with_gripper==True:
+                    if move_with_gripper==True and add_grasp_object==False:
+                        mark_id=2  #6 follow the robotic arm 
+
+                        raw_xyz= select_xyz
+                        start_time_stamp=250
+                        individual_transformations_t_minus1, final_transformations_list_t_minus1=gripper_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
+                                                                                joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper,
+                                                                                i=start_time_stamp,flip_x_coordinate=flip_x_coordinate,add_grasp_control=add_grasp_control)
+                        def obtain_relative_transformation(T_0,T_1):
+                            return np.dot(np.linalg.inv(T_0),T_1)
+
+                        relative_trans=obtain_relative_transformation(final_transformations_list[mark_id],final_transformations_list_t_minus1[mark_id])
+
+                        rotation_rela=relative_trans[:3,:3]
+
+                        translation_rela=relative_trans[:3,3]        
+
+                        forward_point=  np.array(raw_xyz @ rotation_rela.T+ translation_rela )
+
+                        select_xyz=forward_point
+
+                        rotation_splat=rotation_rela
+
+                        rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                        select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                        
+
+                        select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                        
+                        output_xyz.append(select_xyz)
+                        output_opacities.append(select_opacities)
+                        output_scales.append(select_scales)
+                        output_features_extra.append(select_features_extra_deform)
+                        output_rots.append(select_rotation_deform)
+                        output_features_dc.append(select_feature_dc)
+                        output_semantic_id.append(semantic_id_ind_sam)
+                    elif  move_with_gripper==False and add_grasp_object==True:
+
+                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
+                        time_diff=dt
+                        # beyond the simulation time is the same as the simulation time
+                        if time_diff>10:
+                            time_diff=10
+                        rotation, translation=interact_with_gripper(add_grasp_control,time_diff)
+                        raw_xyz= select_xyz
+
+
+
+                        raw_xyz_edit=raw_xyz-recenter_vector
+                        forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
+                        output_xyz_object=forward_point+recenter_vector
+                        rotation_splat=rotation
+                        rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                        select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                        
+
+                        select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                        output_xyz.append(output_xyz_object)
+                        output_opacities.append(select_opacities)
+                        output_scales.append(select_scales)
+                        output_features_extra.append(select_features_extra_deform)
+                        output_rots.append(select_rotation_deform)
+                        output_features_dc.append(select_feature_dc)
+                        output_semantic_id.append(semantic_id_ind_sam)
+                    else:
+                        recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
+                        time_diff=dt
+                        # beyond the simulation time is the same as the simulation time
+                        if time_diff>10:
+                            time_diff=10
+                        rotation, translation=interact_with_gripper(add_grasp_control,time_diff)
+
+                        raw_xyz= select_xyz
+                        raw_xyz_edit=raw_xyz-recenter_vector
+                        forward_point=  np.array(raw_xyz_edit @ rotation.T+ translation )
+                        output_xyz_object=forward_point+recenter_vector
+
+                        mark_id=4
+                        mark_id_offset=3
+                        raw_xyz= select_xyz
+                        start_time_stamp=250
+
+                        rotation_rela,translation_rela,offset_vector,offset_rotation= get_object_tracjetory_from_simulation(mark_id,mark_id_offset,start_time_stamp,time_stamp,final_transformations_list,
+                                          movement_angle_state,joint_angles_degrees, a, alpha, d,gripper_control,
+                                          joint_angles_degrees_gripper, a_gripper, alpha_gripper, d_gripper,
+                                          flip_x_coordinate=flip_x_coordinate,add_grasp_control=add_grasp_control)
+                        forward_point=  np.array(output_xyz_object @ rotation_rela.T+ translation_rela )
+
+                        select_xyz=forward_point+offset_vector
+
+                        rotation_splat=rotation_rela@rotation
+                
+                        rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                        select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                        
+
+                        select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                        output_xyz.append(select_xyz)
+                        output_opacities.append(select_opacities)
+                        output_scales.append(select_scales)
+                        output_features_extra.append(select_features_extra_deform)
+                        output_rots.append(select_rotation_deform)
+                        output_features_dc.append(select_feature_dc)
+                        output_semantic_id.append(semantic_id_ind_sam)
+                    
+                else:
+                    output_xyz.append(select_xyz)
+                    output_opacities.append(select_opacities)
+                    output_scales.append(select_scales)
+                    output_features_extra.append(select_features_extra)
+                    output_rots.append(select_rotation)
+                    output_features_dc.append(select_feature_dc)
+                    output_semantic_id.append(semantic_id_ind_sam)
+
+            elif i==7:
+
+                # gripper main if with gripper control
+                # whole gripper if has gripper control
+
+             
+                mark_id=5  #6-1
+                # apply deformation 
+
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
+                rotation_inv=inverse_transformation[mark_id][:3,:3]
+                translation_inv=inverse_transformation[mark_id][:3,3]
+
+                rotation=final_transformations_list[mark_id][:3,:3]
+                translation=final_transformations_list[mark_id][:3,3]
+
+                raw_xyz=raw_xyz-center_vector_gt
+                deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                forward_point=  np.array(deform_point @ rotation.T+ translation )
+
+                select_xyz=forward_point+center_vector_gt
+
+                rotation_splat=rotation@rotation_inv
+
+                rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                
+
+                select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra_deform)
+                output_rots.append(select_rotation_deform)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
+
+            elif i==10:
+
+                # left down finger of gripper
+                mark_id=7
+
+
+
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+                
+
+
+                rotation_inv=inverse_transformation[mark_id][:3,:3]
+                translation_inv=inverse_transformation[mark_id][:3,3]
+
+                rotation=final_transformations_list[mark_id][:3,:3]
+                translation=final_transformations_list[mark_id][:3,3]
+
+                raw_xyz=raw_xyz-center_vector_gt
+                deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                forward_point=  np.array(deform_point @ rotation.T+ translation )
+
+                select_xyz=forward_point+center_vector_gt
+
+                rotation_splat=rotation@rotation_inv
             
-            # apply deformation 
-            deform_poses_trans=deform_poses@ns_transformations
-            deform_poses_trans[:3, 3] = deform_poses_trans[:3, 3] * scale
 
-            rotation = deform_poses_trans[:3, :3]
-            translation= deform_poses_trans[:3, 3]  
-            select_xyz= torch.tensor(xyz[assigned_ids])
-            select_xyz= torch.tensor(select_xyz @ rotation.T+ translation)
+                rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                
+
+                select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra_deform)
+                output_rots.append(select_rotation_deform)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
+
+            elif i==11:
+                
+                # left up finger of gripper
+                mark_id=8
+                
+
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
+
+                rotation_inv=inverse_transformation[mark_id][:3,:3]
+                translation_inv=inverse_transformation[mark_id][:3,3]
+                rotation=final_transformations_list[mark_id][:3,:3]
+                translation=final_transformations_list[mark_id][:3,3]
+
+                raw_xyz=raw_xyz-center_vector_gt
+                deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                forward_point=  np.array(deform_point @ rotation.T+ translation )
+
+                select_xyz=forward_point+center_vector_gt
+
+                
         
-            _rotation=model.quats[assigned_ids] # guassian rotation
-            rot_matrix_2_transform = torch.matmul(torch.tensor(rotation[None,:,:], dtype=torch.float), quaternion_to_matrix(torch.tensor(_rotation, dtype=torch.float)))
-            rotation = torch.tensor(matrix_to_quaternion(rot_matrix_2_transform).cpu().numpy())
+
+                rotation_splat=rotation@rotation_inv
 
 
-            _features_rest = torch.tensor(sh_rotation(_features_rest, _features_dc, rotation))
-        
+                rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                
+
+                select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra_deform)
+                output_rots.append(select_rotation_deform)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
+
+            elif i==12:
+
+                # right down finger of gripper
+                mark_id=9
+
+
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+                
+
+                rotation_inv=inverse_transformation[mark_id][:3,:3]
+                translation_inv=inverse_transformation[mark_id][:3,3]
+              
+                rotation=final_transformations_list[mark_id][:3,:3]
+                translation=final_transformations_list[mark_id][:3,3]
+
+                raw_xyz=raw_xyz-center_vector_gt
+                deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                forward_point=  np.array(deform_point @ rotation.T+ translation )
+
+                select_xyz=forward_point+center_vector_gt
+
+                rotation_splat=rotation@rotation_inv
+            
+
+
+                rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                
+
+                select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra_deform)
+                output_rots.append(select_rotation_deform)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
+
+            elif i==13:
+                
+                # right up finger of gripper
+                mark_id=10
+
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+
+
+                rotation_inv=inverse_transformation[mark_id][:3,:3]
+                translation_inv=inverse_transformation[mark_id][:3,3]
+                rotation=final_transformations_list[mark_id][:3,:3]
+                translation=final_transformations_list[mark_id][:3,3]
+
+                raw_xyz=raw_xyz-center_vector_gt
+                deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                forward_point=  np.array(deform_point @ rotation.T+ translation )
+
+                select_xyz=forward_point+center_vector_gt
+
+
+                rotation_splat=rotation@rotation_inv
+
+
+                rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                
+
+                select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra_deform)
+                output_rots.append(select_rotation_deform)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
+
+            else:
+
+                # robotic arm kinematic
+
+                mark_id=i-1
+                raw_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=i)
+                rotation_inv=inverse_transformation[mark_id][:3,:3]
+                translation_inv=inverse_transformation[mark_id][:3,3]
+
+                rotation=final_transformations_list[mark_id][:3,:3]
+                translation=final_transformations_list[mark_id][:3,3]
+
+                raw_xyz=raw_xyz-center_vector_gt
+                deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
+
+                forward_point=  np.array(deform_point @ rotation.T+ translation )
+
+                select_xyz=forward_point+center_vector_gt
+                rotation_splat=rotation@rotation_inv
+
+                rot_matrix_2_transform = np.matmul(np.array(rotation_splat[None,:,:], dtype=float), quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy())
+                select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+                
+
+                select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
+
+                output_xyz.append(select_xyz)
+                output_opacities.append(select_opacities)
+                output_scales.append(select_scales)
+                output_features_extra.append(select_features_extra_deform)
+                output_rots.append(select_rotation_deform)
+                output_features_dc.append(select_feature_dc)
+                output_semantic_id.append(semantic_id_ind_sam)
         
 
         
         # update the guassian of the neccessary info in model
-        return model.means, model.quats, _features_rest
+        return output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id
+    
 
-
-
-    def get_dynamic_outputs(self, camera: Cameras) -> Dict[str, Union[torch.Tensor, List]]:
-        """Takes in a Ray Bundle and returns a dictionary of outputs.
+    def get_dynamic_outputs(self, camera: Cameras,dynamic_info) -> Dict[str, Union[torch.Tensor, List]]:
+        """Takes in a camera info and returns a dictionary of rasterized output under timestamp.
 
         Args:
-            ray_bundle: Input bundle of rays. This raybundle should have all the
-            needed information to compute the outputs.
+            camera: camera info
+            dynamic_info: dynamic info that contains control, dynamic and kinematic
 
         Returns:
             Outputs of model. (ie. rendered colors)
@@ -1021,31 +1518,14 @@ class SplatfactobackwardModel(Model):
             return {}
         assert camera.shape[0] == 1, "Only one camera at a time"
 
-        # get the background color
-        if self.training:
-            if self.config.background_color == "random":
-                background = torch.rand(3, device=self.device)
-            elif self.config.background_color == "white":
-                background = torch.ones(3, device=self.device)
-            elif self.config.background_color == "black":
-                background = torch.zeros(3, device=self.device)
-            else:
-                background = self.background_color.to(self.device)
-        else:
-            if renderers.BACKGROUND_COLOR_OVERRIDE is not None:
-                background = renderers.BACKGROUND_COLOR_OVERRIDE.to(self.device)
-            else:
-                background = self.background_color.to(self.device)
 
-        if self.crop_box is not None and not self.training:
-            crop_ids = self.crop_box.within(self.means).squeeze()
-            if crop_ids.sum() == 0:
-                rgb = background.repeat(int(camera.height.item()), int(camera.width.item()), 1)
-                depth = background.new_ones(*rgb.shape[:2], 1) * 10
-                accumulation = background.new_zeros(*rgb.shape[:2], 1)
-                return {"rgb": rgb, "depth": depth, "accumulation": accumulation, "background": background}
+        if renderers.BACKGROUND_COLOR_OVERRIDE is not None:
+            background = renderers.BACKGROUND_COLOR_OVERRIDE.to(self.device)
         else:
-            crop_ids = None
+            background = self.background_color.to(self.device)
+
+
+        crop_ids = None
         camera_downscale = self._get_downscale_factor()
         camera.rescale_output_resolution(1 / camera_downscale)
         # shift the camera to center of scene looking at center
@@ -1068,26 +1548,81 @@ class SplatfactobackwardModel(Model):
         W, H = int(camera.width.item()), int(camera.height.item())
         self.last_size = (H, W)
         projmat = projection_matrix(0.001, 1000, fovx, fovy, device=self.device)
+        BLOCK_X, BLOCK_Y = 16, 16
+        tile_bounds = (
+            int((W + BLOCK_X - 1) // BLOCK_X),
+            int((H + BLOCK_Y - 1) // BLOCK_Y),
+            1,
+        )
         
-        # replace the information of opacities, means, features_dc, features_rest, scales, quats with the updated information
-        if crop_ids is not None:
-            opacities_crop = self.opacities[crop_ids]
-            means_crop = self.means[crop_ids]
-            features_dc_crop = self.features_dc[crop_ids]
-            features_rest_crop = self.features_rest[crop_ids]
-            scales_crop = self.scales[crop_ids]
-            quats_crop = self.quats[crop_ids]
-        else:
-            opacities_crop = self.opacities
-            means_crop = self.means
-            features_dc_crop = self.features_dc
-            features_rest_crop = self.features_rest
-            scales_crop = self.scales
-            quats_crop = self.quats
 
-        colors_crop = torch.cat((features_dc_crop[:, None, :], features_rest_crop), dim=1)
-        BLOCK_WIDTH = 16  # this controls the tile size of rasterization, 16 is a good default
-        self.xys, depths, self.radii, conics, comp, num_tiles_hit, cov3d = project_gaussians(  # type: ignore
+            
+        xyz, opacity, scaling, features_rest, rotation, features_dc,semantic_id=self.get_deformation(time_stamp=dynamic_info['time_stamp'],
+                                                                                                    movement_angle_state=dynamic_info['movement_angle_state'],
+                                                                                                    assigned_ids=dynamic_info['assigned_ids'],
+                                                                                                    final_transformations_list_0=dynamic_info['final_transformations_list_0'],
+                                                                                                    scale_factor=dynamic_info['scale_factor'],
+                                                                                                    a=dynamic_info['a'],
+                                                                                                    alpha=dynamic_info['alpha'],
+                                                                                                    d=dynamic_info['d'],
+                                                                                                    joint_angles_degrees=dynamic_info['joint_angles_degrees'],
+                                                                                                    center_vector_gt=dynamic_info['center_vector_gt'],
+                                                                                                    path=dynamic_info['load_path'],
+                                                                                                    add_simulation=dynamic_info['add_simulation'],
+                                                                                                    dt=dynamic_info['dt'],
+                                                                                                    add_grasp_control=dynamic_info['add_grasp_control'],
+                                                                                                    flip_x_coordinate=dynamic_info['flip_x_coordinate'],
+                                                                                                    add_gripper=dynamic_info['add_gripper'],
+                                                                                                    move_with_gripper=dynamic_info['move_with_gripper'],
+                                                                                                    add_grasp_object=dynamic_info['add_grasp_object'],
+                                                                                                    engine_ids=dynamic_info['engine_ids'],
+                                                                                                    relationship_config=dynamic_info['relationship_config'],
+                                                                                                    )
+
+
+        
+        xyz=np.concatenate(xyz)
+        features_dc=np.concatenate(features_dc) 
+        features_rest=np.concatenate(features_rest)
+        opacity=np.concatenate(opacity)
+        scaling=np.concatenate(scaling)
+        rotation=np.concatenate(rotation)
+        semantic_id=np.concatenate(semantic_id)
+            
+
+        if crop_ids is not None:
+            opacities_crop = torch.from_numpy(opacity[crop_ids])
+            means_crop = torch.from_numpy(xyz[crop_ids])
+            features_dc_crop = torch.from_numpy(features_dc[crop_ids])
+            features_rest_crop = torch.from_numpy(features_rest[crop_ids])
+            scales_crop = torch.from_numpy(scaling[crop_ids])
+            quats_crop = torch.from_numpy(rotation[crop_ids])
+
+            
+        else:
+            opacities_crop = torch.from_numpy(opacity).to(self.device).to(torch.float32)
+            means_crop = torch.from_numpy(xyz).to(self.device).to(torch.float32)  
+            features_dc_crop = torch.from_numpy(features_dc).to(self.device).to(torch.float32)  
+            features_rest_crop = torch.from_numpy(features_rest).to(self.device).to(torch.float32)  
+            scales_crop = torch.from_numpy(scaling).to(self.device).to(torch.float32)  
+            quats_crop = torch.from_numpy(rotation).to(self.device).to(torch.float32)  
+
+            opacities_crop.requires_grad =True
+            means_crop.requires_grad = True
+            features_dc_crop.requires_grad = True
+            features_rest_crop.requires_grad = True
+            scales_crop.requires_grad = True
+            quats_crop.requires_grad = True
+
+
+
+
+
+        colors_crop = torch.cat((features_dc_crop.permute(0, 2, 1), features_rest_crop.permute(0, 2, 1)), dim=1)
+
+        BLOCK_WIDTH=16
+
+        self.xys, depths, self.radii, conics, comp, num_tiles_hit, cov3d  = project_gaussians(  # type: ignore
             means_crop,
             torch.exp(scales_crop),
             1,
@@ -1102,20 +1637,16 @@ class SplatfactobackwardModel(Model):
             W,
             BLOCK_WIDTH,
         )  # type: ignore
-
-        # rescale the camera back to original dimensions before returning
-        camera.rescale_output_resolution(camera_downscale)
-
         if (self.radii).sum() == 0:
-            rgb = background.repeat(H, W, 1)
-            depth = background.new_ones(*rgb.shape[:2], 1) * 10
-            accumulation = background.new_zeros(*rgb.shape[:2], 1)
+            return {"rgb": background.repeat(int(camera.height.item()), int(camera.width.item()), 1)}
 
-            return {"rgb": rgb, "depth": depth, "accumulation": accumulation, "background": background}
-
-        # Important to allow xys grads to populate properly
-        if self.training:
-            self.xys.retain_grad()
+        opacities = None
+        if self.config.rasterize_mode == "antialiased":
+            opacities = torch.sigmoid(opacities_crop) * comp[:, None]
+        elif self.config.rasterize_mode == "classic":
+            opacities = torch.sigmoid(opacities_crop)
+        else:
+            raise ValueError("Unknown rasterize_mode: %s", self.config.rasterize_mode)
 
         if self.config.sh_degree > 0:
             viewdirs = means_crop.detach() - camera.camera_to_worlds.detach()[..., :3, 3]  # (N, 3)
@@ -1126,18 +1657,10 @@ class SplatfactobackwardModel(Model):
         else:
             rgbs = torch.sigmoid(colors_crop[:, 0, :])
 
+        # rescale the camera back to original dimensions
+        camera.rescale_output_resolution(camera_downscale)
         assert (num_tiles_hit > 0).any()  # type: ignore
-
-        # apply the compensation of screen space blurring to gaussians
-        opacities = None
-        if self.config.rasterize_mode == "antialiased":
-            opacities = torch.sigmoid(opacities_crop) * comp[:, None]
-        elif self.config.rasterize_mode == "classic":
-            opacities = torch.sigmoid(opacities_crop)
-        else:
-            raise ValueError("Unknown rasterize_mode: %s", self.config.rasterize_mode)
-
-        rgb, alpha = rasterize_gaussians(  # type: ignore
+        rgb,alpha = rasterize_gaussians(  # type: ignore
             self.xys,
             depths,
             self.radii,
@@ -1171,9 +1694,6 @@ class SplatfactobackwardModel(Model):
             depth_im = torch.where(alpha > 0, depth_im / alpha, depth_im.detach().max())
 
         return {"rgb": rgb, "depth": depth_im, "accumulation": alpha, "background": background}  # type: ignore
-    
-
-
 
 
 

@@ -65,6 +65,31 @@
         "--vis=viewer+wandb",
       ]
     },
+    {
+      "name": "Python: debug get urdf from part mesh",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/robotic/export_util/urdf_utils/urdf.py",
+      "console": "integratedTerminal",
+      "args": [
+      "--part_path",
+      "./dataset/roboarm2/urdf/2dgs/arm",
+      "--save_path",
+      "./dataset/roboarm2/urdf/2dgs/recenter_mesh",
+      "--kinematic_info_path",
+      "./dataset/roboarm2/urdf/2dgs/kinematic/kinematic_info.yaml",
+      "--experiment_type",
+      "cr3",
+      "--scale_factor_gt",
+      "1.0",
+      "--num_links",
+      "8", 
+      "--original_path",
+      "dataset/roboarm2/roboarm2/urdf/2dgs/original_link",
+
+      ]
+    },
+
 
 
     {
