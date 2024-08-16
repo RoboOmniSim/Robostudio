@@ -23,7 +23,7 @@ from nerfstudio.robotic.config.raw_config import export_urdf_to_omnisim_config
 
 
 def main():
-    parser = argparse.ArgumentParser(description="export bbox list information from ply file")
+    parser = argparse.ArgumentParser(description="export urdf recenter part")
     
     # Add arguments
     parser.add_argument('--part_path', type=str, help='path to the full part mesh file')

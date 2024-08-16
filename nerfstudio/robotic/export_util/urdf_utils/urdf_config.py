@@ -13,12 +13,8 @@ from typing import Any, Dict, Literal, Optional
 
 import yaml
 
-from nerfstudio.configs.base_config import InstantiateConfig, LoggingConfig, MachineConfig, ViewerConfig,PrintableConfig
-from nerfstudio.configs.config_utils import to_immutable_dict
-from nerfstudio.engine.optimizers import OptimizerConfig
-from nerfstudio.engine.schedulers import SchedulerConfig
-from nerfstudio.pipelines.base_pipeline import VanillaPipelineConfig
-from nerfstudio.utils.rich_utils import CONSOLE
+from nerfstudio.configs.base_config import PrintableConfig
+
 import numpy as np
 
 

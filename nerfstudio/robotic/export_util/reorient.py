@@ -2,11 +2,10 @@ import torch
 import numpy as np
 import open3d as o3d
 import os
-import sys
-import cv2
 
 
 
+import argparse
 
 
 
@@ -66,13 +65,27 @@ def reorient_mesh(input_mesh_path, output_mesh_path,re_orientation_matrix):
 
 
 if __name__ == '__main__':
-    input_mesh_path='/home/lou/gs/2d-gaussian-splatting/output/cr3/train/ours_30000/fuse_unbounded_post_arm.obj'
 
-    output_mesh_path='/home/lou/gs/2d-gaussian-splatting/output/cr3/train/ours_30000/fuse_unbounded_post_arm_reori.obj'
+    parser = argparse.ArgumentParser(description="")
+    
+    # Add arguments
+    parser.add_argument('--input_mesh_path', type=str, help='path to the input mesh file')
+    parser.add_argument('--output_mesh_path', type=str, help='path to save axis-aligned mesh')
+    parser.add_argument('--re_orientation_matrix', type=str, help='path to load orientation matrix')
+    
+    args = parser.parse_args()
+    
+    
+    # '/home/lou/gs/2d-gaussian-splatting/output/cr3/train/ours_30000/fuse_unbounded_post_arm.obj'
+
+    # '/home/lou/gs/2d-gaussian-splatting/output/cr3/train/ours_30000/fuse_unbounded_post_arm_reori.obj'
+
     # this is the transform matrix from nerfstudio dataparser to rescale and reorient the mesh
+
+    re_orientation_matrix=args.re_orientation_matrix
     re_orientation_matrix = torch.tensor([
                         [ 0.9999,  0.0017, -0.0131, -0.0276],
                         [ 0.0017,  0.9674,  0.2533, -0.1400],
                         [ 0.0131, -0.2533,  0.9673,  0.0363]
     ])
-    reorient_mesh(input_mesh_path, output_mesh_path,re_orientation_matrix)
+    reorient_mesh(args.input_mesh_path, args.output_mesh_path,re_orientation_matrix)

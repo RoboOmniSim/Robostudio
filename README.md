@@ -14,7 +14,6 @@
 
 </p>
 
-<!-- replace the nerfstudio logo with Robostudio logo -->
 
 <div align="center">
 <picture>
@@ -111,7 +110,7 @@ ns-train  splatfacto --data
 
 
 
-find base and scale manually by follow the exported ply file of static gaussian splatting
+find base and scale manually based on exported ply file of static gaussian splatting
 
 ```bash
 ns-export  gaussian-splat --load-config --output-dir
@@ -128,7 +127,7 @@ get bounding box list based on base and scale
 python nerfstudio/robotic/export_util/export_bbox_withgripper.py --load_path 
 ```
 
-# we use push box case as an exmaple (For full command, you can refer to launch.json)
+### we use push box case as an exmaple (For full command, you can refer to launch.json)
 
 export part gaussian splatting and semantic ply
 
@@ -163,16 +162,16 @@ ns-export gaussian-splat-mesh
 
 
 
-# load trajectory from omnisim or real world application
+### load trajectory from omnisim or real world application
 
 
-omnisim or moveit 
+Omnisim or Moveit 
 
 We provide the exported result in the dataset, if you want to export based on your moveit scenes, 
 you can follow the scripts in Robostudio/nerfstudio/robotic/ros
 
 
-# forward rendering and simulation
+### forward rendering and simulation
 
 export deform for single timestamp
 
@@ -214,22 +213,16 @@ ns-render  dynamic_dataset
 
 
 
-<!-- Backward optimization to refine trajectory and physics parameter -->
-
-<!-- load refined parameter to the omnisim -->
-
-
-
 
 
 ## 3. Advanced Options
 
-obtain urdf from video
-
-### we use zero-pose data to export urdf
 
 
-#### convert dataset from nerfstudio to 2dgs
+### Obtain URDF from video
+
+
+#### Convert dataset from nerfstudio to 2dgs
 
 ```bash
 python nerfstudio/robotic/export_util/2dgs_utils/nerfstudioconvert2dgs.py -s "your data" --skip_matching
@@ -239,24 +232,38 @@ python nerfstudio/robotic/export_util/2dgs_utils/nerfstudioconvert2dgs.py -s "yo
 You can follow the instruction from https://github.com/hugoycj/2.5d-gaussian-splatting
 We will merge this part to our wheels after the PR of nerfstudio with 2dgs merged 
 
+#### Fix orientation
+Since the result of colmap is not necessary axis-aligned
+You can use this command to fix it 
+
+```bash
+python nerfstudio/robotic/export_util/reorient.py 
+--input_mesh_path
+--output_mesh_path
+--re_orientation_matrix
+```
+
+re_orientation_matrix is the transform matrix from nerfstudio dataparser to rescale and reorient the mesh
 
 
-#### get part 
+#### Get part 
 
 First method: You can obtain part by base and scale 
 Second method: manual bounding box(recommend manual bounding box for complex scenes and high accuracy)
-Third method: Use SAM reprojected Gaussian or SegAnyGAussians( https://github.com/Jumpat/SegAnyGAussians)
+Third method: Use SAM reproject Gaussian or SegAnyGAussians( https://github.com/Jumpat/SegAnyGAussians)
 
-#### load part to URDF
+#### Load part to URDF
 
-We first need to remap part to origin in our uniform coordinate defination
+
+
+We first need to remap part to origin in our uniform coordinate
 
 ```bash
 python nerfstudio/robotic/export_util/urdf_utils/urdf.py --part_path ./dataset/roboarm2/urdf/2dgs/arm --save_path ./dataset/roboarm2/urdf/2dgs/recenter_mesh --kinematic_info_path ./config_info/kinematic_info.yaml --experiment_type cr3 --scale_factor_gt 1.0 --num_links 8 --original_path dataset/roboarm2/roboarm2/urdf/2dgs/original_link
 
 ```
 
-You can edit the prefered optimization method in kinematic_info.yaml config file 
+You can pick the prefer optimization method in kinematic_info.yaml config file 
 
 ##### Tricks for optimize URDF
 Since there are Gap between design and real world robot, due to the error in installation and reconstruction, you may need to manual edit some part of DH parameter for best result, we estimate this takes you 10 mins.
@@ -264,7 +271,7 @@ The step should be optimize a and d based on real world scale, then fix alpha ba
 Last step is to fix the base axis of reconstructed scenes and the part orientation
 
 #### load the part mesh to urdf
-load part recentered mesh, scale, axis, initial pose and object mesh information to omnisim
+load recenter mesh, scale, axis, initial pose and object mesh information to Omnisim
 
 You can load the part mesh path to urdf with both collision mesh and visual mesh
 Our model contain pre-point color for visual mesh, and you can decide to whether use it or no
@@ -346,7 +353,7 @@ ns-render  dynamic_dataset
 
 You can find data in this drive link: https://drive.google.com/file/d/1aJLMQjY0BOL-Wny6bXzNHq8unOr3mmjL/view?usp=drive_link
 
-For dataset of URDF production, you can email me and ask for request
+For dataset of URDF production, you can email me haozhelo@usc.edu
 
 ## Function of Gaussian Based robotic arm
 
@@ -365,8 +372,6 @@ For dataset of URDF production, you can email me and ask for request
   <img alt="" src="https://github.com/RoboOmniSim/Robostudio/assets/42707859/25d96e79-6ae0-4f99-875f-20fae500444b">
 </div>
 
-#### Keep optimize backward and make it align with issacsim through omnisim
-
 
 
 ## 5: Explanation of Config file and how to connect it with omnisim
@@ -382,8 +387,6 @@ YOU can use export_urdf_to_omnisim_config to generate urdf and simulation from R
 You can use omni2gs_config to load the policy result from Omnisim to Gaussian Splatting
 
 
-
-# Supported Features
 
 
 # Built On

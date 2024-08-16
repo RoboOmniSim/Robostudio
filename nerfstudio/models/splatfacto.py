@@ -1066,6 +1066,10 @@ class SplatfactoModel(Model):
 
 
         # assign different physics simulation to different object based on its semantic category
+
+        # we have different strategy of rendering based on semantic category
+        # this is a beta version, we will update this to a more easy to read version 
+        
         for i in range(assigned_ids.shape[0]):  # iterate over all sam mask
 
             # engine_used=engine_inference[i]
