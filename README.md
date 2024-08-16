@@ -38,9 +38,15 @@ _It’s as simple as plug and play with robostudio!_
 
 # Quickstart
 
-<!-- TODO: replace the gaussian training and render process with omnisim config stucture -->
+You can view the result of our dataset by follow the command below
 
-<!-- TODO(Yiran): Maybe code from nerfstudio should remove, user can download themselves? -->
+For build up your own digital asset,
+You Need to have a Robotic Arm with gripper and a Experiment environment(a table and a object for example)
+Then setup the URDF and follow our pipeline
+
+If you have any question about data process and environment setup , please email me: haozhelo@usc.edu
+
+
 
 ## 1. Installation: Setup the environment
 
@@ -75,13 +81,15 @@ pip install ninja git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindi
 
 ### Installing Robostudio
 
-Easy option:
+<!-- Easy option:
 
 ```bash
 pip install robostudio
 ```
 
-**OR** if you want the latest and greatest:
+**OR**  -->
+
+if you want the latest and greatest:
 
 ```bash
 git clone https://github.com/RoboOmniSim/Robostudio.git
