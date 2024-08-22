@@ -390,23 +390,23 @@ For the meaning of command, you can refer to the documentation of Roboconfig
 You can follow our instruction and edit the config file for new Dataset 
 
 
-YOU can use export_urdf_to_omnisim_config to generate urdf and simulation from Robostudio to Omnisim
+You can use export_urdf_to_omnisim_config to generate urdf and simulation from Robostudio to Omnisim
 
 You can use omni2gs_config to load the policy result from Omnisim to Gaussian Splatting
 
 
 
 
-# Built On
+<!-- # Built On
 <a href="https://github.com/nerfstudio-project/nerfstudio">
 <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nerfstudio-project/nerfstudio/main/docs/_static/imgs/logo-dark-ns.png" />
     <img alt="tyro logo" src="https://raw.githubusercontent.com/nerfstudio-project/nerfstudio/main/docs/_static/imgs/logo-ns.png" width="150px" />
 </picture>
-</a>
+</a> -->
 
  
-# Citation
+<!-- # Citation
 
 TODO
 You can find a paper writeup of the framework on [arXiv](https://arxiv.org/abs/2302.04264).
@@ -427,7 +427,7 @@ TODO
 	booktitle    = {ACM SIGGRAPH 2023 Conference Proceedings},
 	series       = {SIGGRAPH '23}
 }
-```
+``` -->
 
 # Contributors
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "Robostudio"
-version = "0.0.3"
+version = "0.0.5"
 description = "a physics consistent world model for robotic arm with hybrid representation"
 readme = "README.md"
 license = { text="Apache 2.0"}

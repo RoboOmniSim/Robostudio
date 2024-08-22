@@ -11,10 +11,7 @@ from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 # downsample gt video to 10 fps
 
 
-GT_PATH_PREFIX = (
-    "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/nerf_synthetic_multiscale_whitebg/"
-)
-ZIP_PATH_PREFIX = "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/zip-official/"
+
 
 
 def get_scene_images_tracking(l_image_filename):
@@ -89,9 +86,6 @@ zip_prefix = "zip_d"
 
 CROP = True
 
-SUFFIX = "crop_items/" if CROP else "original/"
-
-path = "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/low_res/ship/090/" + SUFFIX
 
 print(path)
 
@@ -166,45 +160,3 @@ print(f"d3 tri psnr {cal_psnr(gt_d3, tri_d3)}")
 print(f"d3 zip psnr {cal_psnr(gt_d3, zip_d3)}")
 
 
-# gt_image = get_scene_images_tracking(
-#     "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/mics/GT.png"
-# )
-
-# rip_image = get_scene_images_tracking(
-#     "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/mics/rip.png"
-# )
-
-
-# tri_image = get_scene_images_tracking(
-#     "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/mics/tri.png"
-# )
-
-# zip_image = get_scene_images_tracking(
-#     "/DATA_EDS2/chenjt2305/mars/datasets/ani-datas/mics/zip.png"
-# )
-
-# cal_psnr = PeakSignalNoiseRatio(data_range=1.0)
-
-
-# original = torch.moveaxis(gt_image, -1, 0)[None, ...]
-# rip = torch.moveaxis(rip_image, -1, 0)[None, ...]
-# tri = torch.moveaxis(tri_image, -1, 0)[None, ...]
-# zip = torch.moveaxis(zip_image, -1, 0)[None, ...]
-
-# rip_psnr = cal_psnr(original, rip)
-# tri_psnr = cal_psnr(original, tri)
-# zip_psnr = cal_psnr(original, zip)
-
-# print(f"rip psnr {rip_psnr}")
-# print(f"tri psnr {tri_psnr}")
-# print(f"zip psnr {zip_psnr}")
-
-# # Jianteng - mics
-# # rip psnr 37.4309
-# # tri psnr 35.2031
-# # zip psnr 35.1065
-
-# # Jianteng - drums
-# # rip psnr 30.5729
-# # tri psnr 27.2575
-# # zip psnr 27.5877
