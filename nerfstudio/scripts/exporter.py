@@ -56,7 +56,7 @@ from nerfstudio.robotic.physics_engine.omnisim.issac2sim import *
 from nerfstudio.robotic.config.raw_config import Roboticconfig
 from nerfstudio.robotic.physics_engine.base import *
 from nerfstudio.robotic.utils.bounding_box_helper import *
-from nerfstudio.robotic.physics_engine.omnisim.omnisim import load_object_trajectory,load_robotic_trajectory
+# from nerfstudio.robotic.physics_engine.omnisim.omnisim import load_object_trajectory,load_robotic_trajectory
 @dataclass
 class Exporter:
     """Export the mesh from a YML config to a folder."""
@@ -913,8 +913,8 @@ class ExportGaussianSplat_mesh_deform(RoboExporter):
             # load trajectory from omnisim
             relationship_config=None
             omnisim_config=None
-            load_object_trajectory(omnisim_config)
-            load_robotic_trajectory(omnisim_config)
+            # load_object_trajectory(omnisim_config)
+            # load_robotic_trajectory(omnisim_config)
         elif engine_backend=="python":
             relationship_config=load_yaml_config(roboconfig.relationship_config_path)
             engine_ids=roboconfig.semantic_category # list
