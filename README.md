@@ -237,7 +237,7 @@ python nerfstudio/robotic/export_util/2dgs_utils/nerfstudioconvert2dgs.py -s "yo
 ```
 
 #### Train 2dgs and obtain mesh
-You can follow the instruction from https://github.com/hugoycj/2.5d-gaussian-splatting
+You can follow the instruction from https://github.com/hbb1/2d-gaussian-splatting
 We will merge this part to our wheels after the PR of nerfstudio with 2dgs merged 
 
 #### Fix orientation
@@ -437,7 +437,7 @@ TODO
 
 
 # Acknowledgement
-We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu, Yuantao Chen, Zhide Zhong, and Baijun Ye.
+We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu,Haoran Geng,Yanfei Li, Runyi Yang, Yuantao Chen, Zhide Zhong, and Baijun Ye.
 This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu and Professor Yaqin Zhang.
 
 
