@@ -433,3 +433,25 @@ def rigid_transform_3D(A, B):
     t = -R @ centroid_A + centroid_B
 
     return R, t
+
+
+
+
+
+def find_lower_plane_center(corners):
+    """
+    Find the center of the lower plane of a bounding box.
+    
+    :param corners: List of 8 corners of the bounding box. Each corner is a tuple (x, y, z).
+    :return: Tuple representing the center of the lower plane (x, y, z).
+    """
+    # Sort the corners based on the z-coordinate
+    sorted_corners = sorted(corners, key=lambda corner: corner[2])
+    
+    # The first four corners (after sorting) will be the lower plane corners
+    lower_plane_corners = sorted_corners[:4]
+    
+    # Calculate the center of the lower plane
+    lower_plane_center = np.mean(lower_plane_corners, axis=0)
+    
+    return lower_plane_center

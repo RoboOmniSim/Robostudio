@@ -7,6 +7,8 @@ import trimesh
 import os
 
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
+from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import find_lower_plane_center
+
 
 def convert_pointcloud_to_ply(path):
     vertices_save_list=[]
@@ -14,6 +16,7 @@ def convert_pointcloud_to_ply(path):
     file_name_list=[]
     bbox_save_list=[]
     bbox_reoriented_save_list=[]
+    corners_list=[]
      # vertices, faces
     path_list=os.listdir(path)
     path_list.sort()
@@ -41,8 +44,11 @@ def convert_pointcloud_to_ply(path):
             
             
             bbox = tri_mesh.bounding_box.bounds
+            
             bbox_save_list.append(bbox)
             bbox_reorient = tri_mesh.bounding_box_oriented.bounds
+
+            corners_list.append(tri_mesh.bounding_box_oriented.corners)
             bbox_reoriented_save_list.append(bbox_reorient)
             # vertices = tri_mesh.vertices
             faces = tri_mesh.faces
@@ -51,8 +57,8 @@ def convert_pointcloud_to_ply(path):
             
             vertices_save_list.append(vertices)
             faces_save_list.append(faces)
-        file_name_list.append(file)
-    return vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list
+            file_name_list.append(file)
+    return vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list,corners_list
 
 
 import argparse
@@ -68,10 +74,13 @@ if __name__=="__main__":
     
     full_bbox_path=parser.parse_args().full_bbox_path
 
-    vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list=convert_pointcloud_to_ply(full_bbox_path)
+    vertices_save_list,faces_save_list,file_name_list,bbox_save_list,bbox_reoriented_save_list,corners_list=convert_pointcloud_to_ply(full_bbox_path)
 
     
 
-
+    recenter_vector=find_lower_plane_center(corners_list[0])
     save_path=parser.parse_args().save_path
     np.savetxt(os.path.join(save_path,"bbox_list.txt"), np.array(bbox_save_list).reshape(-1, np.array(bbox_save_list).shape[-1]))
+
+
+    print("recenter_vector",recenter_vector)
