@@ -47,8 +47,8 @@ def convert_pointcloud_to_ply(path):
             
             bbox_save_list.append(bbox)
             bbox_reorient = tri_mesh.bounding_box_oriented.bounds
-
-            corners_list.append(tri_mesh.bounding_box_oriented.corners)
+            corners=trimesh.bounds.corners(bbox_reorient)
+            corners_list.append(corners)
             bbox_reoriented_save_list.append(bbox_reorient)
             # vertices = tri_mesh.vertices
             faces = tri_mesh.faces
