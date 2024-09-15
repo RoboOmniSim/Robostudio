@@ -97,28 +97,184 @@ def calculate_transformations_mdh(state_position,joint_angles_degrees, a, alpha,
     return transformations, final_transformations_list
 
 
-
-
-
-def test_rotation_matrix():
-
-    # grasp dataset is the reference frame
-    
-    R_x = np.array([
-        [-1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1]
+def rotation_matrix(roll, pitch, yaw):
+    """
+    Generate a transformation matrix from roll, pitch, and yaw angles.
+    :param roll: Rotation around the X-axis (in radians)
+    :param pitch: Rotation around the Y-axis (in radians)
+    :param yaw: Rotation around the Z-axis (in radians)
+    :return: 4x4 homogeneous transformation matrix
+    """
+    # Rotation around the X-axis (roll)
+    Rx = np.array([
+        [1, 0, 0],
+        [0, np.cos(roll), -np.sin(roll)],
+        [0, np.sin(roll), np.cos(roll)]
     ])
 
+    # Rotation around the Y-axis (pitch)
+    Ry = np.array([
+        [np.cos(pitch), 0, np.sin(pitch)],
+        [0, 1, 0],
+        [-np.sin(pitch), 0, np.cos(pitch)]
+    ])
+
+    # Rotation around the Z-axis (yaw)
+    Rz = np.array([
+        [np.cos(yaw), -np.sin(yaw), 0],
+        [np.sin(yaw), np.cos(yaw), 0],
+        [0, 0, 1]
+    ])
+
+    # Combined rotation matrix
+    R = Rz @ Ry @ Rx
+
+    # Add translation (if necessary, here we use identity)
+    T = np.identity(4)
+    T[:3, :3] = R
+
+    return T
 
 
 
-    return R_x
+
+def load_ply_files(input_path):
+    points_list = []
+    color_list = []
+    normal_list = []
+    
+    # Iterate through all files in the directory
+
+    path_list=os.listdir(input_path)
+    path_list.sort()
+    for file_name in path_list:
+        if file_name.endswith(".ply"):
+            # Load the point cloud
+            file_path = os.path.join(input_path, file_name)
+            point_cloud = o3d.io.read_point_cloud(file_path)
+            
+            # Get points (Nx3 numpy array)
+            points = np.asarray(point_cloud.points)
+            points_list.append(points)
+            
+            # Get colors (Nx3 numpy array)
+            if point_cloud.has_colors():
+                colors = np.asarray(point_cloud.colors)
+                color_list.append(colors)
+            else:
+                # If no color information is available, append None or zeros
+                color_list.append(np.zeros_like(points))
+            
+            # Get normals (Nx3 numpy array)
+            if point_cloud.has_normals():
+                normals = np.asarray(point_cloud.normals)
+                normal_list.append(normals)
+            else:
+                # If no normal information is available, compute normals or append None
+                point_cloud.estimate_normals()
+                normals = np.asarray(point_cloud.normals)
+                normal_list.append(normals)
+    
+    return points_list, color_list, normal_list
+
+
+def apply_rotation_on_point_cloud(points_list, rotation_matrix):
+    """
+    Apply rotation to a point cloud using a rotation matrix.
+    
+    Args:
+        points (numpy.ndarray): Nx3 array of points.
+        rotation_matrix (numpy.ndarray): 4*4 transformation matrix.
+    
+    Returns:
+        numpy.ndarray: Rotated Nx3 array of points.
+    """
+
+    for i in range(len(points_list)):
+        points_list[i] = points_list[i] @ rotation_matrix[:3,:3].T
+    return points_list
+
+
+
+
+
+
+def save_ply_file(output_path, points, colors=None, normals=None):
+    """
+    Save a point cloud to a PLY file.
+    
+    Args:
+        output_path (str): Path to save the PLY file.
+        points (numpy.ndarray): Nx3 array of points.
+        colors (numpy.ndarray, optional): Nx3 array of colors. Defaults to None.
+        normals (numpy.ndarray, optional): Nx3 array of normals. Defaults to None.
+    """
+    point_cloud = o3d.geometry.PointCloud()
+    point_cloud.points = o3d.utility.Vector3dVector(points)
+    
+    if colors is not None:
+        point_cloud.colors = o3d.utility.Vector3dVector(colors)
+    
+    if normals is not None:
+        point_cloud.normals = o3d.utility.Vector3dVector(normals)
+    
+    o3d.io.write_point_cloud(output_path, point_cloud)
+
+
+
+
+
+
+
+
+
 
 def main():
 
-    mesh_path = "./dataset/ur5/part"
+    ply_path = "./dataset/ur5/part"
+    ply_save_path= "./dataset/ur5/part/reorient"
+    deform_ply_save_path= "./dataset/ur5/part/deform"
+
+
+    if not os.path.exists(ply_save_path):
+        os.makedirs(ply_save_path)
+
+    if not os.path.exists(deform_ply_save_path):
+        os.makedirs(deform_ply_save_path)
+        
+    points_list, color_list, normal_list=load_ply_files(ply_path)
+
+    # first step, test and fix chiral
+    
+    # T = np.array([[0, 0, 1, 0],
+    #                 [1, 0, 0, 0],
+    #                 [0, 1, 0, 0],
+    #                 [0, 0, 0, 1]])
+
+
+    # edit the roll pitch yaw here i just give a start, but u need to fix it by change the value 
+
+    # compare the reoriented and grasp 
+    roll = np.pi
+    pitch = np.pi  
+    yaw = 0
+
+    # find the initial position 
+
+
+    R_x=rotation_matrix(roll=roll, pitch=pitch, yaw=yaw)
+    
+    print("R_x",R_x)
+
+
+    point_list_reori=apply_rotation_on_point_cloud(points_list, R_x)
+    
+
+    for i in range(len(points_list)):
+        save_ply_file(os.path.join(ply_save_path, f"reoriented_{i}.ply"), point_list_reori[i], color_list[i], normal_list[i])
+
+
+    # this you will see the reorientation result
 
 
     center_vector_gt=np.array([-0.12,0.7915,-0.64])
@@ -128,13 +284,7 @@ def main():
     state_position=np.array([0,0,0,0,0,0])
 
 
-    # find the initial position 
-    R_x=np.array([
-        [-1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1]
-    ])
+
 
 
     # invert
@@ -143,7 +293,7 @@ def main():
     # d : [0.089416,0,0,0.10915,0.09465,0.0823]
     # alpha : [0,1.57,0,0,1.57,-1.57]
 
-    
+
     joint_angles_degrees =np.array([0,-1.57,-1.57,-1.57,1.57,0]) 
     a= np.array([0,0,0.425,0.39225,0,0])   
     d= np.array([0.089416,0,0,0.10915,0.09465,0.0823])
@@ -181,7 +331,7 @@ def main():
 
     # 
 
-
+    save_point_list=[]
     for i in range(len(final_transformations_list_0)):
         rotation_inv=inverse_transformation[i][:3,:3]
         translation_inv=inverse_transformation[i][:3,3]
@@ -189,6 +339,7 @@ def main():
         rotation=final_transformations_list[i][:3,:3]
         translation=final_transformations_list[i][:3,3]
 
+        raw_xyz=point_list_reori[i]
         raw_xyz=raw_xyz-center_vector_gt
         deform_point=  np.array(raw_xyz @ rotation_inv.T+ translation_inv )
 
@@ -196,6 +347,13 @@ def main():
 
         select_xyz=forward_point+center_vector_gt
         rotation_splat=rotation@rotation_inv
+
+
+        save_point_list.append(select_xyz)
+    
+    for i in range(len(save_point_list)):
+        save_ply_file(os.path.join(deform_ply_save_path, f"deformed_{i}.ply"), save_point_list[i], color_list[i], normal_list[i])
+
 
     return 0
 
