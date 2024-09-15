@@ -245,12 +245,6 @@ def main():
     points_list, color_list, normal_list=load_ply_files(ply_path)
 
     # first step, test and fix chiral
-    
-    # T = np.array([[0, 0, 1, 0],
-    #                 [1, 0, 0, 0],
-    #                 [0, 1, 0, 0],
-    #                 [0, 0, 0, 1]])
-
 
     # edit the roll pitch yaw here i just give a start, but u need to fix it by change the value 
 
@@ -277,8 +271,8 @@ def main():
     # this you will see the reorientation result
 
 
-    center_vector_gt=np.array([-0.12,0.7915,-0.64])
-    scale_factor_pass= np.array([1.22,1.22,1.22])
+    center_vector_gt=np.array([-0.12,0.7915,-0.64]) # if there is same gap when you edit other value and has no difference in the center, you can change this value
+    scale_factor_pass= np.array([1.22,1.22,1.22]) # this is editable
 
 
     state_position=np.array([0,0,0,0,0,0])
@@ -294,10 +288,10 @@ def main():
     # alpha : [0,1.57,0,0,1.57,-1.57]
 
 
-    joint_angles_degrees =np.array([0,-1.57,-1.57,-1.57,1.57,0]) 
-    a= np.array([0,0,0.425,0.39225,0,0])   
+    joint_angles_degrees =np.array([0,-1.57,-1.57,-1.57,1.57,0]) # should be good
+    a= np.array([0,0,0.425,0.39225,0,0])   # minor edit should be good 
     d= np.array([0.089416,0,0,0.10915,0.09465,0.0823])
-    alpha= np.array([0,1.57,0,0,1.57,-1.57])
+    alpha= np.array([0,1.57,0,0,1.57,-1.57]) # if you have any value changed but has weird rotation, change this
 
 
 
@@ -307,20 +301,21 @@ def main():
 
 
 
-    scale_d[3]=1/scale_factor_pass[1]
+    scale_d[3]=1/scale_factor_pass[1] # i am not sure about this index 3 and 5, you can refer to the standard dh table, we want this to be the y axis change
     scale_d[5]=1/scale_factor_pass[1]
 
     a=a*scale_a
     d=d*scale_d
     # forward
 
+    #map back to center
     transformations, final_transformations_list_0=calculate_transformations_mdh(state_position=state_position,joint_angles_degrees=joint_angles_degrees,a=a,alpha=alpha,d=d,flip=R_x)
 
 
 
     state_position=np.array([0,0.5,0,0,0,0])  # edit this for deformation
 
-
+    # change for new trajectory
     transformations, final_transformations_list=calculate_transformations_mdh(state_position=state_position,joint_angles_degrees=joint_angles_degrees,a=a,alpha=alpha,d=d,flip=R_x)
 
 
