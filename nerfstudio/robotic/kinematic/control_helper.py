@@ -30,6 +30,27 @@ def create_transformation_matrix_mdh(theta, a, alpha, d):
     ])
     return T
 
+def create_transformation_matrix_dh(theta, d, a, alpha):
+    """
+    Returns the transformation matrix using DH parameters.
+    
+    Parameters:
+    theta: Joint angle (in radians)
+    d: Offset along the previous z-axis
+    a: Length of the common normal (link length)
+    alpha: Twist angle (in radians)
+
+    Returns:
+    A 4x4 numpy array representing the transformation matrix.
+    """
+    return np.array([
+        [np.cos(theta), -np.sin(theta)*np.cos(alpha), np.sin(theta)*np.sin(alpha), a*np.cos(theta)],
+        [np.sin(theta), np.cos(theta)*np.cos(alpha), -np.cos(theta)*np.sin(alpha), a*np.sin(theta)],
+        [0, np.sin(alpha), np.cos(alpha), d],
+        [0, 0, 0, 1]
+    ])
+
+
 
 
 def create_transformation_matrix_mdh_gripper_euler(theta, a, alpha, d):
@@ -119,6 +140,40 @@ def create_transformation_matrix_mdh_gripper(theta, a, alpha, d):
         [0, 0, 0, 1]
     ])
     return T
+
+
+
+
+
+
+
+def create_transformation_matrix_dh_gripper(theta, a, alpha, d):
+
+    """
+    Constructs the transformation matrix from the gripper parameters using the MDH convention.
+    the original is t^(i-1)_(i) = tans(x,a_(i-1))*rot(x,alpha_(i-1))*trans(z,d_i)*rot(z,theta_i)
+
+    replace to t^(i-1)_(i) = tans(z,a_(i-1))*rot(z,alpha_(i-1))*trans(y,d_i)*rot(z,theta_i)
+
+    # all radians
+    """
+
+
+    # a is z axis
+    #d is x axis
+    # theta extra move
+    #alpha is the rotation of axis
+
+
+    return np.array([
+        [np.cos(theta), -np.sin(theta)*np.cos(alpha), np.sin(theta)*np.sin(alpha), a*np.cos(theta)],
+        [np.sin(theta), np.cos(theta)*np.cos(alpha), -np.cos(theta)*np.sin(alpha), a*np.sin(theta)],
+        [0, np.sin(alpha), np.cos(alpha), d],
+        [0, 0, 0, 1]
+    ])
+
+
+
 
 
 # Function to create a transformation matrix using DH parameters
@@ -212,16 +267,10 @@ def reflect_x_axis_only(T):
         [0, 0, 0, 1]
     ])
 
-    R_y = np.array([
-        [0, 0, -1, 0],
-        [0, 1, 0, 0],
-        [1, 0, 0, 0],
-        [0, 0, 0, 1]
-    ])
 
 
 
-    T_reflected = R_x@ T @ R_x
+    T_reflected =  T @ R_x.T
     return T_reflected
 
 def reflect_y_axis_only(T):

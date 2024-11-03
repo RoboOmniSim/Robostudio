@@ -148,11 +148,13 @@ def load_uniform_kinematic(output_file_path,experiment_type,scale_factor_pass=np
 
 
 # version 2
-def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass=np.zeros((3,1)),center_vector_pass=np.zeros((3,1)),
+def load_uniform_kinematic_v2(output_file_path,scale_factor_pass=np.zeros((3,1)),center_vector_pass=np.zeros((3,1)),
                               add_gripper=False,flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False,
                               a=0,d=0,alpha=0,joint_angles_degrees=0,
                               joint_angles_degrees_gripper=0,a_gripper=0,d_gripper=0,alpha_gripper=0,
-                              gripper_model="default",arm_model="default"):
+                              use_dh=False,use_mdh=True,
+                              gripper_model="default",arm_model="default",
+                              experiment_type="default"):
         movement_angle_state = read_txt_file(output_file_path) # radians
 
         name=experiment_type
@@ -162,27 +164,32 @@ def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass
         center_vector_gt=center_vector_pass
         scale_factor=scale_factor_pass
 
-        if name=="issac2sim":
-            a = [0, 0, -0.427, -0.357, 0, -0.015] # pass the gripper a value to the uniform kinematic
-        elif name=="push_box":
-            a = [0, 0, -0.427, -0.357, 0, -0.015]
-        elif name=="novel_pose":
-            a = [0, 0, -0.427, -0.357, 0, 0] # gripper close and other case
-        elif name=="grasp":
-            a = [0, 0, -0.427, -0.357, 0, 0] # gripper close and other case
-        elif name=="grasp_object":
-            a = [0, 0, -0.427, -0.357, 0, 0] # gripper close and other case
-        #alpha should be default from urdf
-        else:
-            a = [0, 0, -0.427, -0.357, 0, 0]
+        a=a
+        alpha=alpha
+        d=d
+        joint_angles_degrees=joint_angles_degrees
 
-        alpha = [0, np.pi/2, 0.07, 0, np.pi/2, -np.pi/2] # this 0.07 only for manual adjust for the novel pose because of the numerical error in radians degree and sin computation
-        # alpha = [0, np.pi/2, 0, 0, np.pi/2, -np.pi/2] # original
+        # if name=="issac2sim":
+        #     a = [0, 0, -0.427, -0.357, 0, -0.015] # pass the gripper a value to the uniform kinematic
+        # elif name=="push_box":
+        #     a = [0, 0, -0.427, -0.357, 0, -0.015]
+        # elif name=="novel_pose":
+        #     a = [0, 0, -0.427, -0.357, 0, 0] # gripper close and other case
+        # elif name=="grasp":
+        #     a = [0, 0, -0.427, -0.357, 0, 0] # gripper close and other case
+        # elif name=="grasp_object":
+        #     a = [0, 0, -0.427, -0.357, 0, 0] # gripper close and other case
+        # #alpha should be default from urdf
+        # else:
+        #     a = [0, 0, -0.427, -0.357, 0, 0]
+
+        # alpha = [0, np.pi/2, 0.07, 0, np.pi/2, -np.pi/2] # this 0.07 only for manual adjust for the novel pose because of the numerical error in radians degree and sin computation
+        # # alpha = [0, np.pi/2, 0, 0, np.pi/2, -np.pi/2] # original
 
 
-        d = [0.147, 0, 0.025, 0.116, 0.116, 0.105] # this 0.025 only for manual adjust for the novel pose because of the numerical error in radians degree and sin computation
-        # d = [0.147, 0, 0, 0.116, 0.116, 0.105] # original
-        joint_angles_degrees = [0, -np.pi/2, 0, -np.pi/2, 0, 0]  # Update with actual angles from the example
+        # d = [0.147, 0, 0.025, 0.116, 0.116, 0.105] # this 0.025 only for manual adjust for the novel pose because of the numerical error in radians degree and sin computation
+        # # d = [0.147, 0, 0, 0.116, 0.116, 0.105] # original
+        # joint_angles_degrees = [0, -np.pi/2, 0, -np.pi/2, 0, 0]  # Update with actual angles from the example
 
         # use original urdf to compute a,d,scale 
 
@@ -279,14 +286,104 @@ def load_uniform_kinematic_v2(output_file_path,experiment_type,scale_factor_pass
                 combined_list.append(combined_entry)
             movement_angle_state=combined_list
 
-            individual_transformations_0, final_transformations_list_0 = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate)
+            if use_dh==False and use_mdh==True:
+                individual_transformations_0, final_transformations_list_0 = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate)
+            else:
+                individual_transformations_0, final_transformations_list_0 = calculate_transformations_dh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0,add_gripper=add_gripper,flip_x_coordinate=flip_x_coordinate)
         else:    
-            individual_transformations_0, final_transformations_list_0 = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0)
+            if use_dh==False and use_mdh==True:
 
+                individual_transformations_0, final_transformations_list_0 = calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0)
+            else:
+                individual_transformations_0, final_transformations_list_0 = calculate_transformations_dh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0)
         return movement_angle_state,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt
 
 
+# Function to calculate all transformation matrices and the final matrix
+def calculate_transformations_dh(movement_angle_state,joint_angles_degrees, a, alpha, d,i=0,add_gripper=False,flip_x_coordinate=False):
+    """
+    calulate transformation matrices based dh parameters
 
+    Args:
+    i: timestamp
+    joint_angles_degrees: list of joint angles in degrees
+    a: list of a parameters
+    alpha: list of alpha parameters
+    d: list of d parameters
+
+    
+    
+    
+    """
+    state_i = movement_angle_state[i]['Time']
+    state_name=movement_angle_state[i]['Joint Names']
+    state_position=movement_angle_state[i]['Joint Positions']
+
+
+    joint_angles_radians_raw = joint_angles_degrees
+    joint_angle_deform= np.array(state_position)
+    joint_angle_deform=np.round(joint_angle_deform, 3)
+
+
+
+    joint_angles_radians=joint_angles_radians_raw+joint_angle_deform
+
+
+    transformations = []
+
+    j=0
+    gripper_index_list=[7,9]
+    
+    for theta, a_i, alpha_i, d_i in zip(joint_angles_radians, a, alpha, d):
+        
+
+        # apply edit gripper mdh for the control left down gripper and right down gripper
+        if j==9:
+            T_temp=create_transformation_matrix_dh_gripper(theta, a_i, alpha_i, d_i)
+        
+        elif j==7:
+            T_temp=create_transformation_matrix_dh_gripper(theta, a_i, alpha_i, d_i)
+        else:
+            T_temp=create_transformation_matrix_dh(theta, a_i, alpha_i, d_i)
+
+        # gripper has different base coordinate so need new flip coordinate
+        if flip_x_coordinate:
+            if j not in gripper_index_list:
+                T_temp=reflect_x_axis(T_temp) # for different base coordinate, the default base coordinate is - + - 
+            else:
+                # T_temp=create_transformation_matrix_mdh_gripper_reflect_x_coordinate(theta, a_i, alpha_i, d_i) # for different base coordinate, the default base coordinate is - + - since mdh gripper is different from mdh
+                T_temp=reflect_x_axis_only(T_temp)
+        # for gripper right 10,11, it is connect to 7 
+        transformations.append(T_temp)
+
+        j+=1
+    # Calculate the final transformation from the base to the end-effector
+    final_transformation = np.eye(4)
+    final_transformations_list=[[]]*len(joint_angles_radians)
+
+    p=0
+    if add_gripper:
+
+        
+        for transformation in transformations:
+            if p==9:
+                gripper_move= final_transformations_list[6]
+                final_transformation = np.dot(gripper_move, transformation)
+                final_transformations_list[p]=final_transformation
+            elif p==10:
+                gripper_right_move= final_transformations_list[9]
+                final_transformation = np.dot(gripper_right_move, transformation)
+                final_transformations_list[p]=final_transformation
+            else:
+                final_transformation = np.dot(final_transformation, transformation)
+                final_transformations_list[p]=final_transformation
+            p+=1
+    else:
+        for transformation in transformations:
+            final_transformation = np.dot(final_transformation, transformation)
+            final_transformations_list[p]=final_transformation
+            p+=1
+    return transformations, final_transformations_list
 
 
 # Function to calculate all transformation matrices and the final matrix
@@ -339,7 +436,8 @@ def calculate_transformations_mdh(movement_angle_state,joint_angles_degrees, a, 
         # gripper has different base coordinate so need new flip coordinate
         if flip_x_coordinate:
             if j not in gripper_index_list:
-                T_temp=reflect_x_axis(T_temp) # for different base coordinate, the default base coordinate is - + - 
+                # this is not correct, we fix it now 
+                T_temp=reflect_x_axis_only(T_temp) # for different base coordinate, the default base coordinate is - + - 
             else:
                 # T_temp=create_transformation_matrix_mdh_gripper_reflect_x_coordinate(theta, a_i, alpha_i, d_i) # for different base coordinate, the default base coordinate is - + - since mdh gripper is different from mdh
                 T_temp=reflect_x_axis_only(T_temp)
@@ -534,3 +632,88 @@ def inverse_affine_transformation(transforms):
 
     return inv_transforms
 
+
+
+def mdh_dexhand(movement_matrix,joint_angles_degrees, a, alpha, d,i=0,add_gripper=False,flip_x_coordinate=False,flip_y_coordinate=False,flip_z_coordinate=False):
+    """
+    calulate transformation matrices based mdh parameters of inspire dex hand 
+
+    Args:
+    i: timestamp
+    joint_angles_degrees: list of joint angles in degrees
+    a: list of a parameters
+    alpha: list of alpha parameters
+    d: list of d parameters
+
+    
+    
+    
+    """
+    # pre-timestep movement matrix. should be 12 (6+6), 6 from engine and 6 from force control
+    state_position=movement_matrix[i]
+
+
+    joint_angles_radians_raw = joint_angles_degrees
+    joint_angle_deform= np.array(state_position)
+    joint_angle_deform=np.round(joint_angle_deform, 3)
+
+
+
+    joint_angles_radians=joint_angles_radians_raw+joint_angle_deform
+
+
+    transformations = []
+
+    j=0
+    gripper_index_list=[7,9]
+    
+    for theta, a_i, alpha_i, d_i in zip(joint_angles_radians, a, alpha, d):
+        
+
+        # apply edit gripper mdh for the control left down gripper and right down gripper
+        if j==9:
+            T_temp=create_transformation_matrix_mdh_gripper(theta, a_i, alpha_i, d_i)
+        
+        elif j==7:
+            T_temp=create_transformation_matrix_mdh_gripper(theta, a_i, alpha_i, d_i)
+        else:
+            T_temp=create_transformation_matrix_mdh(theta, a_i, alpha_i, d_i)
+
+        # gripper has different base coordinate so need new flip coordinate
+        if flip_x_coordinate:
+            if j not in gripper_index_list:
+                T_temp=reflect_x_axis(T_temp) # for different base coordinate, the default base coordinate is - + - 
+            else:
+                # T_temp=create_transformation_matrix_mdh_gripper_reflect_x_coordinate(theta, a_i, alpha_i, d_i) # for different base coordinate, the default base coordinate is - + - since mdh gripper is different from mdh
+                T_temp=reflect_x_axis_only(T_temp)
+        # for gripper right 10,11, it is connect to 7 
+        transformations.append(T_temp)
+
+        j+=1
+    # Calculate the final transformation from the base to the end-effector
+    final_transformation = np.eye(4)
+    final_transformations_list=[[]]*len(joint_angles_radians)
+
+    p=0
+    if add_gripper:
+
+        
+        for transformation in transformations:
+            if p==9:
+                gripper_move= final_transformations_list[6]
+                final_transformation = np.dot(gripper_move, transformation)
+                final_transformations_list[p]=final_transformation
+            elif p==10:
+                gripper_right_move= final_transformations_list[9]
+                final_transformation = np.dot(gripper_right_move, transformation)
+                final_transformations_list[p]=final_transformation
+            else:
+                final_transformation = np.dot(final_transformation, transformation)
+                final_transformations_list[p]=final_transformation
+            p+=1
+    else:
+        for transformation in transformations:
+            final_transformation = np.dot(final_transformation, transformation)
+            final_transformations_list[p]=final_transformation
+            p+=1
+    return transformations, final_transformations_list
