@@ -135,6 +135,13 @@ get bounding box list based on base and scale
 python nerfstudio/robotic/export_util/export_bbox_withgripper.py --load_path 
 ```
 
+
+# the newest tool super splat
+
+https://playcanvas.com/supersplat/editor/ 
+
+Very good feature for our task
+
 ### we use push box case as an exmaple (For full command, you can refer to launch.json)
 
 export part gaussian splatting and semantic ply

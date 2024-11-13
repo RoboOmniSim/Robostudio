@@ -10,17 +10,20 @@ import numpy as np
 
 
 import argparse
-from nerfstudio.robotic.kinematic.uniform_kinematic import mdh_dexhand
+from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.export_util.urdf_utils.urdf_config import *
 
 # from nerfstudio.robotic.kinematic.gripper_utils import reflect_x_axis,reflect_y_axis,reflect_z_axis
 
 from nerfstudio.robotic.kinematic.control_helper import *
 
-# from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
+from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
 from nerfstudio.robotic.config.raw_config import export_urdf_to_omnisim_config
 
 
+
+
+# export bounding box of part and save to txt
 
 
 def flip_axis(T,R_x):
@@ -44,7 +47,7 @@ def flip_axis(T,R_x):
 
 
 
-def calculate_transformations_mdh(state_position,joint_angles_degrees, a, alpha, d,flip):
+def calculate_transformations_mdh(state_position,joint_angles_degrees, a, alpha, d,flip,chain_info=None):
     """
     calulate transformation matrices based dh parameters
 
@@ -54,6 +57,9 @@ def calculate_transformations_mdh(state_position,joint_angles_degrees, a, alpha,
     a: list of a parameters
     alpha: list of alpha parameters
     d: list of d parameters
+
+    flip: flip matrix
+    chain_info: list of chain information
 
     
     
@@ -89,10 +95,23 @@ def calculate_transformations_mdh(state_position,joint_angles_degrees, a, alpha,
     final_transformations_list=[[]]*len(joint_angles_radians)
 
     p=0
+    # rewrite chain code
+    # for transformation in transformations:
+    #         final_transformation = np.dot(final_transformation, transformation)
+    #         final_transformations_list[p]=final_transformation
+    #         p+=1
+
+    finger_list=[7,8,9,10]
+
+    num_finger=len(finger_list)
 
     for transformation in transformations:
-            final_transformation = np.dot(final_transformation, transformation)
-            final_transformations_list[p]=final_transformation
+        if p in finger_list:
+            transformation = np.dot(transformations[p-num_finger], transformation)
+            final_transformations_list[p]=transformation
+            p+=1
+        else:
+            final_transformations_list[p]=transformation
             p+=1
     return transformations, final_transformations_list
 
@@ -142,7 +161,7 @@ def load_ply_files(input_path):
     points_list = []
     color_list = []
     normal_list = []
-    
+    file_name_list = []
     # Iterate through all files in the directory
 
     path_list=os.listdir(input_path)
@@ -174,8 +193,10 @@ def load_ply_files(input_path):
                 point_cloud.estimate_normals()
                 normals = np.asarray(point_cloud.normals)
                 normal_list.append(normals)
+
+            file_name_list.append(file_name)
     
-    return points_list, color_list, normal_list
+    return points_list, color_list, normal_list,file_name_list
 
 
 def apply_rotation_on_point_cloud(points_list, rotation_matrix):
@@ -232,10 +253,9 @@ def save_ply_file(output_path, points, colors=None, normals=None):
 def main():
 
 
-
     # standard control parameter for inspire dex hand 0-1000
     matrices = np.array([
-        [20, 20, 20, 20, 20, 20],
+        [1000, 1000, 1000, 1000, 1000, 1000],
         [1, 1, 1, 1, 1, 1],
         [10, 10, 10, 10, 10, 10],
         [10, 10, 10, 10, 10, 10]
@@ -250,9 +270,9 @@ def main():
     # test the reorientation  of axis in order to axis align with the object
 
 
-    ply_path = "./dexhand/data/engine_part"
-    ply_save_path= "./dexhand/data/engine_part/reorient"
-    deform_ply_save_path= "./dexhand/data/engine_part/deform"
+    ply_path = "./dexhand/data/test_finger_part"
+    ply_save_path= "./dexhand/data/test_finger_part/reorient"
+    deform_ply_save_path= "./dexhand/data/test_finger_part/deform"
 
 
     if not os.path.exists(ply_save_path):
@@ -261,23 +281,35 @@ def main():
     if not os.path.exists(deform_ply_save_path):
         os.makedirs(deform_ply_save_path)
         
-    points_list, color_list, normal_list=load_ply_files(ply_path)
+    points_list, color_list, normal_list,file_name_list=load_ply_files(ply_path)
 
     # first step, test and fix chiral
 
     # edit the roll pitch yaw here i just give a start, but u need to fix it by change the value 
 
     # compare the reoriented and grasp 
+
     roll = 0
-    pitch = 0  
-    yaw = np.pi
+    pitch = -0.3  
+    yaw = 0
 
     # find the initial position 
 
 
     R_x=rotation_matrix(roll=roll, pitch=pitch, yaw=yaw)
     
+    # for axis align
     print("R_x",R_x)
+
+
+    flip_matrix=np.eye(4)
+
+    # use this in re
+
+    #     R_x [[ 0.98384369  0.         -0.17902957  0.        ]
+    #  [ 0.          1.          0.          0.        ]
+    #  [ 0.17902957  0.          0.98384369  0.        ]
+    #  [ 0.          0.          0.          1.        ]]
 
 
     point_list_reori=apply_rotation_on_point_cloud(points_list, R_x)
@@ -290,11 +322,11 @@ def main():
     # this you will see the reorientation result
 
 
-    center_vector_gt=np.array([-0.12,0.7915,-0.64]) # if there is same gap when you edit other value and has no difference in the center, you can change this value
-    scale_factor_pass= np.array([1.22,1.22,1.22]) # this is editable
+    center_vector_gt=np.array([-0.014,-0.82,-0.007]) # if there is same gap when you edit other value and has no difference in the center, you can change this value
+    scale_factor_pass= np.array([0.5,1,1]) # this is editable
 
 
-    state_position=np.array([0,0,0,0,0,0])
+    state_position=np.array([0,0,0,0,0,0,0,0,0,0,0,0,0]) 
 
 
 
@@ -307,35 +339,138 @@ def main():
     # alpha : [0,1.57,0,0,1.57,-1.57]
 
 
-    joint_angles_degrees =np.array([0,-1.57,-1.57,-1.57,1.57,0]) # should be good
-    a= np.array([0,0,0.425,0.39225,0,0])   # minor edit should be good 
-    d= np.array([0.089416,0,0,0.10915,0.09465,0.0823])
-    alpha= np.array([0,1.57,0,0,1.57,-1.57]) # if you have any value changed but has weird rotation, change this
+    # 6dof move by engine, 12dof moveable part by finger
+
+    # base,f1_up,f1_right,f2,f3,f4,f5,f6,f1_finger1,f1_finger2,f2_finger1,f3_finger1,f4_finger1,f5_finger1,f6_finger1
+
+
+    # current the angle are both the max 
+    joint_angles_degrees =np.array([0,0.94,2.88,3.09,3.09,3.09,3.09,3.09,3.09,0,0,0,0]) # should be good
+
+
+    # interpolate by 1000 for each control by 1000 in order to match inspire dex hand control
+
+
+    joint_angles_degrees[1]=joint_angles_degrees[1]*matrices[0][0]/1000
+    joint_angles_degrees[2]=joint_angles_degrees[2]*matrices[0][1]/1000
+    joint_angles_degrees[3]=joint_angles_degrees[3]*matrices[0][2]/1000
+    joint_angles_degrees[4]=joint_angles_degrees[4]*matrices[0][3]/1000
+    joint_angles_degrees[5]=joint_angles_degrees[5]*matrices[0][4]/1000
+    joint_angles_degrees[6]=joint_angles_degrees[6]*matrices[0][5]/1000
+
+
+    # a= np.array([0,0,0,0.11,0.39225,0,0,0,0,0,0,0,0])   # minor edit should be good 
+    # d= np.array([0,0.089416,0,0,0.10915,0.09465,0.0823,0,0,0,0,0,0])
 
 
 
 
-    scale_a=np.array([1,1,1,1,1,1])/scale_factor_pass[2]  # s1 is z axis for a1, s2 is z axis for a2=0, s3 is z axis for a3,  s4 is z axis for a4
-    scale_d=np.array([1,1,1,1,1,1])/scale_factor_pass[2] #  s1 is x axis for d1 ,s4 and s6  is y axis 
+    a = np.array([
+        0,        # base
+        0.033,    # f1_up (FFJ3)
+
+
+        -0.017,      # f1_right (FFJ2)
+        0.019,   # f2 (LFJ4)
+        0.019,    # f3 (LFJ3)
+        0.019,      # f4 (LFJ2)
+        0.019,    # f5 (MFJ3
+
+        0.021,   # f2_finger1 (RFJ3)
+        0.0,      # f3_finger1 (RFJ2)
+        0.034,    # f4_finger1 (THJ4)
+        0.0,       # f5_finger1 (THJ3)
+
+        
+        0.0,      # f1_finger1 (thumb THJ3)
+        0.0,      # f1_finger2 (thumb THJ2)
+    ])
+
+
+    d = np.array([
+        0,        # base
+        0.095,    # f1_up (FFJ3)
+
+
+        0,      # f1_right (FFJ2)
+        0.044,    # f2 (LFJ4)
+        0.026,    # f3 (LFJ3)
+        0.035,      # f4 (LFJ2)
+        0.099,    # f5 (MFJ3)
+
+        0.095,    # f2_finger1 (RFJ3)
+        0.0,      # f3_finger1 (RFJ2)
+        -0.009,   # f4_finger1 (THJ4)
+        0.0,       # f5_finger1 (THJ3)
+
+        0.038,    # f1_finger1 (thumb THJ2)
+        0.0,      # f1_finger2 (THJ3)
+    ])
+
+    alpha = np.array([
+
+        0,          # base
+
+        0.0,        # f1_up (FFJ3)
+
+        -1.615,        # f1_right (FFJ2)
+
+        0,  # f2 (LFJ4)
+
+        0,  # f3 (LFJ3)
+
+        0,        # f4 (LFJ2)
+
+        0,        # f5 (MFJ3)
 
 
 
-    scale_d[3]=1/scale_factor_pass[1] # i am not sure about this index 3 and 5, you can refer to the standard dh table, we want this to be the y axis change
-    scale_d[5]=1/scale_factor_pass[1]
+
+        0.0,        # f2_finger1 (RFJ3)
+
+        0.0,        # f3_finger1 (RFJ2)
+
+        0.0,      # f4_finger1 (THJ4)
+
+        0.0,         # f5_finger1 (THJ3)
+        
+        0.0,        # f1_finger1 (thumb THJ3)
+
+        0.0,        # f1_finger2 (thumb THJ2)
+
+    ])
+
+
+    scale_a=np.array([0,0,1,1,1,1,1,1,0,0,0,0,0])/scale_factor_pass[2]  # s1 is z axis for a1, s2 is z axis for a2=0, s3 is z axis for a3,  s4 is z axis for a4
+    scale_d=np.array([0,0,1,1,1,1,1,1,0,0,0,0,0])/scale_factor_pass[1]  #  s1 is x axis for d1 ,s4 and s6  is y axis 
+
+    # scale_a[3]=1/scale_factor_pass[2] # i am not sure about this index 3 and 5, you can refer to the standard dh table, we want this to be the y axis change
+
+    # scale_d[3]=1/scale_factor_pass[1] # i am not sure about this index 3 and 5, you can refer to the standard dh table, we want this to be the y axis change
+    # scale_d[5]=1/scale_factor_pass[1]
 
     a=a*scale_a
     d=d*scale_d
     # forward
 
     #map back to center
-    transformations, final_transformations_list_0=calculate_transformations_mdh(state_position=state_position,joint_angles_degrees=joint_angles_degrees,a=a,alpha=alpha,d=d,flip=R_x)
+    transformations, final_transformations_list_0=calculate_transformations_mdh(state_position=state_position,joint_angles_degrees=joint_angles_degrees,a=a,alpha=alpha,d=d,flip=flip_matrix)
 
 
 
-    state_position=np.array([0,0.5,0,0,0,0])  # edit this for deformation
+    state_position=np.array([0,0,1.1,0.5,0.5,1.5,1.5,1.5,0,0,0,0,0])  # edit this for deformation
+
+
+
+    state_position[1]=state_position[1]*matrices[0][0]/1000
+    state_position[2]=state_position[2]*matrices[0][1]/1000
+    state_position[3]=state_position[3]*matrices[0][2]/1000
+    state_position[4]=state_position[4]*matrices[0][3]/1000
+    state_position[5]=state_position[5]*matrices[0][4]/1000
+    state_position[6]=state_position[6]*matrices[0][5]/1000
 
     # change for new trajectory
-    transformations, final_transformations_list=calculate_transformations_mdh(state_position=state_position,joint_angles_degrees=joint_angles_degrees,a=a,alpha=alpha,d=d,flip=R_x)
+    transformations, final_transformations_list=calculate_transformations_mdh(state_position=state_position,joint_angles_degrees=joint_angles_degrees,a=a,alpha=alpha,d=d,flip=flip_matrix)
 
 
 
@@ -346,7 +481,7 @@ def main():
     # 
 
     save_point_list=[]
-    for i in range(len(final_transformations_list_0)):
+    for i in range(len(point_list_reori)):
         rotation_inv=inverse_transformation[i][:3,:3]
         translation_inv=inverse_transformation[i][:3,3]
 

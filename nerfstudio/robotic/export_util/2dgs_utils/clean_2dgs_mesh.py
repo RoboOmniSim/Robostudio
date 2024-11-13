@@ -12,7 +12,7 @@ import numpy as np
 
 if __name__=="__main__":
     # Load the mesh
-    mesh = o3d.io.read_triangle_mesh("./dataset/roboarm2/urdf/2dgs/arm/link0.obj")
+    mesh = o3d.io.read_triangle_mesh("./dataset/mesh_compare/mesh_withduplicate face.ply")
 
     # Compute the connected components
     triangle_clusters, cluster_n_triangles, cluster_area = mesh.cluster_connected_triangles()
@@ -28,5 +28,5 @@ if __name__=="__main__":
     mesh.remove_unreferenced_vertices()
 
     # Save or visualize the cleaned mesh
-    o3d.io.write_triangle_mesh("path_to_cleaned_mesh_file.ply", mesh)
+    o3d.io.write_triangle_mesh("./dataset/mesh_compare/mesh_cleanface.ply", mesh)
     # o3d.visualization.draw_geometries([mesh])

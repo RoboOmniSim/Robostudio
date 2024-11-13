@@ -10,14 +10,14 @@ import numpy as np
 
 
 import argparse
-from nerfstudio.robotic.kinematic.uniform_kinematic import mdh_dexhand
+from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from nerfstudio.robotic.export_util.urdf_utils.urdf_config import *
 
 # from nerfstudio.robotic.kinematic.gripper_utils import reflect_x_axis,reflect_y_axis,reflect_z_axis
 
 from nerfstudio.robotic.kinematic.control_helper import *
 
-# from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
+from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import *
 from nerfstudio.robotic.config.raw_config import export_urdf_to_omnisim_config
 
 
@@ -231,28 +231,9 @@ def save_ply_file(output_path, points, colors=None, normals=None):
 
 def main():
 
-
-
-    # standard control parameter for inspire dex hand 0-1000
-    matrices = np.array([
-        [20, 20, 20, 20, 20, 20],
-        [1, 1, 1, 1, 1, 1],
-        [10, 10, 10, 10, 10, 10],
-        [10, 10, 10, 10, 10, 10]
-    ])
-
-
-    # load base, 5 finger first part and test with original kinematic
-
-
-    # then define the kinematic of 
-
-    # test the reorientation  of axis in order to axis align with the object
-
-
-    ply_path = "./dexhand/data/engine_part"
-    ply_save_path= "./dexhand/data/engine_part/reorient"
-    deform_ply_save_path= "./dexhand/data/engine_part/deform"
+    ply_path = "./dataset/ur5/part"
+    ply_save_path= "./dataset/ur5/part/reorient"
+    deform_ply_save_path= "./dataset/ur5/part/deform"
 
 
     if not os.path.exists(ply_save_path):
