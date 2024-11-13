@@ -972,9 +972,34 @@ class SplatfactoModel(Model):
 
         return metrics_dict, images_dict
 
+    def _apply_transformation(self, raw_xyz, rotation_inv, translation_inv, rotation, translation, center_vector_gt):
+        """Apply forward and inverse transformations to points."""
+        raw_xyz = raw_xyz - center_vector_gt
+        deform_point = np.array(raw_xyz @ rotation_inv.T + translation_inv)
+        forward_point = np.array(deform_point @ rotation.T + translation)
+        return forward_point + center_vector_gt
 
-    
+    def _update_rotation_and_features(self, rotation_splat, select_rotation, select_features_extra, select_feature_dc):
+        """Update rotation matrices and feature vectors."""
+        rot_matrix_2_transform = np.matmul(
+            np.array(rotation_splat[None,:,:], dtype=float), 
+            quaternion_to_matrix(torch.tensor(select_rotation, dtype=torch.float)).cpu().numpy()
+        )
+        select_rotation_deform = np.array(matrix_to_quaternion(torch.tensor(rot_matrix_2_transform)))
+        select_features_extra_deform = np.array(
+            sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat)
+        )
+        return select_rotation_deform, select_features_extra_deform
 
+    def _append_outputs(self, outputs, xyz, opacities, scales, features_extra, rots, features_dc, semantic_id):
+        """Append values to output lists."""
+        outputs["xyz"].append(xyz)
+        outputs["opacities"].append(opacities) 
+        outputs["scales"].append(scales)
+        outputs["features_extra"].append(features_extra)
+        outputs["rots"].append(rots)
+        outputs["features_dc"].append(features_dc)
+        outputs["semantic_id"].append(semantic_id)
 
     def get_deformation(self,time_stamp,movement_angle_state,assigned_ids,final_transformations_list_0,scale_factor,a,alpha,d,joint_angles_degrees,center_vector_gt,
                         gripper_control=None,joint_angles_degrees_gripper=None, a_gripper=None, alpha_gripper=None, d_gripper=None,add_gripper=False,path=None,add_simulation=False,
@@ -1051,63 +1076,27 @@ class SplatfactoModel(Model):
         inverse_transformation=inverse_affine_transformation(final_transformations_list_0)
 
 
-        output_xyz=[]
-        output_opacities=[]
-        output_scales=[]
-        output_features_extra=[]
-        output_rots=[]
-        output_features_dc=[]
-        output_semantic_id=[]
-        
+        # Initialize output dictionary
+        outputs = {
+            "xyz": [], "opacities": [], "scales": [], "features_extra": [],
+            "rots": [], "features_dc": [], "semantic_id": []
+        }
 
-        # deform link 1 to 6 and gripper 7 will follow the link 6 also mask out the object(id=8)
-
-
-
-
-        # assign different physics simulation to different object based on its semantic category
-
-        # we have different strategy of rendering based on semantic category
-        # this is a beta version, we will update this to a more easy to read version 
-        
-        for i in range(assigned_ids.shape[0]):  # iterate over all sam mask
-
-            # engine_used=engine_inference[i]
-
-            # since the assigned_ids and engine_inference are the same length
-            # engine used should map the equation to the right engine
-
-
-            if i ==0 or i==9:
+        for i in range(assigned_ids.shape[0]):
+            # Get filtered data for current segment
+            mark_id = i if i in [0, 9] else (i-1 if i not in [7,8,10,11,12,13] else {
+                7: 5, 8: None, 10: 7, 11: 8, 12: 9, 13: 10
+            }[i])
+            
+            if mark_id is None:  # Special case for i==8 (object)
+                mark_id = i
+                select_xyz, select_opacities, select_scales, select_features_extra, select_rotation, select_feature_dc, semantic_id_ind_sam = (
+                    filter_with_semantic(semantic_id, assigned_ids, mark_id, xyz, opacities, scales, 
+                                       features_extra, rots, features_dc, index=mark_id)
+                )
                 
-                # background and base
-                
-                mark_id=i
-                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
-
-
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra)
-                output_rots.append(select_rotation)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
-            elif i==8:
-
-
-                # this is for object, we will add mulitple object simulation in the future version
-
-
-
-
-                mark_id=i
-                select_xyz,select_opacities,select_scales,select_features_extra,select_rotation,select_feature_dc,semantic_id_ind_sam=filter_with_semantic(semantic_id,assigned_ids,mark_id,xyz,opacities,scales,features_extra,rots,features_dc,index=mark_id)
-
-
-                
-
-                if add_simulation==True:
+                # Handle different object simulation cases
+                if add_simulation:
                     recenter_vector,rotation, translation,simulation_position,adaptive_vector=example_push(dt)
                     raw_xyz= select_xyz
 
@@ -1126,14 +1115,11 @@ class SplatfactoModel(Model):
                     select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
                 
-                    output_xyz.append(output_xyz_object)
-                    output_opacities.append(select_opacities)
-                    output_scales.append(select_scales)
-                    output_features_extra.append(select_features_extra_deform)
-                    output_rots.append(select_rotation_deform)
-                    output_features_dc.append(select_feature_dc)
-                    output_semantic_id.append(semantic_id_ind_sam)
-                elif add_grasp_object==True or move_with_gripper==True:
+                    _append_outputs(outputs, output_xyz_object, select_opacities, select_scales,
+                                  select_features_extra_deform, select_rotation_deform,
+                                  select_feature_dc, semantic_id_ind_sam)
+                    continue
+                elif add_grasp_object or move_with_gripper:
                     if move_with_gripper==True and add_grasp_object==False:
                         mark_id=2  #6 follow the robotic arm 
 
@@ -1164,13 +1150,9 @@ class SplatfactoModel(Model):
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
                         
-                        output_xyz.append(select_xyz)
-                        output_opacities.append(select_opacities)
-                        output_scales.append(select_scales)
-                        output_features_extra.append(select_features_extra_deform)
-                        output_rots.append(select_rotation_deform)
-                        output_features_dc.append(select_feature_dc)
-                        output_semantic_id.append(semantic_id_ind_sam)
+                        _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                                      select_features_extra_deform, select_rotation_deform,
+                                      select_feature_dc, semantic_id_ind_sam)
                     elif  move_with_gripper==False and add_grasp_object==True:
 
                         recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
@@ -1193,13 +1175,10 @@ class SplatfactoModel(Model):
 
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                        output_xyz.append(output_xyz_object)
-                        output_opacities.append(select_opacities)
-                        output_scales.append(select_scales)
-                        output_features_extra.append(select_features_extra_deform)
-                        output_rots.append(select_rotation_deform)
-                        output_features_dc.append(select_feature_dc)
-                        output_semantic_id.append(semantic_id_ind_sam)
+                        
+                        _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                                      select_features_extra_deform, select_rotation_deform,
+                                      select_feature_dc, semantic_id_ind_sam)
                     else:
                         recenter_vector,rotation_sim, translation_sim,simulation_position_sim,adaptive_vector=example_push(dt)
                         time_diff=dt
@@ -1234,22 +1213,15 @@ class SplatfactoModel(Model):
 
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                        output_xyz.append(select_xyz)
-                        output_opacities.append(select_opacities)
-                        output_scales.append(select_scales)
-                        output_features_extra.append(select_features_extra_deform)
-                        output_rots.append(select_rotation_deform)
-                        output_features_dc.append(select_feature_dc)
-                        output_semantic_id.append(semantic_id_ind_sam)
+                        _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                                       select_features_extra_deform, select_rotation_deform,
+                                       select_feature_dc, semantic_id_ind_sam)
                     
                 else:
-                    output_xyz.append(select_xyz)
-                    output_opacities.append(select_opacities)
-                    output_scales.append(select_scales)
-                    output_features_extra.append(select_features_extra)
-                    output_rots.append(select_rotation)
-                    output_features_dc.append(select_feature_dc)
-                    output_semantic_id.append(semantic_id_ind_sam)
+                    _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                                   select_features_extra, select_rotation, select_feature_dc,
+                                   semantic_id_ind_sam)
+                continue
 
             elif i==7:
 
@@ -1283,13 +1255,9 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra_deform)
-                output_rots.append(select_rotation_deform)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
+                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                               select_features_extra_deform, select_rotation_deform,
+                               select_feature_dc, semantic_id_ind_sam)
 
             elif i==10:
 
@@ -1324,13 +1292,9 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra_deform)
-                output_rots.append(select_rotation_deform)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
+                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                               select_features_extra_deform, select_rotation_deform,
+                               select_feature_dc, semantic_id_ind_sam)
 
             elif i==11:
                 
@@ -1365,13 +1329,9 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra_deform)
-                output_rots.append(select_rotation_deform)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
+                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                               select_features_extra_deform, select_rotation_deform,
+                               select_feature_dc, semantic_id_ind_sam)
 
             elif i==12:
 
@@ -1405,13 +1365,9 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra_deform)
-                output_rots.append(select_rotation_deform)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
+                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                               select_features_extra_deform, select_rotation_deform,
+                               select_feature_dc, semantic_id_ind_sam)
 
             elif i==13:
                 
@@ -1443,13 +1399,9 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra_deform)
-                output_rots.append(select_rotation_deform)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
+                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                               select_features_extra_deform, select_rotation_deform,
+                               select_feature_dc, semantic_id_ind_sam)
 
             else:
 
@@ -1477,18 +1429,14 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                output_xyz.append(select_xyz)
-                output_opacities.append(select_opacities)
-                output_scales.append(select_scales)
-                output_features_extra.append(select_features_extra_deform)
-                output_rots.append(select_rotation_deform)
-                output_features_dc.append(select_feature_dc)
-                output_semantic_id.append(semantic_id_ind_sam)
+                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                               select_features_extra_deform, select_rotation_deform,
+                               select_feature_dc, semantic_id_ind_sam)
         
 
         
         # update the guassian of the neccessary info in model
-        return output_xyz, output_opacities, output_scales, output_features_extra, output_rots, output_features_dc,output_semantic_id
+        return [outputs[k] for k in ["xyz", "opacities", "scales", "features_extra", "rots", "features_dc", "semantic_id"]]
     
 
     def get_dynamic_outputs(self, camera: Cameras,dynamic_info) -> Dict[str, Union[torch.Tensor, List]]:
