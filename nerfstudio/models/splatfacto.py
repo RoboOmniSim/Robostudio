@@ -1115,7 +1115,7 @@ class SplatfactoModel(Model):
                     select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
                 
-                    _append_outputs(outputs, output_xyz_object, select_opacities, select_scales,
+                    self._append_outputs(outputs, output_xyz_object, select_opacities, select_scales,
                                   select_features_extra_deform, select_rotation_deform,
                                   select_feature_dc, semantic_id_ind_sam)
                     continue
@@ -1150,7 +1150,7 @@ class SplatfactoModel(Model):
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
                         
-                        _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                        self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                       select_features_extra_deform, select_rotation_deform,
                                       select_feature_dc, semantic_id_ind_sam)
                     elif  move_with_gripper==False and add_grasp_object==True:
@@ -1176,7 +1176,7 @@ class SplatfactoModel(Model):
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
                         
-                        _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                        self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                       select_features_extra_deform, select_rotation_deform,
                                       select_feature_dc, semantic_id_ind_sam)
                     else:
@@ -1213,12 +1213,12 @@ class SplatfactoModel(Model):
 
                         select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                        _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                        self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                        select_features_extra_deform, select_rotation_deform,
                                        select_feature_dc, semantic_id_ind_sam)
                     
                 else:
-                    _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                    self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                    select_features_extra, select_rotation, select_feature_dc,
                                    semantic_id_ind_sam)
                 continue
@@ -1255,7 +1255,7 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                select_features_extra_deform, select_rotation_deform,
                                select_feature_dc, semantic_id_ind_sam)
 
@@ -1292,7 +1292,7 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                select_features_extra_deform, select_rotation_deform,
                                select_feature_dc, semantic_id_ind_sam)
 
@@ -1329,7 +1329,7 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                select_features_extra_deform, select_rotation_deform,
                                select_feature_dc, semantic_id_ind_sam)
 
@@ -1365,7 +1365,7 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                select_features_extra_deform, select_rotation_deform,
                                select_feature_dc, semantic_id_ind_sam)
 
@@ -1399,7 +1399,7 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                select_features_extra_deform, select_rotation_deform,
                                select_feature_dc, semantic_id_ind_sam)
 
@@ -1429,7 +1429,7 @@ class SplatfactoModel(Model):
 
                 select_features_extra_deform = np.array(sh_rotation(torch.tensor(select_features_extra), torch.tensor(select_feature_dc), rotation_splat))
 
-                _append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                select_features_extra_deform, select_rotation_deform,
                                select_feature_dc, semantic_id_ind_sam)
         
