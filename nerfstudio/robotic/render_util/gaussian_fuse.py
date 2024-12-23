@@ -284,11 +284,39 @@ def construct_list_of_attributes():
         l.append('rot_{}'.format(i))
     return l
 
+def construct_list_of_attributes_sam():
+    # Start with the base attributes
+    l = ['x', 'y', 'z', 'nx', 'ny', 'nz']
+    # Add DC components
+    for i in range(3):
+        l.append('f_dc_{}'.format(i))
+    # Add rest components
+    for i in range(45):
+        l.append('f_rest_{}'.format(i))
+    # Add opacity and semantic_id
+    l.append('opacity')
+    l.append('semantic_id')
+    # Add scale and rotation
+    for i in range(3):
+        l.append('scale_{}'.format(i))
+    for i in range(4):
+        l.append('rot_{}'.format(i))
+    return l
+
 def save_ply(xyz, f_dc, f_rest, opacities, scale, rotation, path):
     normals = np.zeros_like(xyz)
     dtype_full = [(attribute, 'f4') for attribute in construct_list_of_attributes()]
     elements = np.empty(xyz.shape[0], dtype=dtype_full)
     attributes = np.concatenate((xyz, normals, f_dc, f_rest, opacities, scale, rotation), axis=1)
+    elements[:] = list(map(tuple, attributes))
+    el = PlyElement.describe(elements, 'vertex')
+    PlyData([el]).write(path)
+
+def save_ply_sam(xyz, f_dc, f_rest, opacities, semantic_id, scale, rotation, path):
+    normals = np.zeros_like(xyz)
+    dtype_full = [(attribute, 'f4') for attribute in construct_list_of_attributes_sam()]
+    elements = np.empty(xyz.shape[0], dtype=dtype_full)
+    attributes = np.concatenate((xyz, normals, f_dc, f_rest, opacities, semantic_id, scale, rotation), axis=1)
     elements[:] = list(map(tuple, attributes))
     el = PlyElement.describe(elements, 'vertex')
     PlyData([el]).write(path)

@@ -1118,7 +1118,7 @@ class SplatfactoModel(Model):
                     self._append_outputs(outputs, output_xyz_object, select_opacities, select_scales,
                                   select_features_extra_deform, select_rotation_deform,
                                   select_feature_dc, semantic_id_ind_sam)
-                    continue
+                    
                 elif add_grasp_object or move_with_gripper:
                     if move_with_gripper==True and add_grasp_object==False:
                         mark_id=2  #6 follow the robotic arm 
@@ -1221,7 +1221,7 @@ class SplatfactoModel(Model):
                     self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
                                    select_features_extra, select_rotation, select_feature_dc,
                                    semantic_id_ind_sam)
-                continue
+                
 
             elif i==7:
 
