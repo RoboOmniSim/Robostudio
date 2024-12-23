@@ -1084,11 +1084,31 @@ class SplatfactoModel(Model):
 
         for i in range(assigned_ids.shape[0]):
             # Get filtered data for current segment
-            mark_id = i if i in [0, 9] else (i-1 if i not in [7,8,10,11,12,13] else {
-                7: 5, 8: None, 10: 7, 11: 8, 12: 9, 13: 10
-            }[i])
-            
-            if mark_id is None:  # Special case for i==8 (object)
+            # mark_id = i if i in [0, 9] else (i-1 if i not in [7,8,10,11,12,13] else {
+            #     7: 5, 8: None, 10: 7, 11: 8, 12: 9, 13: 10
+            # }[i])
+            if i ==0:
+                mark_id = i
+                select_xyz, select_opacities, select_scales, select_features_extra, select_rotation, select_feature_dc, semantic_id_ind_sam = (
+                    filter_with_semantic(semantic_id, assigned_ids, mark_id, xyz, opacities, scales, 
+                                       features_extra, rots, features_dc, index=mark_id)
+                )
+
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                                  select_features_extra, select_rotation,
+                                  select_feature_dc, semantic_id_ind_sam)
+            elif i == 9:
+                mark_id = i
+                select_xyz, select_opacities, select_scales, select_features_extra, select_rotation, select_feature_dc, semantic_id_ind_sam = (
+                    filter_with_semantic(semantic_id, assigned_ids, mark_id, xyz, opacities, scales, 
+                                       features_extra, rots, features_dc, index=mark_id)
+                )
+
+                self._append_outputs(outputs, select_xyz, select_opacities, select_scales,
+                                  select_features_extra, select_rotation,
+                                  select_feature_dc, semantic_id_ind_sam)
+
+            elif i ==8:  # Special case for i==8 (object)
                 mark_id = i
                 select_xyz, select_opacities, select_scales, select_features_extra, select_rotation, select_feature_dc, semantic_id_ind_sam = (
                     filter_with_semantic(semantic_id, assigned_ids, mark_id, xyz, opacities, scales, 
