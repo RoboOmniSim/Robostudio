@@ -2,16 +2,13 @@
 
  
 <p align="center">
-    <a href='https://open-air-sun.github.io/mars/static/data/MARS-poster.pdf'>
-        <img src='https://img.shields.io/badge/docs-passing-pink'/>
     <!-- community badges -->
-    <a href="https://open-air-sun.github.io/mars/"><img src="https://img.shields.io/badge/Project-Page-ffa"/></a>
+    <a href="https://robostudioapp.com/"><img src="https://img.shields.io/badge/Project-Page-ffa"/></a>
     <!-- doc badges -->
-    <a href="https://arxiv.org/abs/2307.15058">
-        <img src='https://img.shields.io/badge/arXiv-passing-aff'>
+    <a href="https://arxiv.org/abs/2408.14873">
+        <img src='https://img.shields.io/badge/arXiv-Paper-red?logo=arxiv&logoColor=white' alt='arXiv'></a>
     </a>
-    <a href="https://pypi.org/project/mars-nerfstudio/"><img src="https://img.shields.io/badge/pypi package-0.3.4-brightgreen"></a>
-
+    <a href="https://github.com/RoboOmniSim/Robostudio/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-CC_BY_NC_4.0-blue"></a>
 </p>
 
 
