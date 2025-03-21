@@ -241,8 +241,8 @@ python nerfstudio/robotic/export_util/2dgs_utils/nerfstudioconvert2dgs.py -s "yo
 ```
 
 #### Train 2dgs and obtain mesh
-You can follow the instruction from https://github.com/hbb1/2d-gaussian-splatting
-We will merge this part to our wheels after the PR of nerfstudio with 2dgs merged 
+You can follow the instruction from https://github.com/hbb1/2d-gaussian-splatting 
+
 
 #### Fix orientation
 Since the result of colmap is not necessary axis-aligned
@@ -261,7 +261,9 @@ re_orientation_matrix is the transform matrix from nerfstudio dataparser to resc
 #### Get part 
 
 First method: You can obtain part by base and scale 
+
 Second method: manual bounding box(recommend manual bounding box for complex scenes and high accuracy)
+
 Third method: Use SAM reproject Gaussian or GAGA(https://github.com/weijielyu/Gaga/tree/main)
 
 #### Load part to URDF
