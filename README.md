@@ -177,7 +177,7 @@ ns-export gaussian-splat-mesh
 ### load trajectory from omnisim or real world application
 
 
-Omnisim or Moveit 
+Roboverse or Moveit 
 
 We provide the exported result in the dataset, if you want to export based on your moveit scenes, 
 you can follow the scripts in Robostudio/nerfstudio/robotic/ros
@@ -302,7 +302,7 @@ You can email me for exact prompt
 
 
 
-## use omnisim-issac backend to implement policy 
+## use Roboverse backend to implement policy 
 
 Use pre-build or custom urdf and fix collision group based on omnisim
 ```bash
