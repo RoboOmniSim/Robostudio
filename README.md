@@ -421,15 +421,10 @@ TODO
 }
 ``` -->
 
-# Contributors
-
-<a href="https://github.com/RoboOmniSim/Robostudio/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=RoboOmniSim/Robostudio" />
-</a>
 
 
 # Acknowledgement
-We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu,Haoran Geng,Yanfei Li, Runyi Yang, Yuantao Chen, Zhide Zhong, and Baijun Ye.
+We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu,Haoran Geng, Runyi Yang, Yuantao Chen, Zhide Zhong, and Baijun Ye.
 This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu 
 
 
