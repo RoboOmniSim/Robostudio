@@ -15,6 +15,6 @@ def extract_first_frame(video_path, output_path):
     
 
 if __name__ == '__main__':
-    video_path = '/home/lou/Downloads/gripper_movement/grasp/group1_video7.MP4'
-    output_path = 'frame_00311.png'
+    video_path = ''
+    output_path = ''
     extract_first_frame(video_path, output_path)

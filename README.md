@@ -265,7 +265,7 @@ re_orientation_matrix is the transform matrix from nerfstudio dataparser to resc
 
 First method: You can obtain part by base and scale 
 Second method: manual bounding box(recommend manual bounding box for complex scenes and high accuracy)
-Third method: Use SAM reproject Gaussian or SegAnyGAussians( https://github.com/Jumpat/SegAnyGAussians)
+Third method: Use SAM reproject Gaussian or GAGA(https://github.com/weijielyu/Gaga/tree/main)
 
 #### Load part to URDF
 
@@ -313,15 +313,7 @@ python sim\metasim\real2isaac\real2isaac_grasp_v4.py
 ```
 This is example of our pre-designed grasping policy 
 
-### video2policy2real
-export policy to real world in format of gripper pose
 
-
-
-
-
-### video2policy2render
-export policy to Gaussian Scenes in format of trajectory
 
 
 ### render result 
@@ -389,17 +381,13 @@ For dataset of URDF production, you can email me haozhelo@usc.edu
 
 
 
-## 5: Explanation of Config file and how to connect it with omnisim
+## 5: Explanation of Config file and how to connect it with Roboverse
 
 The config file are designed for each experiment
-For the meaning of command, you can refer to the documentation of Roboconfig
+For the meaning of command, you can refer to the documentation of Roboverse and MetaSim
 
 You can follow our instruction and edit the config file for new Dataset 
 
-
-You can use export_urdf_to_omnisim_config to generate urdf and simulation from Robostudio to Omnisim
-
-You can use omni2gs_config to load the policy result from Omnisim to Gaussian Splatting
 
 
 
@@ -445,28 +433,12 @@ TODO
 
 # Acknowledgement
 We want to thanks for the great help from Zitong Zhan, Ruilong Li, Junchen Liu, Zirui Wu,Haoran Geng,Yanfei Li, Runyi Yang, Yuantao Chen, Zhide Zhong, and Baijun Ye.
-This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu and Professor Yaqin Zhang.
+This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu 
 
 
 # Future Work
-## Full Backward engine
-We design a backward engine respect to kinematic and dynamic and we test it on the optimization of mass of object. But we find that our experiment is unfair and the kinematic of robotic arm is not good enough by backward. We will keep working on this and release it in future.
 
-## End-to-end semantic tools
-Release before 2025.1.1 due to potential progress in Gaussian based semantic labeling
+The nerfstudio is too heavy, so we develop a new version based on gsplat and we will release that version shortly.
 
-## Motion-retargeting
-We find the the editing functionality of our work can be used for motion retargeting 
-We will release this part by 2024.12.01
-
-## 4D interactable viewer 
-Current 4D Gaussian Viewer cannot perform our full functionality, so we are designing a custom viewer and make it compatible with OmniSim.
-
-## 6 DOF tracking
-In traditional Reinforcement Learning pipeline, we use pixel level object tracking.
-However, recent work like foundationpose reveal the possibility of video based object 6 DOF tracking
-Our Gaussian-Pixel-Mesh binding can help to build up consistency between 6 DOF tracking. policy and rendering.
-
-## More supported Simulation like articulated object, soft body and etc...
-
+This repo is a very early stage version, so there are lot of issues and varibles. We have fixed it in our new version. 
 
