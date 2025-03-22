@@ -3,7 +3,7 @@ import subprocess
 import sys
 
 # Set the directory containing the images
-directory = '/home/lou/Downloads/zero_pose/pro'
+directory = ''
 
 # Get a list of files in the directory
 files = os.listdir(directory)

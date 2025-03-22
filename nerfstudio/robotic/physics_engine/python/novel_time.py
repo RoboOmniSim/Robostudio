@@ -10,8 +10,6 @@ from nerfstudio.robotic.kinematic.uniform_kinematic import *
 # this aims to use the physics equation to get the interpolated transformation matrix of each joint and object, then trace it back to the kinematic
 
 
-from nerfstudio.robotic.physics_engine.python.backward import *
-
 
 def transformation_2_quaternion(transformation):
     """

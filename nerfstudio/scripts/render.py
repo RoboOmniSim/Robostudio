@@ -62,7 +62,6 @@ from nerfstudio.utils.scripts import run_command
 from nerfstudio.robotic.utils.utils import load_transformation_package, relative_tf_to_global
 from nerfstudio.robotic.render_util.gaussian_fuse import *
 from nerfstudio.robotic.utils.mesh_gaussian import mesh_gaussian_binding
-from nerfstudio.robotic.utils.resamplemesh import *
 import open3d as o3d
 import trimesh
 from nerfstudio.robotic.render_util.graphic_utils import *
@@ -1118,13 +1117,8 @@ class dynamicDatasetRender(RoboBaseRender):
 
         # simulation
         engine_backend=roboconfig.engine_backend
-        if engine_backend=="omnisim":
-            # load trajectory from omnisim
-            relationship_config=None
-            omnisim_config=None
-            # load_object_trajectory(omnisim_config)
-            # load_robotic_trajectory(omnisim_config)
-        elif engine_backend=="python":
+
+        if engine_backend=="python":
             relationship_config=load_yaml_config(roboconfig.relationship_config_path)
             engine_ids=roboconfig.semantic_category
             assigned_ids=roboconfig.assigned_ids

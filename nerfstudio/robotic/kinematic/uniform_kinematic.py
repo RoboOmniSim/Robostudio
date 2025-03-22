@@ -8,6 +8,7 @@ import os
 from nerfstudio.robotic.kinematic.gripper_utils import reflect_x_axis,reflect_y_axis,reflect_z_axis
 
 from nerfstudio.robotic.kinematic.control_helper import *
+from nerfstudio.robotic.kinematic.uniform_kinematic import *
 
 
 

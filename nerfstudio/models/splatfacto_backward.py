@@ -51,12 +51,10 @@ from nerfstudio.utils.rich_utils import CONSOLE
 
 from nerfstudio.robotic.render_util.gaussian_fuse import *
 from nerfstudio.robotic.utils.mesh_gaussian import mesh_gaussian_binding
-from nerfstudio.robotic.utils.resamplemesh import *
 import open3d as o3d
 import trimesh
 from nerfstudio.robotic.render_util.graphic_utils import *
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-from nerfstudio.robotic.physics_engine.python.backward import *
 from nerfstudio.robotic.export_util.sam_util.mask_reproject import *
 from nerfstudio.robotic.icp_utils.custom_knn import knn, knn_pt2mesh, knn_mesh2pt
 # render helper functions
@@ -75,7 +73,6 @@ from nerfstudio.robotic.physics_engine.base import semantic_category_engine_conf
 import pypose as pp
 
 
-from nerfstudio.robotic.physics_engine.python.backward import optimize_photometrix
 
 
 def random_quat_tensor(N):

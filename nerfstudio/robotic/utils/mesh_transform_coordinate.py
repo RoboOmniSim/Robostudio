@@ -38,7 +38,5 @@ def transform_mesh(path):
 
 if __name__ == '__main__':
 
-
-
-    path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/urdf/mesh'
+    path=''
     transform_mesh(path)

@@ -174,10 +174,10 @@ ns-export gaussian-splat-mesh
 
 
 
-### load trajectory from omnisim or real world application
+### load trajectory from simulator or real world application
 
 
-Roboverse or Moveit 
+Roboverse(metasim) or Moveit or Trajectory from custom simulator
 
 We provide the exported result in the dataset, if you want to export based on your moveit scenes, 
 you can follow the scripts in Robostudio/nerfstudio/robotic/ros

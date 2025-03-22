@@ -47,12 +47,10 @@ from nerfstudio.utils.rich_utils import CONSOLE
 # import pytorch3d  
 from nerfstudio.robotic.render_util.gaussian_fuse import *
 from nerfstudio.robotic.utils.mesh_gaussian import mesh_gaussian_binding
-from nerfstudio.robotic.utils.resamplemesh import *
 import open3d as o3d
 import trimesh
 from nerfstudio.robotic.render_util.graphic_utils import *
 from nerfstudio.robotic.kinematic.uniform_kinematic import *
-from nerfstudio.robotic.physics_engine.python.backward import *
 
 # render helper functions
 

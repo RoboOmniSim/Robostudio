@@ -13,7 +13,6 @@ from nerfstudio.robotic.kinematic.uniform_kinematic import *
 from scipy.spatial.transform import Rotation as R
 
 import pypose as pp
-from nerfstudio.robotic.physics_engine.python.backward import *
 from nerfstudio.robotic.export_util.urdf_utils.urdf_helper import find_lower_plane_center
 
 def compute_torque(force, application_point):
@@ -436,82 +435,6 @@ def example_push(dt):
 
 
 
-
-def example_push_backward(dt):
-       # Box properties
-    mass = 10  # mass of the box
-    # dimensions = [1.0, 1.0, 1.0]  # dimensions of the box (width, height, depth)
-    center_of_mass=np.array([0,0,0])
-    # for push case:
-    # gripper_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/gripper_convex.obj' # id 7
-    object_mesh_path='./Robostudio/dataset/push_box/part/object/box_convex.obj'  # id 8 
-    # ground_mesh_path='/home/lou/gs/nerfstudio/exports/splat/no_downscale/group1_bbox_fix/object_convex/table_convex.obj'
-
-    # gripper_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/gripper_convex.obj'
-    # object_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/box_convex.obj'
-    # ground_mesh_path='/home/lou/Downloads/gripper_movement/gripper_part_asset/splat_operation_obj/object_mesh/table_convex.obj'
-
-    mesh_object = trimesh.load(object_mesh_path)
-    # mesh_ground = trimesh.load(ground_mesh_path)
-    # gripper_mesh = trimesh.load(gripper_mesh_path)
-
-    bb=mesh_object.bounding_box_oriented
-
-    corners=trimesh.bounds.corners(mesh_object.bounding_box_oriented.bounds)
-
-    recenter_vector=find_lower_plane_center(corners)
-
-    dimensions=bb.extents
-
-    bb_recentered=mesh_object.bounding_box_oriented
-    center_of_mass=bb_recentered.centroid
-    # Compute the moment of inertia
-    moment_of_inertia = compute_moment_of_inertia(mass, dimensions)
-    force=np.array([0.1,0,0])
-
-
-    simulation_position=np.array([0.0, 0.0, 0.013])
-    # Given torque applied (for example purposes)
-    force_position = center_of_mass+ simulation_position # torque vector
-    torque=compute_torque(force, force_position)  # torque vector
-    # Time step for integration
-
-
-    # Compute angular acceleration
-    angular_acceleration = compute_angular_acceleration(torque, moment_of_inertia)
-
-    # Integrate angular acceleration to get angular velocity
-    angular_velocity = integrate_angular_acceleration(angular_acceleration, dt)
-
-    fulfrum_position=np.array([0,0,0]) # the position of the fulcrum
-    # force_position=np.array([1,0,0])
-    
-
-    # Position vector of the point where you want to compute the linear velocity
-    position_vector = force_position- fulfrum_position
-
-    linear_velocity = compute_linear_velocity(angular_velocity, position_vector)
-
-
-    new_rotation_matrix, translation_vector=leverage_simulation(mesh_object,center_of_mass,fulfrum_position,linear_velocity,angular_velocity,dt)
-    
-    trans=concat_transformation(new_rotation_matrix, translation_vector)
-
-    eye_rotate=np.eye(3)
-
-    back=concat_transformation(eye_rotate, -simulation_position)
-
-
-
-
-
-    pts_optimized,velocity,optimized_pose=backward_rigid(xyz,trans,back,uv,depth,projection_matrix,view_mat,dt)
-
-
-    recenter_back_vector=recenter_vector
-
-
-    return recenter_vector,new_rotation_matrix, translation_vector,simulation_position
 
 
 
