@@ -392,37 +392,6 @@ You can follow our instruction and edit the config file for new Dataset
 
 
 
-<!-- # Built On
-<a href="https://github.com/nerfstudio-project/nerfstudio">
-<picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nerfstudio-project/nerfstudio/main/docs/_static/imgs/logo-dark-ns.png" />
-    <img alt="tyro logo" src="https://raw.githubusercontent.com/nerfstudio-project/nerfstudio/main/docs/_static/imgs/logo-ns.png" width="150px" />
-</picture>
-</a> -->
-
- 
-<!-- # Citation
-
-TODO
-You can find a paper writeup of the framework on [arXiv](https://arxiv.org/abs/2302.04264).
-
-If you use this library or find the documentation useful for your research, please consider citing:
-
-TODO
-```
-@inproceedings{nerfstudio,
-	title        = {Nerfstudio: A Modular Framework for Neural Radiance Field Development},
-	author       = {
-		Tancik, Matthew and Weber, Ethan and Ng, Evonne and Li, Ruilong and Yi, Brent
-		and Kerr, Justin and Wang, Terrance and Kristoffersen, Alexander and Austin,
-		Jake and Salahi, Kamyar and Ahuja, Abhik and McAllister, David and Kanazawa,
-		Angjoo
-	},
-	year         = 2023,
-	booktitle    = {ACM SIGGRAPH 2023 Conference Proceedings},
-	series       = {SIGGRAPH '23}
-}
-``` -->
 
 
 
@@ -435,5 +404,4 @@ This pipeline inspired from the talk of Professor Hao Su, Professor Hongjing Lu
 
 The nerfstudio is too heavy, so we develop a new version based on gsplat and we will release that version shortly.
 
-This repo is a very early stage version, so there are lot of issues and varibles. We have fixed it in our new version. 
 
