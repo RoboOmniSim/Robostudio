@@ -1,4 +1,4 @@
-<div align="center"><h2>RoboStudio: A Physics Consistent World Model for Robotic Arm with Hybrid Representation</h2></div>
+<div align="center"><h2>Robo-gs: A physics consistent spatial-temporal model for robotic arm with hybrid representation</h2></div>
 
  
 <p align="center">
@@ -30,7 +30,8 @@
 
 # About
 
-_It’s as simple as plug and play with robostudio!_
+This work aims to model the robotic arm and gripper with real time 4d rendering and editing.
+The key idea is how to generate the digital asset from Monocular Video.
 
 
 # Quickstart
